@@ -283,6 +283,7 @@ namespace P3D {
         float color[] {0.0f, 0.0f, 0.0f, 1.0f};
         context->ClearRenderTargetView(renderTargetView, color);
         context->ClearDepthStencilView(depthView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f ,0);
+        context->OMSetRenderTargets(1, &renderTargetView, depthView);
     }
 
     bool Direct3D::Present() {
@@ -369,5 +370,13 @@ namespace P3D {
         }
 
         // Model is definitely initialized, feel free to render!
+
+        UINT stride = sizeof(Vertex);
+        UINT offset = 0;
+
+        context->IASetVertexBuffers(0, 1, &mdl->vertexBuffer, &stride, &offset);
+        context->IASetIndexBuffer(mdl->indexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+        context->DrawIndexed(mdl->indexCount, 0, 0);
     }
 }

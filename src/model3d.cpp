@@ -5,22 +5,27 @@
 namespace P3D {
 
     bool Model3D::Initialize(Direct3D* direct3D) {
-        initialized = false;
-
         vertexBuffer = direct3D->CreateVertexBuffer(vertices, vertexCount);
 
         if(vertexBuffer == nullptr) {
-            return initialized;
+            initialized = false;
+            return false;
         }
 
-        unsigned int* indices = new unsigned int[vertexCount];
+        indices = new unsigned int[vertexCount];
+        indexCount = vertexCount;
 
         // This is very naive, no?
         for(int i = 0; i < vertexCount; i++) {
             indices[i] = i;
         }
 
-        indexBuffer = direct3D->CreateIndexBuffer(indices, vertexCount);
+        indexBuffer = direct3D->CreateIndexBuffer(indices, indexCount);
+
+        if(indexBuffer == nullptr) {
+            initialized = false;
+            return false;
+        }
 
         initialized = true;
 

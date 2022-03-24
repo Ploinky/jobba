@@ -12,10 +12,12 @@ namespace P3D {
 
             Vertex* vertices;
             uint32_t vertexCount;
-            
-        private:
-            bool initialized = false;
+            unsigned int* indices;
+            uint32_t indexCount;
             ID3D11Buffer* vertexBuffer;
             ID3D11Buffer* indexBuffer;
+
+        private:
+            bool initialized = false;
     };
 }
