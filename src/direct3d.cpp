@@ -356,6 +356,24 @@ namespace P3D {
         }
     }
 
+    void Direct3D::CreateInputLayout() {
+        // Where to set this?
+        context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+        // Describes the input layout
+        D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[] = {
+            {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+            {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+        };
+
+        void* shaderByteCode;
+
+        // Currently only one input element
+        UINT numElements = 1;
+
+        HRESULT hr = device->CreateInputLayout(inputLayoutDesc, numElements, shaderByteCode, 0, &inputLayout);
+    }
+
     void Direct3D::Render(Model3D* mdl) {
         // Is there a better way to do this?
         Model3D* model = (Model3D*) mdl;
@@ -374,6 +392,7 @@ namespace P3D {
         UINT stride = sizeof(Vertex);
         UINT offset = 0;
 
+        context->IASetInputLayout(inputLayout);
         context->IASetVertexBuffers(0, 1, &mdl->vertexBuffer, &stride, &offset);
         context->IASetIndexBuffer(mdl->indexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
