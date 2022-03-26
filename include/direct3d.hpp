@@ -51,6 +51,7 @@ namespace P3D {
         IDXGISwapChain* swapChain;
         ID3D11InputLayout* inputLayout;
         ID3D11VertexShader* vertexShader;
+        ID3D11PixelShader* pixelShader;
         HWND windowHandle;
 
         // Creates the Direct3D device and context

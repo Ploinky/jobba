@@ -371,8 +371,10 @@ namespace P3D {
         };
 
         file_t shaderByteCode = Util::ReadBytesFromFile("D:/Projects/jobba/build/shaders/vertex.cso");
+        file_t psByteCode = Util::ReadBytesFromFile("D:/Projects/jobba/build/shaders/pixel.cso");
 
         device->CreateVertexShader(shaderByteCode.data, shaderByteCode.size, nullptr, &vertexShader);
+        device->CreatePixelShader(psByteCode.data, psByteCode.size, nullptr, &pixelShader);
 
         // Currently only one input element
         UINT numElements = 1;
