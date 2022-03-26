@@ -50,6 +50,7 @@ namespace P3D {
         ID3D11DepthStencilView* depthView;
         IDXGISwapChain* swapChain;
         ID3D11InputLayout* inputLayout;
+        ID3D11VertexShader* vertexShader;
         HWND windowHandle;
 
         // Creates the Direct3D device and context

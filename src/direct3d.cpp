@@ -5,6 +5,7 @@
 #include <comdef.h>
 #include <sstream>
 #include <type_traits>
+#include "util.hpp"
 
 namespace P3D {
     bool Direct3D::Initialize(HWND windowHandle) {
@@ -33,6 +34,8 @@ namespace P3D {
         if(!CreateDepthBuffer()) {
             return false;
         }
+
+        CreateInputLayout();
 
         // Further setup of rendering resources
 
@@ -366,12 +369,15 @@ namespace P3D {
             {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
         };
 
-        void* shaderByteCode;
+        file_t shaderByteCode = Util::ReadBytesFromFile("D:/Projects/jobba/build/shaders/vertex.cso");
+
+        Logger::Err(std::to_string(shaderByteCode.size));
+        device->CreateVertexShader(shaderByteCode.data, shaderByteCode.size + 1, 0, &vertexShader);
 
         // Currently only one input element
         UINT numElements = 1;
 
-        HRESULT hr = device->CreateInputLayout(inputLayoutDesc, numElements, shaderByteCode, 0, &inputLayout);
+        HRESULT hr = device->CreateInputLayout(inputLayoutDesc, numElements, shaderByteCode.data, shaderByteCode.size, &inputLayout);
     }
 
     void Direct3D::Render(Model3D* mdl) {
@@ -395,6 +401,8 @@ namespace P3D {
         context->IASetInputLayout(inputLayout);
         context->IASetVertexBuffers(0, 1, &mdl->vertexBuffer, &stride, &offset);
         context->IASetIndexBuffer(mdl->indexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+        context->VSSetShader(vertexShader, 0, 0);
 
         context->DrawIndexed(mdl->indexCount, 0, 0);
     }
