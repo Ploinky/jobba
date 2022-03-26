@@ -4,6 +4,7 @@
 #include "vertex.hpp"
 #include <comdef.h>
 #include <sstream>
+#include <vector>
 #include <type_traits>
 #include "util.hpp"
 
@@ -371,8 +372,7 @@ namespace P3D {
 
         file_t shaderByteCode = Util::ReadBytesFromFile("D:/Projects/jobba/build/shaders/vertex.cso");
 
-        Logger::Err(std::to_string(shaderByteCode.size));
-        device->CreateVertexShader(shaderByteCode.data, shaderByteCode.size + 1, 0, &vertexShader);
+        device->CreateVertexShader(shaderByteCode.data, shaderByteCode.size, nullptr, &vertexShader);
 
         // Currently only one input element
         UINT numElements = 1;

@@ -1,8 +1,10 @@
 #include <string>
+#include <vector>
+#include <cstddef>
 
 namespace P3D {
     struct file_t {
-        char* data;
+        unsigned char* data;
         size_t size;
     };
 

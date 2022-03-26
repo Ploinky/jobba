@@ -1,20 +1,31 @@
 #include <fstream>
 #include "util.hpp"
+#include "logger.hpp"
+#include <cstddef>
 
 namespace P3D {
     file_t Util::ReadBytesFromFile(std::string fileName) {
-        std::ifstream file(fileName);
+		unsigned char* f = 0;
 
-        file.seekg(0, std::ios::end);
+		// open the file
+		std::ifstream file(fileName, std::ios::in | std::ios::binary | std::ios::ate);
 
-        size_t length = file.tellg();
+		// if open was successful
+		if (file.is_open())
+		{
+			// find the length of the file
+			size_t length = file.tellg();
+            
+			// collect the file data
+			f = new unsigned char[length];
+			file.seekg(0, std::ios::beg);
+			file.read(reinterpret_cast<char*>(f), length);
+			file.close();
+		    
+            return {f, length};
+		}
 
-        file.seekg(0, std::ios::beg);
-
-        char* buff = new char[length];
-
-        file.read(buff, length);
-
-        return {buff, length};
+        Logger::Err("Could not load shader file!");
+        return {0, 0};
     }
 }
