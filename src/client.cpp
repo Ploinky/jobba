@@ -27,9 +27,9 @@ namespace P3D {
         }
 
         Model3D* model = new Model3D();
-        Vertex vert[] = { Vertex{{-0.5, -0.5, 0}, {255, 0, 0, 255}},
-            Vertex{{0, 0.5, 0}, {0, 255, 0, 255}},
-            Vertex{{0.5, -0.5, 0}, {0, 0, 255, 255}}
+        Vertex vert[] = { Vertex{{-0.5, -0.5, 0.1}, {255, 0, 0, 255}},
+            Vertex{{0, 0.5, 0.1}, {0, 255, 0, 255}},
+            Vertex{{0.5, -0.5, 0.1}, {0, 0, 255, 255}}
         };
         model->vertices = vert;
         model->vertexCount = 3;

@@ -379,7 +379,7 @@ namespace P3D {
         // Currently only one input element
         UINT numElements = 1;
 
-        HRESULT hr = device->CreateInputLayout(inputLayoutDesc, numElements, shaderByteCode.data, shaderByteCode.size, &inputLayout);
+        HRESULT hr = device->CreateInputLayout(inputLayoutDesc, 2, shaderByteCode.data, shaderByteCode.size, &inputLayout);
     }
 
     void Direct3D::Render(Model3D* mdl) {
@@ -400,12 +400,14 @@ namespace P3D {
         UINT stride = sizeof(Vertex);
         UINT offset = 0;
 
+        context->VSSetShader(vertexShader, 0, 0);
+        context->PSSetShader(pixelShader, 0, 0);
         context->IASetInputLayout(inputLayout);
+      
+        context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         context->IASetVertexBuffers(0, 1, &mdl->vertexBuffer, &stride, &offset);
         context->IASetIndexBuffer(mdl->indexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
-        context->VSSetShader(vertexShader, 0, 0);
-
-        context->DrawIndexed(mdl->indexCount, 0, 0);
+        context->Draw(mdl->indexCount, 0);
     }
 }
