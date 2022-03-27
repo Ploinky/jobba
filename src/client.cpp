@@ -31,9 +31,9 @@ namespace P3D {
         renderer->Initialize(direct3D);
 
         Model3D* model = new Model3D();
-        Vertex vert[] = { Vertex{{-0.5, -0.5, 0.1}, {1.0f, 0, 0, 1}},
-            Vertex{{0, 0.5, 0.1}, {0, 1.0f, 0, 1}},
-            Vertex{{0.5, -0.5, 0.1}, {0, 0, 1.0f, 1}}
+        Vertex vert[] = { Vertex{{-10, -10, 100.1f}, {1.0f, 0, 0, 1}},
+            Vertex{{0, 10, 100.1f}, {0, 1.0f, 0, 1}},
+            Vertex{{10, -10, 100.1f}, {0, 0, 1.0f, 1}}
         };
         model->vertices = vert;
         model->vertexCount = 3;
