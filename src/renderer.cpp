@@ -4,14 +4,14 @@
 #include "vertex.hpp"
 #include "direct3d.hpp"
 #include "util.hpp"
-#include <DirectXMath.h>
+
 namespace P3D {
     static DirectX::XMMATRIX perspMatrix;
 
     void Renderer::Initialize(Direct3D* direct3D) {
         this->direct3D = direct3D;
 
-        perspMatrix = DirectX::XMMatrixPerspectiveFovLH(70, 1 / 1, 0.0001f, 1000);
+        perspMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(70), 1 / 1, 0.0001f, 1000);
 
         // Where to set this?
         direct3D->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -30,16 +30,10 @@ namespace P3D {
 
         direct3D->device->CreateInputLayout(inputLayoutDesc, 2, shaderByteCode.data, shaderByteCode.size, &inputLayout);
 
-        struct VS_CONST_BUFFER {
-            DirectX::XMFLOAT4X4 projMatrix;
-        };
-
-        VS_CONST_BUFFER vsConstData;
-
         DirectX::XMStoreFloat4x4(&vsConstData.projMatrix, perspMatrix);
         
         D3D11_BUFFER_DESC desc;
-        desc.ByteWidth = sizeof(VS_CONST_BUFFER);
+        desc.ByteWidth = sizeof(constant_buffer);
         desc.Usage = D3D11_USAGE_DYNAMIC;
         desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
