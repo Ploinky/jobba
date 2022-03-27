@@ -49,7 +49,6 @@ namespace P3D {
         wc.lpszClassName = className;
         wc.hIconSm = wc.hIcon;
 
-        DEVMODE dmScreenSettings;
         int posX, posY;
         int width = 1024;
         int height = 800;

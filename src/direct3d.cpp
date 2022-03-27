@@ -376,10 +376,7 @@ namespace P3D {
         device->CreateVertexShader(shaderByteCode.data, shaderByteCode.size, nullptr, &vertexShader);
         device->CreatePixelShader(psByteCode.data, psByteCode.size, nullptr, &pixelShader);
 
-        // Currently only one input element
-        UINT numElements = 1;
-
-        HRESULT hr = device->CreateInputLayout(inputLayoutDesc, 2, shaderByteCode.data, shaderByteCode.size, &inputLayout);
+        device->CreateInputLayout(inputLayoutDesc, 2, shaderByteCode.data, shaderByteCode.size, &inputLayout);
     }
 
     void Direct3D::Render(Model3D* mdl) {
