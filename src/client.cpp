@@ -6,6 +6,8 @@
 #include "model3d.hpp"
 #include "vertex.hpp"
 #include "logger.hpp"
+#include "direct3d.hpp"
+#include "renderer.hpp"
 
 namespace P3D {
     void Client::Run() {
@@ -15,10 +17,23 @@ namespace P3D {
         Window* window = new Window();
         window->Show();
 
+        // ----- Initialize Direct3D -----
+        // Must be done after window is showing, otherwise swap chain creation fails
+        direct3D = new Direct3D();
+
+        // Immediately close window if initialization of Direct3D fails
+        if (!direct3D->Initialize(window->GetWindowHandle())) {
+            Logger::Err("Direct3D initialization failed, P3D will quit.");
+            window->SetShouldClose();
+        }
+
+        renderer = new Renderer();
+        renderer->Initialize(direct3D);
+
         Model3D* model = new Model3D();
-        Vertex vert[] = { Vertex{{-0.5, -0.5, 0}, {255, 0, 0, 255}},
-            Vertex{{0, 0.5, 0}, {0, 255, 0, 255}},
-            Vertex{{0.5, -0.5, 0}, {0, 0, 255, 255}}
+        Vertex vert[] = { Vertex{{-10, -10, 100.1f}, {1.0f, 0, 0, 1}},
+            Vertex{{0, 10, 100.1f}, {0, 1.0f, 0, 1}},
+            Vertex{{10, -10, 100.1f}, {0, 0, 1.0f, 1}}
         };
         model->vertices = vert;
         model->vertexCount = 3;
@@ -28,11 +43,25 @@ namespace P3D {
         isRunning = true;
         while(isRunning && !window->ShouldClose()) {
             window->HandleEvents();
-            window->BeginRender();
-            window->Render(model);
-            window->FinishRender();
+            BeginRender();
+            Render(model);
+            FinishRender();
         }
 
         Logger::Msg("Game loop has been stopped.");
     }
+    
+
+    void Client::BeginRender() {
+        direct3D->ClearScreen();
+    }
+
+    void Client::Render(Model3D* model) {
+        renderer->Render(model);
+    }
+
+    void Client::FinishRender() {
+        direct3D->Present();
+    }
+
 }

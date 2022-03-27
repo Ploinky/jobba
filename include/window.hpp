@@ -9,6 +9,8 @@ namespace P3D {
     public:
         Window();
         ~Window();
+
+        HWND GetWindowHandle();
         
         // ----- General window methods -----
         // Show window on screen
@@ -18,19 +20,12 @@ namespace P3D {
         void HandleEvents();
         // Will return true whenever the window wants to close or is already closed
         bool ShouldClose();
-        // Clears the screen and/or prepares rendering
-        void BeginRender();
-        // Render the specified 3D model to the screen
-        void Render(Model3D* model);
-        // Final rendering operations and presents the rendered image to the screen
-        void FinishRender();
 
         // ----- Windows specific window methods -----
         // Set value of 'shouldClose' to true. Can not be reversed -> window WILL close and P3D WILL quit!
         void SetShouldClose();
 
     private:
-        Direct3D *direct3D;
         HWND windowHandle;
         bool shouldClose;
     };

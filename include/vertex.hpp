@@ -1,8 +1,9 @@
 // Structure for a single vertex
 namespace P3D {
-    struct Vertex
+    class Vertex
     {
+    public:
         float position[3];
-        unsigned char color[4];
+        float color[4];
     };
 }

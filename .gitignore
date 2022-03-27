@@ -1,2 +1,5 @@
 # Project specific
 build/
+
+# Visual Studio
+.vscode

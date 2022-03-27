@@ -49,7 +49,6 @@ namespace P3D {
         wc.lpszClassName = className;
         wc.hIconSm = wc.hIcon;
 
-        DEVMODE dmScreenSettings;
         int posX, posY;
         int width = 1024;
         int height = 800;
@@ -90,18 +89,6 @@ namespace P3D {
         }
 
         ShowWindow(windowHandle, SW_SHOW);
-
-        // ----- Initialize Direct3D -----
-        // Must be done after window is showing, otherwise swap chain creation fails
-        direct3D = new Direct3D();
-
-        // Immediately close window if initialization of Direct3D fails
-        if (!direct3D->Initialize(windowHandle)) {
-            Logger::Err("Direct3D initialization failed, P3D will quit.");
-            SetShouldClose();
-            // Nothing further to be done -> avoid followup errors!
-            return;
-        }
     }
 
     Window::~Window() {
@@ -130,16 +117,8 @@ namespace P3D {
     void Window::SetShouldClose() {
         shouldClose = true;
     }
-
-    void Window::BeginRender() {
-        direct3D->ClearScreen();
-    }
-
-    void Window::Render(Model3D* model) {
-        direct3D->Render(model);
-    }
-
-    void Window::FinishRender() {
-        direct3D->Present();
+    
+    HWND Window::GetWindowHandle() {
+        return windowHandle;
     }
 }

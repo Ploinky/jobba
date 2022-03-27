@@ -42,14 +42,14 @@ namespace P3D {
         
         // Render the specified model to the screen
         void Render(Model3D* model);
-
-    private:
+        
         ID3D11Device* device;
         ID3D11DeviceContext* context;
+
+    private:
         ID3D11RenderTargetView* renderTargetView;
         ID3D11DepthStencilView* depthView;
         IDXGISwapChain* swapChain;
-        ID3D11InputLayout* inputLayout;
         HWND windowHandle;
 
         // Creates the Direct3D device and context
@@ -65,7 +65,5 @@ namespace P3D {
         // Sets the viewport to take up the entirety of the window
         // Must be called every time the window is resized
         void SetViewport();
-        // Create Input Layout for graphics pipeline
-        void CreateInputLayout();
     };
 }
