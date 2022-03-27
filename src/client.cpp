@@ -7,6 +7,7 @@
 #include "vertex.hpp"
 #include "logger.hpp"
 #include "direct3d.hpp"
+#include "renderer.hpp"
 
 namespace P3D {
     void Client::Run() {
@@ -25,6 +26,9 @@ namespace P3D {
             Logger::Err("Direct3D initialization failed, P3D will quit.");
             window->SetShouldClose();
         }
+
+        renderer = new Renderer();
+        renderer->Initialize(direct3D);
 
         Model3D* model = new Model3D();
         Vertex vert[] = { Vertex{{-0.5, -0.5, 0.1}, {1.0f, 0, 0, 1}},
@@ -53,7 +57,7 @@ namespace P3D {
     }
 
     void Client::Render(Model3D* model) {
-        direct3D->Render(model);
+        renderer->Render(model);
     }
 
     void Client::FinishRender() {

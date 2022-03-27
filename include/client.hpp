@@ -4,6 +4,7 @@ namespace P3D {
     // Forward declarations
     class Model3D;
     class Direct3D;
+    class Renderer;
     
     class Client {
     public:
@@ -12,6 +13,7 @@ namespace P3D {
     private:
         bool isRunning;
         Direct3D* direct3D;
+        Renderer* renderer;
 
         // Clears the screen and/or prepares rendering
         void BeginRender();

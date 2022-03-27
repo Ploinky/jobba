@@ -35,9 +35,7 @@ namespace P3D {
         if(!CreateDepthBuffer()) {
             return false;
         }
-
-        CreateInputLayout();
-
+        
         // Further setup of rendering resources
 
         // Bind views to output merger stage
@@ -358,53 +356,5 @@ namespace P3D {
         } else {
             return buffer;
         }
-    }
-
-    void Direct3D::CreateInputLayout() {
-        // Where to set this?
-        context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-        // Describes the input layout
-        D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[] = {
-            {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-            {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
-        };
-
-        file_t shaderByteCode = Util::ReadBytesFromFile("D:/Projects/jobba/build/shaders/vertex.cso");
-        file_t psByteCode = Util::ReadBytesFromFile("D:/Projects/jobba/build/shaders/pixel.cso");
-
-        device->CreateVertexShader(shaderByteCode.data, shaderByteCode.size, nullptr, &vertexShader);
-        device->CreatePixelShader(psByteCode.data, psByteCode.size, nullptr, &pixelShader);
-
-        device->CreateInputLayout(inputLayoutDesc, 2, shaderByteCode.data, shaderByteCode.size, &inputLayout);
-    }
-
-    void Direct3D::Render(Model3D* mdl) {
-        // Is there a better way to do this?
-        Model3D* model = (Model3D*) mdl;
-
-        // Lazy initialize the model's Direct3D resources
-        if(!model->IsInitialized()) {
-            if(!model->Initialize(this)) {
-                Logger::Err("Failed to initialize 3D model!");
-                // Maybe quit here?
-                return;
-            }
-        }
-
-        // Model is definitely initialized, feel free to render!
-
-        UINT stride = sizeof(Vertex);
-        UINT offset = 0;
-
-        context->VSSetShader(vertexShader, 0, 0);
-        context->PSSetShader(pixelShader, 0, 0);
-        context->IASetInputLayout(inputLayout);
-      
-        context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-        context->IASetVertexBuffers(0, 1, &mdl->vertexBuffer, &stride, &offset);
-        context->IASetIndexBuffer(mdl->indexBuffer, DXGI_FORMAT_R16_UINT, 0);
-
-        context->Draw(mdl->indexCount, 0);
     }
 }
