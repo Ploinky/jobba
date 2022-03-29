@@ -32,7 +32,8 @@ namespace P3D {
 
         perspMatrix = DirectX::XMMatrixTranspose(perspMatrix);
         DirectX::XMStoreFloat4x4(&frameConstBuffer.projMatrix, perspMatrix);
-        DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-20, 20, 0)));
+        DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(-20, 20, 90))));
+        DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-20, 20, 100)));
         
         D3D11_BUFFER_DESC desc;
         desc.ByteWidth = sizeof(object_constant_buffer);
@@ -44,21 +45,13 @@ namespace P3D {
 
         D3D11_SUBRESOURCE_DATA data;
         data.pSysMem = &vsConstData;
-        data.SysMemPitch = 0;
-        data.SysMemSlicePitch = 0;
 
         direct3D->device->CreateBuffer(&desc, &data, &constantBuffer);
         
         desc.ByteWidth = sizeof(frame_constant_buffer);
         desc.Usage = D3D11_USAGE_DYNAMIC;
-        desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        desc.MiscFlags = 0;
-        desc.StructureByteStride = 0;
 
         data.pSysMem = &frameConstBuffer;
-        data.SysMemPitch = 0;
-        data.SysMemSlicePitch = 0;
 
         direct3D->device->CreateBuffer(&desc, &data, &frameConstantBuffer);
     }

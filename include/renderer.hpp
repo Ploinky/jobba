@@ -11,6 +11,7 @@ namespace P3D {
 
     struct frame_constant_buffer {
         DirectX::XMFLOAT4X4 projMatrix;
+        DirectX::XMFLOAT4X4 cameraMatrix;
     };
 
     class Renderer {
