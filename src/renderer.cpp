@@ -30,7 +30,9 @@ namespace P3D {
 
         direct3D->device->CreateInputLayout(inputLayoutDesc, 2, shaderByteCode.data, shaderByteCode.size, &inputLayout);
 
+        perspMatrix = DirectX::XMMatrixTranspose(perspMatrix);
         DirectX::XMStoreFloat4x4(&vsConstData.projMatrix, perspMatrix);
+        DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-20, 20, 0)));
         
         D3D11_BUFFER_DESC desc;
         desc.ByteWidth = sizeof(constant_buffer);
@@ -62,6 +64,8 @@ namespace P3D {
 
         UINT stride = sizeof(Vertex);
         UINT offset = 0;
+        
+        DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranslation(model->position.x, model->position.y, model->position.z));
 
         direct3D->context->VSSetShader(vertexShader, 0, 0);
         direct3D->context->VSSetConstantBuffers(0, 1, &constantBuffer);

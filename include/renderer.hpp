@@ -7,6 +7,7 @@ namespace P3D {
 
     struct constant_buffer {
         DirectX::XMFLOAT4X4 projMatrix;
+        DirectX::XMFLOAT4X4 modelMatrix;
     };
 
     class Renderer {
