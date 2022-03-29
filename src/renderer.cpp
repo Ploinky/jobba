@@ -31,11 +31,11 @@ namespace P3D {
         direct3D->device->CreateInputLayout(inputLayoutDesc, 2, shaderByteCode.data, shaderByteCode.size, &inputLayout);
 
         perspMatrix = DirectX::XMMatrixTranspose(perspMatrix);
-        DirectX::XMStoreFloat4x4(&vsConstData.projMatrix, perspMatrix);
+        DirectX::XMStoreFloat4x4(&frameConstBuffer.projMatrix, perspMatrix);
         DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-20, 20, 0)));
         
         D3D11_BUFFER_DESC desc;
-        desc.ByteWidth = sizeof(constant_buffer);
+        desc.ByteWidth = sizeof(object_constant_buffer);
         desc.Usage = D3D11_USAGE_DYNAMIC;
         desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
         desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -48,6 +48,19 @@ namespace P3D {
         data.SysMemSlicePitch = 0;
 
         direct3D->device->CreateBuffer(&desc, &data, &constantBuffer);
+        
+        desc.ByteWidth = sizeof(frame_constant_buffer);
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        desc.MiscFlags = 0;
+        desc.StructureByteStride = 0;
+
+        data.pSysMem = &frameConstBuffer;
+        data.SysMemPitch = 0;
+        data.SysMemSlicePitch = 0;
+
+        direct3D->device->CreateBuffer(&desc, &data, &frameConstantBuffer);
     }
 
     void Renderer::Render(Model3D* model) {
@@ -68,7 +81,8 @@ namespace P3D {
         DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranslation(model->position.x, model->position.y, model->position.z));
 
         direct3D->context->VSSetShader(vertexShader, 0, 0);
-        direct3D->context->VSSetConstantBuffers(0, 1, &constantBuffer);
+        direct3D->context->VSSetConstantBuffers(0, 1, &frameConstantBuffer);
+        direct3D->context->VSSetConstantBuffers(1, 1, &constantBuffer);
         direct3D->context->PSSetShader(pixelShader, 0, 0);
         direct3D->context->IASetInputLayout(inputLayout);
       

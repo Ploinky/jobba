@@ -5,9 +5,12 @@ namespace P3D {
     class Model3D;
     class Direct3D;
 
-    struct constant_buffer {
-        DirectX::XMFLOAT4X4 projMatrix;
+    struct object_constant_buffer {
         DirectX::XMFLOAT4X4 modelMatrix;
+    };
+
+    struct frame_constant_buffer {
+        DirectX::XMFLOAT4X4 projMatrix;
     };
 
     class Renderer {
@@ -20,6 +23,8 @@ namespace P3D {
         ID3D11VertexShader* vertexShader;
         ID3D11PixelShader* pixelShader;
         ID3D11Buffer* constantBuffer;
-        constant_buffer vsConstData;
+        ID3D11Buffer* frameConstantBuffer;
+        object_constant_buffer vsConstData;
+        frame_constant_buffer frameConstBuffer;
     };
 }
