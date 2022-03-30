@@ -22,8 +22,8 @@ namespace P3D {
             {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
         };
 
-        file_t shaderByteCode = Util::ReadBytesFromFile("D:/Projects/jobba/build/shaders/vertex.cso");
-        file_t psByteCode = Util::ReadBytesFromFile("D:/Projects/jobba/build/shaders/pixel.cso");
+        file_t shaderByteCode = Util::ReadBytesFromFile("../shaders/vertex.cso");
+        file_t psByteCode = Util::ReadBytesFromFile("../shaders/pixel.cso");
 
         direct3D->device->CreateVertexShader(shaderByteCode.data, shaderByteCode.size, nullptr, &vertexShader);
         direct3D->device->CreatePixelShader(psByteCode.data, psByteCode.size, nullptr, &pixelShader);
