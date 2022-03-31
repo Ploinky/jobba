@@ -7,18 +7,20 @@
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
-        case WM_NCCREATE:
-        {
-            SetWindowLongPtr(hwnd, 0, lParam);
-            break;
-        }
         case WM_QUIT:
         case WM_DESTROY:
         {
-
             P3D::Logger::Msg("Windows window has been destroyed.");
-            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, 0);
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             window->SetShouldClose();
+            break;
+        }
+        case WM_SIZE:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window != nullptr) {
+                window->Resized(LOWORD(lParam), HIWORD(lParam));
+            }
             break;
         }
     }
@@ -50,17 +52,14 @@ namespace P3D {
         wc.hIconSm = wc.hIcon;
 
         int posX, posY;
-        int width = 1024;
-        int height = 800;
+        width = 1024;
+        height = 800;
 
         int screenWidth = GetSystemMetrics(SM_CXSCREEN);
         int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-        screenWidth = width;
-        screenHeight = height;
-
-        posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
-        posY = (GetSystemMetrics(SM_CYSCREEN) - screenHeight) / 2;
+        posX = (screenWidth - width) / 2;
+        posY = (screenHeight - height) / 2;
 
         RegisterClassExW(&wc);
 
@@ -81,14 +80,15 @@ namespace P3D {
                                        NULL,
                                        GetModuleHandle(NULL),
                                        NULL);
+        
+        // Save pointer to P3D::Window for WndProc to access
+        SetWindowLongPtr(windowHandle, GWLP_USERDATA, LONG_PTR(this));
 
         if (windowHandle == 0) {
             Logger::Err("WindowHandle is NULL.");
             Logger::Err(std::to_string(GetLastError()));
             return;
         }
-
-        ShowWindow(windowHandle, SW_SHOW);
     }
 
     Window::~Window() {
@@ -96,6 +96,7 @@ namespace P3D {
 
     void Window::Show() {
         Logger::Msg("Windows window showing!");
+        ShowWindow(windowHandle, SW_SHOW);
     }
 
     // Handle win32 window events
@@ -120,5 +121,14 @@ namespace P3D {
     
     HWND Window::GetWindowHandle() {
         return windowHandle;
+    }
+
+    void Window::Resized(int width, int height) {
+        this->width = width;
+        this->height = height;
+
+        if(callback != nullptr) {
+            callback();
+        }
     }
 }

@@ -15,8 +15,12 @@ namespace P3D {
 
         // Create and show window
         Window* window = new Window();
+        std::cout << "assigning callback: " << window << std::endl;
+        window->callback = []() {
+            Logger::Msg("Received window resize event");
+        };
         window->Show();
-
+        
         // ----- Initialize Direct3D -----
         // Must be done after window is showing, otherwise swap chain creation fails
         direct3D = new Direct3D();

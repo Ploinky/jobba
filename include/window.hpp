@@ -1,4 +1,6 @@
 #include <Windows.h>
+#include <functional>
+#include <vector>
 
 namespace P3D {
     // Forward declarations to avoid too many headers
@@ -12,7 +14,6 @@ namespace P3D {
 
         HWND GetWindowHandle();
         
-        // ----- General window methods -----
         // Show window on screen
         void Show();
         // Handle window events once per frame if applicable.
@@ -20,13 +21,19 @@ namespace P3D {
         void HandleEvents();
         // Will return true whenever the window wants to close or is already closed
         bool ShouldClose();
-
-        // ----- Windows specific window methods -----
         // Set value of 'shouldClose' to true. Can not be reversed -> window WILL close and P3D WILL quit!
         void SetShouldClose();
+
+        void Resized(int width, int height);
+
+        std::function<void()> callback;
 
     private:
         HWND windowHandle;
         bool shouldClose;
+        int width;
+        int height;
+
+        void Notify();
     };
 }
