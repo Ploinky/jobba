@@ -8,10 +8,19 @@
 #include "logger.hpp"
 #include "direct3d.hpp"
 #include "renderer.hpp"
+#include <DirectXMath.h>
 
 namespace P3D {
     void Client::Run() {
         Logger::Msg("Hello from general client!");
+
+        Model3D* model = new Model3D();
+        Vertex vert[] = { Vertex{{-10, -10, 0}, {1.0f, 0, 0, 1}},
+            Vertex{{0, 10, 0}, {0, 1.0f, 0, 1}},
+            Vertex{{10, -10, 0}, {0, 0, 1.0f, 1}}
+        };
+        model->vertices = vert;
+        model->vertexCount = 3;
 
         // Create and show window
         window = new Window();
@@ -32,16 +41,12 @@ namespace P3D {
             renderer->SetAspectRatio((float) window->width / (float) window->height);
         };
 
+        window->keyEvent = [model](long key) {
+            model->position.x += 0.1;
+        };
+
         renderer = new Renderer();
         renderer->Initialize(direct3D);
-
-        Model3D* model = new Model3D();
-        Vertex vert[] = { Vertex{{-10, -10, 0}, {1.0f, 0, 0, 1}},
-            Vertex{{0, 10, 0}, {0, 1.0f, 0, 1}},
-            Vertex{{10, -10, 0}, {0, 0, 1.0f, 1}}
-        };
-        model->vertices = vert;
-        model->vertexCount = 3;
         
         // Main game loop
         // Keep running while both the client wants to keep runnning and the window has not been closed

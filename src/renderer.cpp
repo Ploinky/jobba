@@ -32,8 +32,8 @@ namespace P3D {
 
         perspMatrix = DirectX::XMMatrixTranspose(perspMatrix);
         DirectX::XMStoreFloat4x4(&frameConstBuffer.projMatrix, perspMatrix);
-        DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(-20, 20, 90))));
-        DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(-20, 20, 100)));
+        DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0, 0, 0))));
+        DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0, 0, 10)));
         
         D3D11_BUFFER_DESC desc;
         desc.ByteWidth = sizeof(object_constant_buffer);
@@ -70,8 +70,16 @@ namespace P3D {
 
         UINT stride = sizeof(Vertex);
         UINT offset = 0;
+
+        DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(model->position.x, model->position.y, model->position.z)));
         
-        DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranslation(model->position.x, model->position.y, model->position.z));
+        D3D11_MAPPED_SUBRESOURCE mappedResource = {0};
+
+        direct3D->context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+
+        memcpy(mappedResource.pData, &vsConstData, sizeof(vsConstData));
+
+        direct3D->context->Unmap(constantBuffer, 0);
 
         direct3D->context->VSSetShader(vertexShader, 0, 0);
         direct3D->context->VSSetConstantBuffers(0, 1, &frameConstantBuffer);

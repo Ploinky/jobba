@@ -23,6 +23,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
             break;
         }
+        case WM_KEYDOWN:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window != nullptr) {
+                window->KeyPressed(wParam);
+            }
+            break;
+        }
     }
 
     return DefWindowProcW(hwnd, msg, wParam, lParam);
@@ -129,6 +137,12 @@ namespace P3D {
 
         if(callback != nullptr) {
             callback();
+        }
+    }
+
+    void Window::KeyPressed(long key) {
+        if(keyEvent != nullptr) {
+            keyEvent(key);
         }
     }
 }

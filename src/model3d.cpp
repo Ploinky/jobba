@@ -7,7 +7,7 @@ namespace P3D {
     bool Model3D::Initialize(Direct3D* direct3D) {
         position.x = 0;
         position.y = 0;
-        position.z = 0;
+        position.z = 10;
 
         vertexBuffer = direct3D->CreateVertexBuffer(vertices, vertexCount);
 

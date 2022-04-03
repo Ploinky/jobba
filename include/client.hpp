@@ -12,12 +12,16 @@ namespace P3D {
         virtual void Run();
 
     private:
+        // Indicates whether the Client is running and should continue running
         bool isRunning;
+        // Access to DirectX 11 resources
         Direct3D* direct3D;
+        // Access to native window 
         Window* window;
+        // Access to DirectX 11 rendering pipeline
         Renderer* renderer;
 
-        // Clears the screen and/or prepares rendering
+        // Clears the screen and prepares rendering
         void BeginRender();
         // Render the specified 3D model to the screen
         void Render(Model3D* model);
