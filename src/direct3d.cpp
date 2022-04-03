@@ -357,4 +357,26 @@ namespace P3D {
             return buffer;
         }
     }
+    
+    void Direct3D::SetWindowDimensions(int width, int height) {
+        context->OMSetRenderTargets(0, 0, 0);
+        renderTargetView->Release();
+        depthView->Release();
+        context->ClearState();
+        context->Flush();
+
+        swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+        
+        if(!CreateBackBuffer()) {
+            Logger::Err("Failed to create back buffer");
+        }
+
+        if(!CreateDepthBuffer()) {
+            Logger::Err("Failed to create depth buffer");
+        }
+
+        BindViews();
+
+        SetViewport();
+    }
 }

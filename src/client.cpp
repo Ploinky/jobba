@@ -14,11 +14,7 @@ namespace P3D {
         Logger::Msg("Hello from general client!");
 
         // Create and show window
-        Window* window = new Window();
-        std::cout << "assigning callback: " << window << std::endl;
-        window->callback = []() {
-            Logger::Msg("Received window resize event");
-        };
+        window = new Window();
         window->Show();
         
         // ----- Initialize Direct3D -----
@@ -30,6 +26,11 @@ namespace P3D {
             Logger::Err("Direct3D initialization failed, P3D will quit.");
             window->SetShouldClose();
         }
+
+        window->callback = [this]() {
+            direct3D->SetWindowDimensions(window->width, window->height);
+            renderer->SetAspectRatio((float) window->width / (float) window->height);
+        };
 
         renderer = new Renderer();
         renderer->Initialize(direct3D);

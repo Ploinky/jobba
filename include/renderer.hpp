@@ -18,6 +18,7 @@ namespace P3D {
     public:
         void Initialize(Direct3D* direct3D);
         void Render(Model3D* model);
+        void SetAspectRatio(float aspect);
 
         Direct3D* direct3D;
         ID3D11InputLayout* inputLayout;

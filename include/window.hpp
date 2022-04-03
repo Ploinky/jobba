@@ -28,11 +28,12 @@ namespace P3D {
 
         std::function<void()> callback;
 
+        int width;
+        int height;
+
     private:
         HWND windowHandle;
         bool shouldClose;
-        int width;
-        int height;
 
         void Notify();
     };

@@ -85,4 +85,17 @@ namespace P3D {
 
         direct3D->context->Draw(model->indexCount, 0);
     }
+
+    void Renderer::SetAspectRatio(float aspect) {
+        perspMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(70), aspect, 0.0001f, 1000));
+        DirectX::XMStoreFloat4x4(&frameConstBuffer.projMatrix, perspMatrix);
+
+        D3D11_MAPPED_SUBRESOURCE mappedResource = {0};
+
+        direct3D->context->Map(frameConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+
+        memcpy(mappedResource.pData, &frameConstBuffer, sizeof(frameConstBuffer));
+
+        direct3D->context->Unmap(frameConstantBuffer, 0);
+    }
 }

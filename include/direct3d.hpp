@@ -22,7 +22,7 @@ namespace P3D {
         // Sets the native window's dimensions
         // This will recreate the swap chain, amongst others
         // This MUST be called whenever the size of the HWND that Direct3D is displayed in changes
-        void SetWindowDimensions();
+        void SetWindowDimensions(int width, int height);
 
         // ----- ONCE PER FRAME -----
 

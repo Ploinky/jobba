@@ -5,6 +5,7 @@ namespace P3D {
     class Model3D;
     class Direct3D;
     class Renderer;
+    class Window;
     
     class Client {
     public:
@@ -13,6 +14,7 @@ namespace P3D {
     private:
         bool isRunning;
         Direct3D* direct3D;
+        Window* window;
         Renderer* renderer;
 
         // Clears the screen and/or prepares rendering
