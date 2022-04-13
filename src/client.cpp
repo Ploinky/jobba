@@ -42,7 +42,18 @@ namespace P3D {
         };
 
         window->keyEvent = [model](long key) {
-            model->position.x += 0.1;
+            if(key == 'D') {
+                model->position.x += 0.1;
+            }
+            if(key == 'A') {
+                model->position.x -= 0.1;
+            }
+            if(key == 'W') {
+                model->position.z += 0.1;
+            }
+            if(key == 'S') {
+                model->position.z -= 0.1;
+            }
         };
 
         renderer = new Renderer();
