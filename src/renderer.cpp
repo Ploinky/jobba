@@ -4,12 +4,14 @@
 #include "vertex.hpp"
 #include "direct3d.hpp"
 #include "util.hpp"
+#include "camera.hpp"
 
 namespace P3D {
     static DirectX::XMMATRIX perspMatrix;
 
     void Renderer::Initialize(Direct3D* direct3D) {
         this->direct3D = direct3D;
+        camera = new Camera();
 
         perspMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(70), 1 / 1, 0.0001f, 1000);
 
@@ -32,7 +34,8 @@ namespace P3D {
 
         perspMatrix = DirectX::XMMatrixTranspose(perspMatrix);
         DirectX::XMStoreFloat4x4(&frameConstBuffer.projMatrix, perspMatrix);
-        DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(0, 0, 0))));
+        DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(
+            camera->position.x, camera->position.y, camera->position.z))));
         DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0, 0, 10)));
         
         D3D11_BUFFER_DESC desc;
@@ -72,14 +75,8 @@ namespace P3D {
         UINT offset = 0;
 
         DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(model->position.x, model->position.y, model->position.z)));
-        
-        D3D11_MAPPED_SUBRESOURCE mappedResource = {0};
 
-        direct3D->context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-
-        memcpy(mappedResource.pData, &vsConstData, sizeof(vsConstData));
-
-        direct3D->context->Unmap(constantBuffer, 0);
+        UpdateModelConstantBuffer();
 
         direct3D->context->VSSetShader(vertexShader, 0, 0);
         direct3D->context->VSSetConstantBuffers(0, 1, &frameConstantBuffer);
@@ -98,6 +95,19 @@ namespace P3D {
         perspMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(70), aspect, 0.0001f, 1000));
         DirectX::XMStoreFloat4x4(&frameConstBuffer.projMatrix, perspMatrix);
 
+        UpdateFrameConstantBuffer();
+    }
+
+    void Renderer::SetCameraPosition(DirectX::XMFLOAT3 position) {
+        camera->position = position;
+        
+        DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(
+            camera->position.x, camera->position.y, camera->position.z))));
+
+        UpdateFrameConstantBuffer();
+    }
+
+    void Renderer::UpdateFrameConstantBuffer() {
         D3D11_MAPPED_SUBRESOURCE mappedResource = {0};
 
         direct3D->context->Map(frameConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -105,5 +115,15 @@ namespace P3D {
         memcpy(mappedResource.pData, &frameConstBuffer, sizeof(frameConstBuffer));
 
         direct3D->context->Unmap(frameConstantBuffer, 0);
+    }
+
+    void Renderer::UpdateModelConstantBuffer() {        
+        D3D11_MAPPED_SUBRESOURCE mappedResource = {0};
+
+        direct3D->context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+
+        memcpy(mappedResource.pData, &vsConstData, sizeof(vsConstData));
+
+        direct3D->context->Unmap(constantBuffer, 0);
     }
 }

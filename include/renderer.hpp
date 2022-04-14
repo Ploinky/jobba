@@ -4,6 +4,7 @@
 namespace P3D {
     class Model3D;
     class Direct3D;
+    class Camera;
 
     struct object_constant_buffer {
         DirectX::XMFLOAT4X4 modelMatrix;
@@ -19,7 +20,9 @@ namespace P3D {
         void Initialize(Direct3D* direct3D);
         void Render(Model3D* model);
         void SetAspectRatio(float aspect);
+        void SetCameraPosition(DirectX::XMFLOAT3 position);
 
+        Camera* camera;
         Direct3D* direct3D;
         ID3D11InputLayout* inputLayout;
         ID3D11VertexShader* vertexShader;
@@ -28,5 +31,9 @@ namespace P3D {
         ID3D11Buffer* frameConstantBuffer;
         object_constant_buffer vsConstData;
         frame_constant_buffer frameConstBuffer;
+
+    private:
+        void UpdateFrameConstantBuffer();
+        void UpdateModelConstantBuffer();
     };
 }

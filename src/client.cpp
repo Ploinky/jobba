@@ -9,6 +9,7 @@
 #include "direct3d.hpp"
 #include "renderer.hpp"
 #include <DirectXMath.h>
+#include "camera.hpp"
 
 namespace P3D {
     void Client::Run() {
@@ -41,18 +42,41 @@ namespace P3D {
             renderer->SetAspectRatio((float) window->width / (float) window->height);
         };
 
-        window->keyEvent = [model](long key) {
+        window->keyEvent = [model, this](long key) {
+            DirectX::XMFLOAT3 position = renderer->camera->position;
+
+            if(key == 'W') {
+                position.z += 0.1;
+            }
+
+            if(key == 'S') {
+                position.z -= 0.1;
+            }
+
+            if(key == 'A') {
+                position.x -= 0.1;
+            }
+
             if(key == 'D') {
+                position.x += 0.1;
+            }
+
+            renderer->SetCameraPosition(position);
+
+            if(key == VK_RIGHT) {
                 model->position.x += 0.1;
             }
-            if(key == 'A') {
+            if(key == VK_LEFT) {
                 model->position.x -= 0.1;
             }
-            if(key == 'W') {
+            if(key == VK_UP) {
                 model->position.z += 0.1;
             }
-            if(key == 'S') {
+            if(key == VK_DOWN) {
                 model->position.z -= 0.1;
+            }
+            if(key == VK_ESCAPE) {
+                isRunning = false;
             }
         };
 
