@@ -100,9 +100,22 @@ namespace P3D {
 
     void Renderer::SetCameraPosition(DirectX::XMFLOAT3 position) {
         camera->position = position;
+        UpdateCameraMatrix();
+    }
+
+    void Renderer::SetCameraRotation(DirectX::XMFLOAT3 rotation) {
+        camera->rotation = rotation;
+        UpdateCameraMatrix();
+    }
+
+    void Renderer::UpdateCameraMatrix() {
+        DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw(DirectX::XMConvertToRadians(camera->rotation.x),
+                        DirectX::XMConvertToRadians(camera->rotation.y),
+                        DirectX::XMConvertToRadians(camera->rotation.z));
         
-        DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(
-            camera->position.x, camera->position.y, camera->position.z))));
+        DirectX::XMMATRIX transMat =  DirectX::XMMatrixTranslation(camera->position.x, camera->position.y, camera->position.z);
+
+        DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, rotMat * transMat)));
 
         UpdateFrameConstantBuffer();
     }
