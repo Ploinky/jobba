@@ -20,8 +20,6 @@ namespace P3D {
         void Initialize(Direct3D* direct3D);
         void Render(Model3D* model);
         void SetAspectRatio(float aspect);
-        void SetCameraPosition(DirectX::XMFLOAT3 position);
-        void SetCameraRotation(DirectX::XMFLOAT3 rotation);
         void UpdateCameraMatrix();
 
         Camera* camera;

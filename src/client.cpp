@@ -72,35 +72,29 @@ namespace P3D {
     }
 
     void Client::HandlePlayerInput(Model3D* model) {
-            DirectX::XMFLOAT3 position = renderer->camera->position;
-            DirectX::XMFLOAT3 rotation = renderer->camera->rotation;
-
             if(keyboardInput->IsKeyDown('W')) {
-                position.z += 0.01;
+                renderer->camera->position.z += 0.01;
             }
 
             if(keyboardInput->IsKeyDown('S')) {
-                position.z -= 0.01;
+                renderer->camera->position.z -= 0.01;
             }
 
             if(keyboardInput->IsKeyDown('A')) {
-                position.x -= 0.01;
+                renderer->camera->position.x -= 0.01;
             }
 
             if(keyboardInput->IsKeyDown('D')) {
-                position.x += 0.01;
+                renderer->camera->position.x += 0.01;
             }
 
             if(keyboardInput->IsKeyDown('Q')) {
-                rotation.y -= 0.01;
+                renderer->camera->rotation.y -= 0.01;
             }
 
             if(keyboardInput->IsKeyDown('E')) {
-                rotation.y += 0.01;
+                renderer->camera->rotation.y += 0.01;
             }
-
-            renderer->SetCameraPosition(position);
-            renderer->SetCameraRotation(rotation);
 
             if(keyboardInput->IsKeyDown(VK_RIGHT)) {
                 model->position.x += 0.01;
@@ -119,9 +113,9 @@ namespace P3D {
             }
     }
     
-
     void Client::BeginRender() {
         direct3D->ClearScreen();
+        renderer->UpdateCameraMatrix();
     }
 
     void Client::Render(Model3D* model) {
