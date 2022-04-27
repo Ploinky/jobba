@@ -10,6 +10,7 @@
 #include "renderer.hpp"
 #include <DirectXMath.h>
 #include "camera.hpp"
+#include "keyboard_input.hpp"
 
 namespace P3D {
     void Client::Run() {
@@ -42,42 +43,10 @@ namespace P3D {
             renderer->SetAspectRatio((float) window->width / (float) window->height);
         };
 
-        window->keyEvent = [model, this](long key) {
-            DirectX::XMFLOAT3 position = renderer->camera->position;
+        keyboardInput = new KeyboardInput();
 
-            if(key == 'W') {
-                position.z += 0.1;
-            }
-
-            if(key == 'S') {
-                position.z -= 0.1;
-            }
-
-            if(key == 'A') {
-                position.x -= 0.1;
-            }
-
-            if(key == 'D') {
-                position.x += 0.1;
-            }
-
-            renderer->SetCameraPosition(position);
-
-            if(key == VK_RIGHT) {
-                model->position.x += 0.1;
-            }
-            if(key == VK_LEFT) {
-                model->position.x -= 0.1;
-            }
-            if(key == VK_UP) {
-                model->position.z += 0.1;
-            }
-            if(key == VK_DOWN) {
-                model->position.z -= 0.1;
-            }
-            if(key == VK_ESCAPE) {
-                isRunning = false;
-            }
+        window->keyEvent = [this](long key, bool down) {
+            keyboardInput->SetKeyDown((char) key, down);
         };
 
         renderer = new Renderer();
@@ -87,13 +56,57 @@ namespace P3D {
         // Keep running while both the client wants to keep runnning and the window has not been closed
         isRunning = true;
         while(isRunning && !window->ShouldClose()) {
+            // Event handling
             window->HandleEvents();
+
+            // Game logic
+            HandlePlayerInput(model);
+
+            // Render scene
             BeginRender();
             Render(model);
             FinishRender();
         }
 
         Logger::Msg("Game loop has been stopped.");
+    }
+
+    void Client::HandlePlayerInput(Model3D* model) {
+            DirectX::XMFLOAT3 position = renderer->camera->position;
+
+            if(keyboardInput->IsKeyDown('W')) {
+                position.z += 0.01;
+            }
+
+            if(keyboardInput->IsKeyDown('S')) {
+                position.z -= 0.01;
+            }
+
+            if(keyboardInput->IsKeyDown('A')) {
+                position.x -= 0.01;
+            }
+
+            if(keyboardInput->IsKeyDown('D')) {
+                position.x += 0.01;
+            }
+
+            renderer->SetCameraPosition(position);
+
+            if(keyboardInput->IsKeyDown(VK_RIGHT)) {
+                model->position.x += 0.01;
+            }
+            if(keyboardInput->IsKeyDown(VK_LEFT)) {
+                model->position.x -= 0.01;
+            }
+            if(keyboardInput->IsKeyDown(VK_UP)) {
+                model->position.z += 0.01;
+            }
+            if(keyboardInput->IsKeyDown(VK_DOWN)) {
+                model->position.z -= 0.01;
+            }
+            if(keyboardInput->IsKeyDown(VK_ESCAPE)) {
+                isRunning = false;
+            }
     }
     
 

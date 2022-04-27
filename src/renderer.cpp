@@ -13,7 +13,7 @@ namespace P3D {
         this->direct3D = direct3D;
         camera = new Camera();
 
-        perspMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(70), 1 / 1, 0.0001f, 1000);
+        perspMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(camera->fov), 1 / 1, camera->nearClip, camera->farClip);
 
         // Where to set this?
         direct3D->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

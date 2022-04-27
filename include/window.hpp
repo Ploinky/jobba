@@ -27,9 +27,10 @@ namespace P3D {
         void Resized(int width, int height);
 
         void KeyPressed(long key);
+        void KeyReleased(long key);
 
         std::function<void()> callback;
-        std::function<void(long)> keyEvent;
+        std::function<void(long, bool)> keyEvent;
 
         int width;
         int height;

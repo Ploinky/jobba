@@ -6,6 +6,7 @@ namespace P3D {
     class Direct3D;
     class Renderer;
     class Window;
+    class KeyboardInput;
     
     class Client {
     public:
@@ -21,11 +22,15 @@ namespace P3D {
         // Access to DirectX 11 rendering pipeline
         Renderer* renderer;
 
+        KeyboardInput* keyboardInput;
+
         // Clears the screen and prepares rendering
         void BeginRender();
         // Render the specified 3D model to the screen
         void Render(Model3D* model);
         // Final rendering operations and presents the rendered image to the screen
         void FinishRender();
+
+        void HandlePlayerInput(Model3D* model);
     };
 }
