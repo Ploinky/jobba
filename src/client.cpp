@@ -11,6 +11,7 @@
 #include <DirectXMath.h>
 #include "camera.hpp"
 #include "keyboard_input.hpp"
+#include "mouse_input.hpp"
 
 namespace P3D {
     void Client::Run() {
@@ -49,6 +50,12 @@ namespace P3D {
             keyboardInput->SetKeyDown((char) key, down);
         };
 
+        mouseInput = new MouseInput();
+
+        window->mouseEvent = [this](short x, short y) {
+            mouseInput->SetMousePos(x, y);
+        };
+
         renderer = new Renderer();
         renderer->Initialize(direct3D);
         
@@ -71,46 +78,65 @@ namespace P3D {
         Logger::Msg("Game loop has been stopped.");
     }
 
+    short lastX;
+    
+    short lastY;
+    bool initialValue = true;
+
     void Client::HandlePlayerInput(Model3D* model) {
-            if(keyboardInput->IsKeyDown('W')) {
-                renderer->camera->position.z += 0.01;
-            }
+        if(initialValue) {
+            lastX = mouseInput->GetMouseX();
+            lastY = mouseInput->GetMouseY();
+            initialValue = false;
+        }
+        
+        short mouseX = mouseInput->GetMouseX() - lastX;
+        short mouseY = mouseInput->GetMouseY() - lastY;
+        lastX = mouseInput->GetMouseX();
+        lastY = mouseInput->GetMouseY();
 
-            if(keyboardInput->IsKeyDown('S')) {
-                renderer->camera->position.z -= 0.01;
-            }
+        renderer->camera->rotation.y += mouseX * 0.1;
+        renderer->camera->rotation.x += mouseY * 0.1;
 
-            if(keyboardInput->IsKeyDown('A')) {
-                renderer->camera->position.x -= 0.01;
-            }
+        if(keyboardInput->IsKeyDown('W')) {
+            renderer->camera->position.z += 0.01;
+        }
 
-            if(keyboardInput->IsKeyDown('D')) {
-                renderer->camera->position.x += 0.01;
-            }
+        if(keyboardInput->IsKeyDown('S')) {
+            renderer->camera->position.z -= 0.01;
+        }
 
-            if(keyboardInput->IsKeyDown('Q')) {
-                renderer->camera->rotation.y -= 0.01;
-            }
+        if(keyboardInput->IsKeyDown('A')) {
+            renderer->camera->position.x -= 0.01;
+        }
 
-            if(keyboardInput->IsKeyDown('E')) {
-                renderer->camera->rotation.y += 0.01;
-            }
+        if(keyboardInput->IsKeyDown('D')) {
+            renderer->camera->position.x += 0.01;
+        }
 
-            if(keyboardInput->IsKeyDown(VK_RIGHT)) {
-                model->position.x += 0.01;
-            }
-            if(keyboardInput->IsKeyDown(VK_LEFT)) {
-                model->position.x -= 0.01;
-            }
-            if(keyboardInput->IsKeyDown(VK_UP)) {
-                model->position.z += 0.01;
-            }
-            if(keyboardInput->IsKeyDown(VK_DOWN)) {
-                model->position.z -= 0.01;
-            }
-            if(keyboardInput->IsKeyDown(VK_ESCAPE)) {
-                isRunning = false;
-            }
+        if(keyboardInput->IsKeyDown('Q')) {
+            renderer->camera->rotation.y -= 0.01;
+        }
+
+        if(keyboardInput->IsKeyDown('E')) {
+            renderer->camera->rotation.y += 0.01;
+        }
+
+        if(keyboardInput->IsKeyDown(VK_RIGHT)) {
+            model->position.x += 0.01;
+        }
+        if(keyboardInput->IsKeyDown(VK_LEFT)) {
+            model->position.x -= 0.01;
+        }
+        if(keyboardInput->IsKeyDown(VK_UP)) {
+            model->position.z += 0.01;
+        }
+        if(keyboardInput->IsKeyDown(VK_DOWN)) {
+            model->position.z -= 0.01;
+        }
+        if(keyboardInput->IsKeyDown(VK_ESCAPE)) {
+            isRunning = false;
+        }
     }
     
     void Client::BeginRender() {

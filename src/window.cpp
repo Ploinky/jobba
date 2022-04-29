@@ -1,4 +1,5 @@
 #include "window.hpp"
+#include <windowsx.h>
 #include <iostream>
 #include <string>
 #include "direct3d.hpp"
@@ -36,6 +37,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if(window != nullptr) {
                 window->KeyReleased(wParam);
+            }
+            break;
+        }
+        case WM_MOUSEMOVE:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window != nullptr) {
+                window->MouseMoved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             }
             break;
         }
@@ -157,6 +166,12 @@ namespace P3D {
     void Window::KeyReleased(long key) {
         if(keyEvent != nullptr) {
             keyEvent(key, false);
+        }
+    }
+
+    void Window::MouseMoved(unsigned short x, unsigned short y) {
+        if(mouseEvent != nullptr) {
+            mouseEvent(x, y);
         }
     }
 }

@@ -28,9 +28,11 @@ namespace P3D {
 
         void KeyPressed(long key);
         void KeyReleased(long key);
+        void MouseMoved(unsigned short x, unsigned short y);
 
         std::function<void()> callback;
         std::function<void(long, bool)> keyEvent;
+        std::function<void(unsigned short, unsigned short)> mouseEvent;
 
         int width;
         int height;

@@ -7,6 +7,7 @@ namespace P3D {
     class Renderer;
     class Window;
     class KeyboardInput;
+    class MouseInput;
     
     class Client {
     public:
@@ -23,6 +24,7 @@ namespace P3D {
         Renderer* renderer;
 
         KeyboardInput* keyboardInput;
+        MouseInput* mouseInput;
 
         // Clears the screen and prepares rendering
         void BeginRender();
