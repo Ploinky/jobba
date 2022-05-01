@@ -19,12 +19,24 @@ namespace P3D {
         Logger::Msg("Hello from general client!");
 
         Model3D* model = new Model3D();
-        Vertex vert[] = { Vertex{{-1, -1, 0}, {1.0f, 0, 0, 1}},
+        Vertex vert[] = { Vertex{{-0.5f, 0, 0}, {1.0f, 0, 0, 1}},
             Vertex{{0, 1, 0}, {0, 1.0f, 0, 1}},
-            Vertex{{1, -1, 0}, {0, 0, 1.0f, 1}}
+            Vertex{{0.5f, 0, 0}, {0, 0, 1.0f, 1}}
         };
         model->vertices = vert;
         model->vertexCount = 3;
+
+        Model3D* model2 = new Model3D();
+        Vertex vert2[] = {
+            Vertex{{-10, 0, -10}, {1.0f, 1.0f, 1.0f, 1}},
+            Vertex{{-10, 0, 10}, {1.0f, 0, 0, 1}},
+            Vertex{{10, 0, -10}, {0, 1.0f, 0, 1}},
+            Vertex{{-10, 0, 10}, {1.0f, 0, 0, 1}},
+            Vertex{{10, 0, 10}, {0, 0, 1.0f, 1}},
+            Vertex{{10, 0, -10}, {0, 1.0f, 0, 1}},
+        };
+        model2->vertices = vert2;
+        model2->vertexCount = 6;
 
         // Create and show window
         window = new Window();
@@ -86,6 +98,7 @@ namespace P3D {
             // Render scene
             BeginRender();
             Render(model);
+            Render(model2);
             FinishRender();
         }
 
