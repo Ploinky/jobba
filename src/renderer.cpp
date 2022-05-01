@@ -13,7 +13,8 @@ namespace P3D {
         this->direct3D = direct3D;
         camera = new Camera();
 
-        perspMatrix = DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(camera->fov), 1 / 1, camera->nearClip, camera->farClip);
+        perspMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
+            DirectX::XMConvertToRadians(camera->fov), 1024.0f / 800.0f, camera->nearClip, camera->farClip));
 
         // Where to set this?
         direct3D->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -32,7 +33,6 @@ namespace P3D {
 
         direct3D->device->CreateInputLayout(inputLayoutDesc, 2, shaderByteCode.data, shaderByteCode.size, &inputLayout);
 
-        perspMatrix = DirectX::XMMatrixTranspose(perspMatrix);
         DirectX::XMStoreFloat4x4(&frameConstBuffer.projMatrix, perspMatrix);
         DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(
             camera->position.x, camera->position.y, camera->position.z))));
@@ -98,7 +98,7 @@ namespace P3D {
     }
 
     void Renderer::SetAspectRatio(float aspect) {
-        perspMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(70), aspect, 0.0001f, 1000));
+        perspMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(DirectX::XMConvertToRadians(camera->fov), aspect, camera->nearClip, camera->farClip));
         DirectX::XMStoreFloat4x4(&frameConstBuffer.projMatrix, perspMatrix);
 
         UpdateFrameConstantBuffer();
