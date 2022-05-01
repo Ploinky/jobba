@@ -23,6 +23,8 @@ namespace P3D {
         // Access to DirectX 11 rendering pipeline
         Renderer* renderer;
 
+        long long lastFrame;
+
         KeyboardInput* keyboardInput;
         MouseInput* mouseInput;
 
@@ -33,6 +35,6 @@ namespace P3D {
         // Final rendering operations and presents the rendered image to the screen
         void FinishRender();
 
-        void HandlePlayerInput(Model3D* model);
+        void HandlePlayerInput(Model3D* model, float dt);
     };
 }

@@ -12,6 +12,7 @@
 #include "camera.hpp"
 #include "keyboard_input.hpp"
 #include "mouse_input.hpp"
+#include <chrono>
 
 namespace P3D {
     void Client::Run() {
@@ -65,12 +66,22 @@ namespace P3D {
         // Main game loop
         // Keep running while both the client wants to keep runnning and the window has not been closed
         isRunning = true;
+        std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
+        auto since_epoch = begin.time_since_epoch(); // get the duration since epoch
+        lastFrame = std::chrono::duration_cast<std::chrono::nanoseconds>(since_epoch).count();
         while(isRunning && !window->ShouldClose()) {
+            std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
+            auto since_epoch = begin.time_since_epoch(); // get the duration since epoch
+            auto thisFrame = std::chrono::duration_cast<std::chrono::nanoseconds>(since_epoch).count();
+            long long frameDuration = thisFrame - lastFrame;
+            lastFrame = thisFrame;
+            float dt = frameDuration / 1000000.0f / 1000.0f;
+
             // Event handling
             window->HandleEvents();
 
             // Game logic
-            HandlePlayerInput(model);
+            HandlePlayerInput(model, dt);
 
             // Render scene
             BeginRender();
@@ -81,37 +92,62 @@ namespace P3D {
         Logger::Msg("Game loop has been stopped.");
     }
 
-    void Client::HandlePlayerInput(Model3D* model) {
+    void Client::HandlePlayerInput(Model3D* model, float dt) {
         if(mouseInput->GetMouseX() <= 0) {
-            renderer->camera->position.x -= 0.001;
+            renderer->camera->position.x -= 10 * dt;
         }
 
         if(mouseInput->GetMouseX() >= window->width - 1) {
-            renderer->camera->position.x += 0.001;
+            renderer->camera->position.x += 10 * dt;
         }
 
         if(mouseInput->GetMouseY() <= 0) {
-            renderer->camera->position.z += 0.001;
+            renderer->camera->position.z += 10 * dt;
         }
 
         if(mouseInput->GetMouseY() >= window->height - 1) {
-            renderer->camera->position.z -= 0.001;
+            renderer->camera->position.z -= 10 * dt;
         }
 
         if(keyboardInput->IsKeyDown(VK_RIGHT)) {
-            renderer->camera->position.x += 0.001;
+            renderer->camera->position.x += 10 * dt;
         }
+
         if(keyboardInput->IsKeyDown(VK_LEFT)) {
-            renderer->camera->position.x -= 0.001;
+            renderer->camera->position.x -= 10 * dt;
         }
+
         if(keyboardInput->IsKeyDown(VK_UP)) {
-            renderer->camera->position.z += 0.001;
+            renderer->camera->position.z += 10 * dt;
         }
+
         if(keyboardInput->IsKeyDown(VK_DOWN)) {
-            renderer->camera->position.z -= 0.001;
+            renderer->camera->position.z -= 10 * dt;
         }
+
+        if(keyboardInput->IsKeyDown('D')) {
+            model->position.x += 10 * dt;
+        }
+
+        if(keyboardInput->IsKeyDown('A')) {
+            model->position.x -= 10 * dt;
+        }
+
+        if(keyboardInput->IsKeyDown('W')) {
+            model->position.z += 10 * dt;
+        }
+
+        if(keyboardInput->IsKeyDown('S')) {
+            model->position.z -= 10 * dt;
+        }
+
         if(keyboardInput->IsKeyDown(VK_ESCAPE)) {
             isRunning = false;
+        }
+
+        if(keyboardInput->IsKeyDown(VK_SPACE)) {
+            renderer->camera->position.x = model->position.x;
+            renderer->camera->position.z = model->position.z - 6;
         }
     }
     
