@@ -21,7 +21,7 @@ $(FOLDERS):
 $(EXE_FILE): $(OBJ_FILES)
 	clang++ -Wall -std=c++17 $^ -I include -o $@ -l d3d11
 
-build/obj/%.o: src/%.cpp
+build/obj/%.o: src/%.cpp include/%.hpp
 	clang++ -Wall -std=c++17 $< -c -I include -o $@
 
 $(PS_OUT): $(PS_IN)
