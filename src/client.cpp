@@ -1,5 +1,3 @@
-// Platform independant implementation of the client class
-
 #include "client.hpp"
 #include <iostream>
 #include "window.hpp"
@@ -38,6 +36,20 @@ namespace P3D {
         model2->vertices = vert2;
         model2->vertexCount = 6;
 
+        Model3D* model3 = new Model3D();
+        Vertex vert3[] = {
+            Vertex{{-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1}},
+            Vertex{{-1, 0.3f, 0}, {1.0f, 1.0f, 1.0f, 1}},
+            Vertex{{1, 0.3f, 0}, {1.0f, 1.0f, 1.0f, 1}},
+            Vertex{{-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1}},
+            Vertex{{1, 0.3f, 0}, {1.0f, 1.0f, 1.0f, 1}},
+            Vertex{{1, 0, 0}, {1.0f, 1.0f, 1.0f, 1}},
+        };
+        model3->position = model->position;
+        model3->rotation.x = 60;
+        model3->vertices = vert3;
+        model3->vertexCount = 6;
+
         // Create and show window
         window = new Window();
         window->Show();
@@ -71,8 +83,8 @@ namespace P3D {
 
         renderer = new Renderer();
         renderer->Initialize(direct3D);
-        renderer->camera->position.y = 10;
-        renderer->camera->position.z = -5;
+        renderer->camera->position.y = 20;
+        renderer->camera->position.z = -12;
         renderer->camera->rotation.x = 60;
         
         // Main game loop
@@ -89,11 +101,16 @@ namespace P3D {
 
             // Game logic
             HandlePlayerInput(model, dt);
+            
+            model3->position = model->position;
+            model3->position.y = model->position.y + 1.4f;
 
             // Render scene
             BeginRender();
             Render(model);
             Render(model2);
+            Render(model3);
+        
             FinishRender();
         }
 
@@ -155,7 +172,7 @@ namespace P3D {
 
         if(keyboardInput->IsKeyDown(VK_SPACE)) {
             renderer->camera->position.x = model->position.x;
-            renderer->camera->position.z = model->position.z - 6;
+            renderer->camera->position.z = model->position.z - 12;
         }
     }
     

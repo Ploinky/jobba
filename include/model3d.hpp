@@ -19,6 +19,7 @@ namespace P3D {
             ID3D11Buffer* vertexBuffer;
             ID3D11Buffer* indexBuffer;
             DirectX::XMFLOAT3 position;
+            DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3();
 
         private:
             bool initialized = false;

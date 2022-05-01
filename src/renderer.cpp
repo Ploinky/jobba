@@ -74,7 +74,13 @@ namespace P3D {
         UINT stride = sizeof(Vertex);
         UINT offset = 0;
 
-        DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(model->position.x, model->position.y, model->position.z)));
+        DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw(DirectX::XMConvertToRadians(model->rotation.x),
+                        DirectX::XMConvertToRadians(model->rotation.y),
+                        DirectX::XMConvertToRadians(model->rotation.z));
+        
+        DirectX::XMMATRIX transMat =  DirectX::XMMatrixTranslation(model->position.x, model->position.y, model->position.z);
+
+        DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(rotMat * transMat));
 
         UpdateModelConstantBuffer();
 
