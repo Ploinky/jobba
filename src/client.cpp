@@ -78,16 +78,11 @@ namespace P3D {
         // Main game loop
         // Keep running while both the client wants to keep runnning and the window has not been closed
         isRunning = true;
-        std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
-        auto since_epoch = begin.time_since_epoch(); // get the duration since epoch
-        lastFrame = std::chrono::duration_cast<std::chrono::nanoseconds>(since_epoch).count();
+        lastFrame = GetSystemTime();
         while(isRunning && !window->ShouldClose()) {
-            std::chrono::system_clock::time_point begin = std::chrono::system_clock::now();
-            auto since_epoch = begin.time_since_epoch(); // get the duration since epoch
-            auto thisFrame = std::chrono::duration_cast<std::chrono::nanoseconds>(since_epoch).count();
-            long long frameDuration = thisFrame - lastFrame;
+            auto thisFrame = GetSystemTime();
+            float dt = (thisFrame - lastFrame) / 1000000.0f / 1000.0f;
             lastFrame = thisFrame;
-            float dt = frameDuration / 1000000.0f / 1000.0f;
 
             // Event handling
             window->HandleEvents();
@@ -177,4 +172,7 @@ namespace P3D {
         direct3D->Present();
     }
 
+    long long Client::GetSystemTime() {
+        return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    }
 }

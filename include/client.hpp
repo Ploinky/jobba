@@ -36,5 +36,7 @@ namespace P3D {
         void FinishRender();
 
         void HandlePlayerInput(Model3D* model, float dt);
+
+        long long GetSystemTime();
     };
 }
