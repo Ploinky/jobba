@@ -149,12 +149,12 @@ namespace P3D {
         ShowWindow(windowHandle, SW_SHOW);
     }
 
+    MSG msg = {};
+    
     // Handle win32 window events
     void Window::HandleEvents() {
-        MSG msg = {};
-
         // Use PeekMessage, GetMessage blocks!
-        if (PeekMessage(&msg, windowHandle, 0, 0, PM_REMOVE) > 0)
+        while (PeekMessage(&msg, windowHandle, 0, 0, PM_REMOVE) > 0)
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
