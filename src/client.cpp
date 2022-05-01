@@ -60,7 +60,7 @@ namespace P3D {
         renderer->Initialize(direct3D);
         renderer->camera->position.y = 10;
         renderer->camera->position.z = -5;
-        renderer->camera->rotation.x = 45;
+        renderer->camera->rotation.x = 60;
         
         // Main game loop
         // Keep running while both the client wants to keep runnning and the window has not been closed
@@ -83,32 +83,32 @@ namespace P3D {
 
     void Client::HandlePlayerInput(Model3D* model) {
         if(mouseInput->GetMouseX() <= 0) {
-            renderer->camera->position.x -= 0.01;
+            renderer->camera->position.x -= 0.001;
         }
 
         if(mouseInput->GetMouseX() >= window->width - 1) {
-            renderer->camera->position.x += 0.01;
+            renderer->camera->position.x += 0.001;
         }
 
         if(mouseInput->GetMouseY() <= 0) {
-            renderer->camera->position.z += 0.01;
+            renderer->camera->position.z += 0.001;
         }
 
         if(mouseInput->GetMouseY() >= window->height - 1) {
-            renderer->camera->position.z -= 0.01;
+            renderer->camera->position.z -= 0.001;
         }
 
         if(keyboardInput->IsKeyDown(VK_RIGHT)) {
-            renderer->camera->position.x += 0.01;
+            renderer->camera->position.x += 0.001;
         }
         if(keyboardInput->IsKeyDown(VK_LEFT)) {
-            renderer->camera->position.x -= 0.01;
+            renderer->camera->position.x -= 0.001;
         }
         if(keyboardInput->IsKeyDown(VK_UP)) {
-            renderer->camera->position.z += 0.01;
+            renderer->camera->position.z += 0.001;
         }
         if(keyboardInput->IsKeyDown(VK_DOWN)) {
-            renderer->camera->position.z -= 0.01;
+            renderer->camera->position.z -= 0.001;
         }
         if(keyboardInput->IsKeyDown(VK_ESCAPE)) {
             isRunning = false;
