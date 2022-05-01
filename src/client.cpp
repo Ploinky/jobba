@@ -18,9 +18,9 @@ namespace P3D {
         Logger::Msg("Hello from general client!");
 
         Model3D* model = new Model3D();
-        Vertex vert[] = { Vertex{{-10, -10, 0}, {1.0f, 0, 0, 1}},
-            Vertex{{0, 10, 0}, {0, 1.0f, 0, 1}},
-            Vertex{{10, -10, 0}, {0, 0, 1.0f, 1}}
+        Vertex vert[] = { Vertex{{-1, -1, 0}, {1.0f, 0, 0, 1}},
+            Vertex{{0, 1, 0}, {0, 1.0f, 0, 1}},
+            Vertex{{1, -1, 0}, {0, 0, 1.0f, 1}}
         };
         model->vertices = vert;
         model->vertexCount = 3;
@@ -58,6 +58,9 @@ namespace P3D {
 
         renderer = new Renderer();
         renderer->Initialize(direct3D);
+        renderer->camera->position.y = 10;
+        renderer->camera->position.z = -5;
+        renderer->camera->rotation.x = 45;
         
         // Main game loop
         // Keep running while both the client wants to keep runnning and the window has not been closed
@@ -78,61 +81,34 @@ namespace P3D {
         Logger::Msg("Game loop has been stopped.");
     }
 
-    short lastX;
-    
-    short lastY;
-    bool initialValue = true;
-
     void Client::HandlePlayerInput(Model3D* model) {
-        if(initialValue) {
-            lastX = mouseInput->GetMouseX();
-            lastY = mouseInput->GetMouseY();
-            initialValue = false;
-        }
-        
-        short mouseX = mouseInput->GetMouseX() - lastX;
-        short mouseY = mouseInput->GetMouseY() - lastY;
-        lastX = mouseInput->GetMouseX();
-        lastY = mouseInput->GetMouseY();
-
-        renderer->camera->rotation.y += mouseX * 0.1;
-        renderer->camera->rotation.x += mouseY * 0.1;
-
-        if(keyboardInput->IsKeyDown('W')) {
-            renderer->camera->position.z += 0.01;
-        }
-
-        if(keyboardInput->IsKeyDown('S')) {
-            renderer->camera->position.z -= 0.01;
-        }
-
-        if(keyboardInput->IsKeyDown('A')) {
+        if(mouseInput->GetMouseX() <= 0) {
             renderer->camera->position.x -= 0.01;
         }
 
-        if(keyboardInput->IsKeyDown('D')) {
+        if(mouseInput->GetMouseX() >= window->width - 1) {
             renderer->camera->position.x += 0.01;
         }
 
-        if(keyboardInput->IsKeyDown('Q')) {
-            renderer->camera->rotation.y -= 0.01;
+        if(mouseInput->GetMouseY() <= 0) {
+            renderer->camera->position.z += 0.01;
         }
 
-        if(keyboardInput->IsKeyDown('E')) {
-            renderer->camera->rotation.y += 0.01;
+        if(mouseInput->GetMouseY() >= window->height - 1) {
+            renderer->camera->position.z -= 0.01;
         }
 
         if(keyboardInput->IsKeyDown(VK_RIGHT)) {
-            model->position.x += 0.01;
+            renderer->camera->position.x += 0.01;
         }
         if(keyboardInput->IsKeyDown(VK_LEFT)) {
-            model->position.x -= 0.01;
+            renderer->camera->position.x -= 0.01;
         }
         if(keyboardInput->IsKeyDown(VK_UP)) {
-            model->position.z += 0.01;
+            renderer->camera->position.z += 0.01;
         }
         if(keyboardInput->IsKeyDown(VK_DOWN)) {
-            model->position.z -= 0.01;
+            renderer->camera->position.z -= 0.01;
         }
         if(keyboardInput->IsKeyDown(VK_ESCAPE)) {
             isRunning = false;

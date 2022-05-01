@@ -18,10 +18,36 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
         case WM_SIZE:
         {
+
             P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-            if(window != nullptr) {
-                window->Resized(LOWORD(lParam), HIWORD(lParam));
+
+            if(window == nullptr) {
+                break;
             }
+            
+            window->Resized(LOWORD(lParam), HIWORD(lParam));
+
+            RECT rect;
+            GetClientRect(hwnd, &rect);
+
+            POINT ul;
+            ul.x = rect.left;
+            ul.y = rect.top;
+
+            POINT lr;
+            lr.x = rect.right;
+            lr.y = rect.bottom;
+
+            MapWindowPoints(hwnd, nullptr, &ul, 1);
+            MapWindowPoints(hwnd, nullptr, &lr, 1);
+
+            rect.left = ul.x;
+            rect.top = ul.y;
+
+            rect.right = lr.x;
+            rect.bottom = lr.y;
+
+            ClipCursor(&rect);
             break;
         }
         case WM_KEYDOWN:
