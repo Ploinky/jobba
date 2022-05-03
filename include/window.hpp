@@ -11,9 +11,9 @@ namespace P3D {
 
     class Window {
         public:
-            std::function<void()> callback;
-            std::function<void(long, bool)> keyEvent;
-            std::function<void(unsigned short, unsigned short)> mouseEvent;
+            std::function<void()> windowResizedHandler;
+            std::function<void(long, bool)> keyHandler;
+            std::function<void(unsigned short, unsigned short)> mouseHandler;
 
             int width;
             int height;

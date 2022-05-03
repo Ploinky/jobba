@@ -65,20 +65,20 @@ namespace P3D {
             window->SetShouldClose();
         }
 
-        window->callback = [this]() {
+        window->windowResizedHandler = [this]() {
             direct3D->SetWindowDimensions(window->width, window->height);
             renderer->SetAspectRatio((float) window->width / (float) window->height);
         };
 
         keyboardInput = new KeyboardInput();
 
-        window->keyEvent = [this](long key, bool down) {
+        window->keyHandler = [this](long key, bool down) {
             keyboardInput->SetKeyDown((char) key, down);
         };
 
         mouseInput = new MouseInput();
 
-        window->mouseEvent = [this](short x, short y) {
+        window->mouseHandler = [this](short x, short y) {
             mouseInput->SetMousePos(x, y);
         };
 
