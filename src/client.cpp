@@ -84,8 +84,8 @@ namespace P3D {
 
         renderer = new Renderer();
         renderer->Initialize(direct3D);
-        renderer->camera->position.y = 30;
-        renderer->camera->position.z = -18;
+        renderer->camera->position.y = 10;
+        renderer->camera->position.z = -6;
         renderer->camera->rotation.x = 60;
         
         // Main game loop
@@ -173,7 +173,7 @@ namespace P3D {
 
         if(keyboardInput->IsKeyDown(VK_SPACE)) {
             renderer->camera->position.x = model->position.x;
-            renderer->camera->position.z = model->position.z - 18;
+            renderer->camera->position.z = model->position.z - 6;
         }
     }
     
