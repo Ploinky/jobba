@@ -13,6 +13,23 @@
 #include <chrono>
 
 namespace P3D {
+    Client::~Client() {
+        delete direct3D;
+        direct3D = 0;
+
+        delete window;
+        window = 0;
+
+        delete renderer;
+        renderer = 0;
+
+        delete keyboardInput;
+        keyboardInput = 0;
+
+        delete mouseInput;
+        mouseInput = 0;
+    }
+
     void Client::Run() {
         Logger::Msg("Hello from general client!");
 

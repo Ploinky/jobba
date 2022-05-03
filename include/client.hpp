@@ -11,6 +11,7 @@ namespace P3D {
     
     class Client {
         public:
+            ~Client();
             virtual void Run();
 
         private:
