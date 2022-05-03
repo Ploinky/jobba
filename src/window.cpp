@@ -177,26 +177,26 @@ namespace P3D {
         this->width = width;
         this->height = height;
 
-        if(callback != nullptr) {
-            callback();
+        if(windowResizedHandler != nullptr) {
+            windowResizedHandler();
         }
     }
 
     void Window::KeyPressed(long key) {
-        if(keyEvent != nullptr) {
-            keyEvent(key, true);
+        if(keyHandler != nullptr) {
+            keyHandler(key, true);
         }
     }
 
     void Window::KeyReleased(long key) {
-        if(keyEvent != nullptr) {
-            keyEvent(key, false);
+        if(keyHandler != nullptr) {
+            keyHandler(key, false);
         }
     }
 
     void Window::MouseMoved(unsigned short x, unsigned short y) {
-        if(mouseEvent != nullptr) {
-            mouseEvent(x, y);
+        if(mouseHandler != nullptr) {
+            mouseHandler(x, y);
         }
     }
 }

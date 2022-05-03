@@ -12,7 +12,7 @@ namespace P3D {
     class Client {
         public:
             ~Client();
-            virtual void Run();
+            void Run();
 
         private:
             // Indicates whether the Client is running and should continue running
