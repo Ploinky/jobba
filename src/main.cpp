@@ -26,5 +26,9 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
     client->Run();
 
     P3D::Logger::Msg("Stopping P3D Engine!\n");
+
+    delete client;
+    client = 0;
+    
     return 0;
 }
