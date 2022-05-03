@@ -1,3 +1,5 @@
+#pragma once
+
 #include <d3d11.h>
 #include <DirectXMath.h>
 
@@ -16,24 +18,24 @@ namespace P3D {
     };
 
     class Renderer {
-    public:
-        void Initialize(Direct3D* direct3D);
-        void Render(Model3D* model);
-        void SetAspectRatio(float aspect);
-        void UpdateCameraMatrix();
+        public:
+            void Initialize(Direct3D* direct3D);
+            void Render(Model3D* model);
+            void SetAspectRatio(float aspect);
+            void UpdateCameraMatrix();
 
-        Camera* camera;
-        Direct3D* direct3D;
-        ID3D11InputLayout* inputLayout;
-        ID3D11VertexShader* vertexShader;
-        ID3D11PixelShader* pixelShader;
-        ID3D11Buffer* constantBuffer;
-        ID3D11Buffer* frameConstantBuffer;
-        object_constant_buffer vsConstData;
-        frame_constant_buffer frameConstBuffer;
+            Camera* camera;
+            Direct3D* direct3D;
+            ID3D11InputLayout* inputLayout;
+            ID3D11VertexShader* vertexShader;
+            ID3D11PixelShader* pixelShader;
+            ID3D11Buffer* constantBuffer;
+            ID3D11Buffer* frameConstantBuffer;
+            object_constant_buffer vsConstData;
+            frame_constant_buffer frameConstBuffer;
 
-    private:
-        void UpdateFrameConstantBuffer();
-        void UpdateModelConstantBuffer();
+        private:
+            void UpdateFrameConstantBuffer();
+            void UpdateModelConstantBuffer();
     };
 }

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Windows.h>
 #include <functional>
 #include <vector>
@@ -8,39 +10,39 @@ namespace P3D {
     class Model3D;
 
     class Window {
-    public:
-        Window();
-        ~Window();
+        public:
+            std::function<void()> callback;
+            std::function<void(long, bool)> keyEvent;
+            std::function<void(unsigned short, unsigned short)> mouseEvent;
 
-        HWND GetWindowHandle();
-        
-        // Show window on screen
-        void Show();
-        // Handle window events once per frame if applicable.
-        // Depending on platform implementation, this could trigger window resized, key presses, mouse movement and much more...
-        void HandleEvents();
-        // Will return true whenever the window wants to close or is already closed
-        bool ShouldClose();
-        // Set value of 'shouldClose' to true. Can not be reversed -> window WILL close and P3D WILL quit!
-        void SetShouldClose();
+            int width;
+            int height;
 
-        void Resized(int width, int height);
+            Window();
+            ~Window();
 
-        void KeyPressed(long key);
-        void KeyReleased(long key);
-        void MouseMoved(unsigned short x, unsigned short y);
+            HWND GetWindowHandle();
+            
+            // Show window on screen
+            void Show();
+            // Handle window events once per frame if applicable.
+            // Depending on platform implementation, this could trigger window resized, key presses, mouse movement and much more...
+            void HandleEvents();
+            // Will return true whenever the window wants to close or is already closed
+            bool ShouldClose();
+            // Set value of 'shouldClose' to true. Can not be reversed -> window WILL close and P3D WILL quit!
+            void SetShouldClose();
 
-        std::function<void()> callback;
-        std::function<void(long, bool)> keyEvent;
-        std::function<void(unsigned short, unsigned short)> mouseEvent;
+            void Resized(int width, int height);
 
-        int width;
-        int height;
+            void KeyPressed(long key);
+            void KeyReleased(long key);
+            void MouseMoved(unsigned short x, unsigned short y);
+            
+        private:
+            HWND windowHandle;
+            bool shouldClose;
 
-    private:
-        HWND windowHandle;
-        bool shouldClose;
-
-        void Notify();
+            void Notify();
     };
 }
