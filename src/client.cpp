@@ -62,21 +62,6 @@ namespace P3D {
         model2->position.y = -0.1f;
         models.push_back(model2);
 
-        Model3D* model3 = new Model3D();
-        Vertex vert3[] = {
-            Vertex{{-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{-1, 0.3f, 0}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{1, 0.3f, 0}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{1, 0.3f, 0}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{1, 0, 0}, {1.0f, 1.0f, 1.0f, 1}},
-        };
-        model3->position = model->position;
-        model3->rotation.x = 60;
-        model3->vertices = vert3;
-        model3->vertexCount = 6;
-        models.push_back(model3);
-
         // Create and show window
         window = new Window();
         window->Show();
@@ -126,9 +111,6 @@ namespace P3D {
 
             // Game logic
             HandlePlayerInput(model, dt);
-            
-            model3->position = model->position;
-            model3->position.y = model->position.y + 1.4f;
 
             // Render scene
             BeginRender();
