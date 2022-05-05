@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 // Main game application
 namespace P3D {
     class Model3D;
@@ -28,6 +30,8 @@ namespace P3D {
 
             KeyboardInput* keyboardInput;
             MouseInput* mouseInput;
+
+            std::vector<Model3D*> models;
 
             // Clears the screen and prepares rendering
             void BeginRender();

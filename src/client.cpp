@@ -40,6 +40,7 @@ namespace P3D {
         };
         model->vertices = vert;
         model->vertexCount = 3;
+        models.push_back(model);
 
         Model3D* model2 = new Model3D();
         Vertex vert2[] = {
@@ -53,6 +54,7 @@ namespace P3D {
         model2->vertices = vert2;
         model2->vertexCount = 6;
         model2->position.y = -0.1f;
+        models.push_back(model2);
 
         Model3D* model3 = new Model3D();
         Vertex vert3[] = {
@@ -67,6 +69,7 @@ namespace P3D {
         model3->rotation.x = 60;
         model3->vertices = vert3;
         model3->vertexCount = 6;
+        models.push_back(model3);
 
         // Create and show window
         window = new Window();
@@ -100,9 +103,8 @@ namespace P3D {
 
         renderer = new Renderer();
         renderer->Initialize(direct3D);
-        renderer->camera->position.y = 10;
-        renderer->camera->position.z = -6;
-        renderer->camera->rotation.x = 60;
+        renderer->camera->position.y = 1;
+        renderer->camera->position.z = 0;
         
         // Main game loop
         // Keep running while both the client wants to keep runnning and the window has not been closed
@@ -124,63 +126,55 @@ namespace P3D {
 
             // Render scene
             BeginRender();
-            Render(model);
-            Render(model2);
-            Render(model3);
-        
+
+            for(Model3D* m : models) {
+                Render(m);
+            }
+
             FinishRender();
         }
 
         Logger::Msg("Game loop has been stopped.");
     }
 
+
+    short lastX;
+
+    short lastY;
+    bool initialValue = true;
+
+
     void Client::HandlePlayerInput(Model3D* model, float dt) {
-        if(mouseInput->GetMouseX() <= 0) {
-            renderer->camera->position.x -= 10 * dt;
+        if(initialValue) {
+            lastX = mouseInput->GetMouseX();
+            lastY = mouseInput->GetMouseY();
+            initialValue = false;
         }
 
-        if(mouseInput->GetMouseX() >= window->width - 1) {
-            renderer->camera->position.x += 10 * dt;
-        }
+        short newX = mouseInput->GetMouseX();
+        short newY = mouseInput->GetMouseY();
+        short mouseX = newX - lastX;
+        short mouseY = newY - lastY;
+        lastX = newX;
+        lastY = newY;
 
-        if(mouseInput->GetMouseY() <= 0) {
-            renderer->camera->position.z += 10 * dt;
-        }
-
-        if(mouseInput->GetMouseY() >= window->height - 1) {
-            renderer->camera->position.z -= 10 * dt;
-        }
-
-        if(keyboardInput->IsKeyDown(VK_RIGHT)) {
-            renderer->camera->position.x += 10 * dt;
-        }
-
-        if(keyboardInput->IsKeyDown(VK_LEFT)) {
-            renderer->camera->position.x -= 10 * dt;
-        }
-
-        if(keyboardInput->IsKeyDown(VK_UP)) {
-            renderer->camera->position.z += 10 * dt;
-        }
-
-        if(keyboardInput->IsKeyDown(VK_DOWN)) {
-            renderer->camera->position.z -= 10 * dt;
-        }
+        renderer->camera->rotation.y += ((float) mouseX) * dt * 100.0f;
+        renderer->camera->rotation.x += ((float) mouseY) * dt * 100.0f;
 
         if(keyboardInput->IsKeyDown('D')) {
-            model->position.x += 10 * dt;
+            renderer->camera->position.x += 10 * dt;
         }
 
         if(keyboardInput->IsKeyDown('A')) {
-            model->position.x -= 10 * dt;
+            renderer->camera->position.x -= 10 * dt;
         }
 
         if(keyboardInput->IsKeyDown('W')) {
-            model->position.z += 10 * dt;
+            renderer->camera->position.z += 10 * dt;
         }
 
         if(keyboardInput->IsKeyDown('S')) {
-            model->position.z -= 10 * dt;
+            renderer->camera->position.z -= 10 * dt;
         }
 
         if(keyboardInput->IsKeyDown(VK_ESCAPE)) {
@@ -188,8 +182,11 @@ namespace P3D {
         }
 
         if(keyboardInput->IsKeyDown(VK_SPACE)) {
-            renderer->camera->position.x = model->position.x;
-            renderer->camera->position.z = model->position.z - 6;
+            renderer->camera->position.y += 10 * dt;
+        }
+
+        if(keyboardInput->IsKeyDown(VK_CONTROL)) {
+            renderer->camera->position.y -= 10 * dt;
         }
     }
     
