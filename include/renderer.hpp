@@ -19,6 +19,7 @@ namespace P3D {
 
     class Renderer {
         public:
+            ~Renderer();
             void Initialize(Direct3D* direct3D);
             void Render(Model3D* model);
             void SetAspectRatio(float aspect);

@@ -9,6 +9,14 @@
 namespace P3D {
     static DirectX::XMMATRIX perspMatrix;
 
+    Renderer::~Renderer() {
+        inputLayout->Release();
+        vertexShader->Release();
+        pixelShader->Release();
+        constantBuffer->Release();
+        frameConstantBuffer->Release();
+    }
+
     void Renderer::Initialize(Direct3D* direct3D) {
         this->direct3D = direct3D;
         camera = new Camera();

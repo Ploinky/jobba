@@ -3,6 +3,10 @@
 #include "direct3d.hpp"
 
 namespace P3D {
+    Model3D::~Model3D() {
+        vertexBuffer->Release();
+        indexBuffer->Release();
+    }
 
     bool Model3D::Initialize(Direct3D* direct3D) {
         vertexBuffer = direct3D->CreateVertexBuffer(vertices, vertexCount);

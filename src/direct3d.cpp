@@ -9,6 +9,21 @@
 #include "util.hpp"
 
 namespace P3D {
+    Direct3D::~Direct3D() {
+        
+        ID3D11Debug* debug = 0;
+        device->QueryInterface(__uuidof(ID3D11Debug), (VOID**)(&debug));
+
+        renderTargetView->Release();
+        depthView->Release();
+        swapChain->Release();
+        context->Release();
+        // Uncomment for debug information!!!
+        // debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+        debug->Release();
+        device->Release();
+    }
+
     bool Direct3D::Initialize(HWND windowHandle) {
         // Save the window handle
         this->windowHandle = windowHandle;
@@ -251,6 +266,8 @@ namespace P3D {
             Logger::WErr(os.str());
             return false;
         }
+
+        depthBuffer->Release();
 
         // Depth buffer and stencil view successfully created
         return true;

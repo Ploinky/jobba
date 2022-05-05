@@ -5,6 +5,7 @@
 #include "logger.hpp"
 #include <Windows.h>
 #include <string>
+#include <dxgidebug.h>
 
 std::string GetDir() {
 	char buffer[MAX_PATH];
@@ -29,6 +30,6 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
 
     delete client;
     client = 0;
-    
+
     return 0;
 }

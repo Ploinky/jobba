@@ -14,14 +14,20 @@
 
 namespace P3D {
     Client::~Client() {
+        for(Model3D* m : models) {
+            delete m;
+        }
+
+        models.clear();
+
+        delete renderer;
+        renderer = 0;
+
         delete direct3D;
         direct3D = 0;
 
         delete window;
         window = 0;
-
-        delete renderer;
-        renderer = 0;
 
         delete keyboardInput;
         keyboardInput = 0;

@@ -20,6 +20,7 @@ namespace P3D {
             DirectX::XMFLOAT3 position;
             DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3();
 
+            ~Model3D();
             bool Initialize(Direct3D* direct3D);
             bool IsInitialized();
 

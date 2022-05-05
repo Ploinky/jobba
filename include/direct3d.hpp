@@ -9,6 +9,8 @@ namespace P3D {
     
     class Direct3D {
         public:
+            ~Direct3D();
+            
             // Initialize all resources that the Direct3D API needs
             // After this is done, Direct3D will be ready to use
             // Returns false (and logs the error) if initialization fails
