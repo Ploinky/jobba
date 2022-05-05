@@ -1,5 +1,5 @@
 #include "renderer.hpp"
-#include "model3d.hpp"
+#include "mesh.hpp"
 #include "logger.hpp"
 #include "vertex.hpp"
 #include "direct3d.hpp"
@@ -67,7 +67,7 @@ namespace P3D {
         direct3D->device->CreateBuffer(&desc, &data, &frameConstantBuffer);
     }
 
-    void Renderer::Render(Model3D* model) {
+    void Renderer::Render(Mesh* model) {
         // Lazy initialize the model's Direct3D resources
         if(!model->IsInitialized()) {
             if(!model->Initialize(direct3D)) {

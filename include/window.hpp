@@ -7,7 +7,6 @@
 namespace P3D {
     // Forward declarations to avoid too many headers
     class Direct3D;
-    class Model3D;
 
     class Window {
         public:

@@ -4,7 +4,7 @@
 #include <DirectXMath.h>
 
 namespace P3D {
-    class Model3D;
+    class Mesh;
     class Direct3D;
     class Camera;
 
@@ -21,7 +21,7 @@ namespace P3D {
         public:
             ~Renderer();
             void Initialize(Direct3D* direct3D);
-            void Render(Model3D* model);
+            void Render(Mesh* model);
             void SetAspectRatio(float aspect);
             void UpdateCameraMatrix();
 

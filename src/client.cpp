@@ -1,7 +1,7 @@
 #include "client.hpp"
 #include <iostream>
 #include "window.hpp"
-#include "model3d.hpp"
+#include "mesh.hpp"
 #include "vertex.hpp"
 #include "logger.hpp"
 #include "direct3d.hpp"
@@ -14,7 +14,7 @@
 
 namespace P3D {
     Client::~Client() {
-        for(Model3D* m : models) {
+        for(Mesh* m : models) {
             delete m;
         }
 
@@ -39,7 +39,7 @@ namespace P3D {
     void Client::Run() {
         Logger::Msg("Hello from general client!");
 
-        Model3D* model = new Model3D();
+        Mesh* model = new Mesh();
         Vertex vert[] = { Vertex{{-0.5f, 0, 0}, {1.0f, 0, 0, 1}},
             Vertex{{0, 1, 0}, {0, 1.0f, 0, 1}},
             Vertex{{0.5f, 0, 0}, {0, 0, 1.0f, 1}}
@@ -48,7 +48,7 @@ namespace P3D {
         model->vertexCount = 3;
         models.push_back(model);
 
-        Model3D* model2 = new Model3D();
+        Mesh* model2 = new Mesh();
         Vertex vert2[] = {
             Vertex{{-10, 0, -10}, {1.0f, 1.0f, 1.0f, 1}},
             Vertex{{-10, 0, 10}, {1.0f, 0, 0, 1}},
@@ -115,7 +115,7 @@ namespace P3D {
             // Render scene
             BeginRender();
 
-            for(Model3D* m : models) {
+            for(Mesh* m : models) {
                 Render(m);
             }
 
@@ -132,7 +132,7 @@ namespace P3D {
     bool initialValue = true;
 
 
-    void Client::HandlePlayerInput(Model3D* model, float dt) {
+    void Client::HandlePlayerInput(Mesh* model, float dt) {
         if(initialValue) {
             lastX = mouseInput->GetMouseX();
             lastY = mouseInput->GetMouseY();
@@ -183,7 +183,7 @@ namespace P3D {
         renderer->UpdateCameraMatrix();
     }
 
-    void Client::Render(Model3D* model) {
+    void Client::Render(Mesh* model) {
         renderer->Render(model);
     }
 

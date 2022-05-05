@@ -1,14 +1,14 @@
-#include "model3d.hpp"
+#include "mesh.hpp"
 #include "vertex.hpp"
 #include "direct3d.hpp"
 
 namespace P3D {
-    Model3D::~Model3D() {
+    Mesh::~Mesh() {
         vertexBuffer->Release();
         indexBuffer->Release();
     }
 
-    bool Model3D::Initialize(Direct3D* direct3D) {
+    bool Mesh::Initialize(Direct3D* direct3D) {
         vertexBuffer = direct3D->CreateVertexBuffer(vertices, vertexCount);
 
         if(vertexBuffer == nullptr) {
@@ -36,7 +36,7 @@ namespace P3D {
         return initialized;
     }
 
-    bool Model3D::IsInitialized() {
+    bool Mesh::IsInitialized() {
         return initialized;
     }
 }

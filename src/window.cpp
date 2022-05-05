@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include "direct3d.hpp"
-#include "model3d.hpp"
+#include "mesh.hpp"
 #include "logger.hpp"
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
