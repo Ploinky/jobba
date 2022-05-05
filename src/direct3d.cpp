@@ -9,6 +9,21 @@
 #include "util.hpp"
 
 namespace P3D {
+    Direct3D::~Direct3D() {
+        
+        ID3D11Debug* debug = 0;
+        device->QueryInterface(__uuidof(ID3D11Debug), (VOID**)(&debug));
+
+        renderTargetView->Release();
+        depthView->Release();
+        swapChain->Release();
+        context->Release();
+        // Uncomment for debug information!!!
+        // debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+        debug->Release();
+        device->Release();
+    }
+
     bool Direct3D::Initialize(HWND windowHandle) {
         // Save the window handle
         this->windowHandle = windowHandle;
@@ -252,6 +267,8 @@ namespace P3D {
             return false;
         }
 
+        depthBuffer->Release();
+
         // Depth buffer and stencil view successfully created
         return true;
     }
@@ -356,5 +373,27 @@ namespace P3D {
         } else {
             return buffer;
         }
+    }
+    
+    void Direct3D::SetWindowDimensions(int width, int height) {
+        context->OMSetRenderTargets(0, 0, 0);
+        renderTargetView->Release();
+        depthView->Release();
+        context->ClearState();
+        context->Flush();
+
+        swapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+        
+        if(!CreateBackBuffer()) {
+            Logger::Err("Failed to create back buffer");
+        }
+
+        if(!CreateDepthBuffer()) {
+            Logger::Err("Failed to create depth buffer");
+        }
+
+        BindViews();
+
+        SetViewport();
     }
 }

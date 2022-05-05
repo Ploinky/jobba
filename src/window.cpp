@@ -1,4 +1,5 @@
 #include "window.hpp"
+#include <windowsx.h>
 #include <iostream>
 #include <string>
 #include "direct3d.hpp"
@@ -7,18 +8,69 @@
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
-        case WM_NCCREATE:
-        {
-            SetWindowLongPtr(hwnd, 0, lParam);
-            break;
-        }
         case WM_QUIT:
         case WM_DESTROY:
         {
-
             P3D::Logger::Msg("Windows window has been destroyed.");
-            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, 0);
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             window->SetShouldClose();
+            break;
+        }
+        case WM_SIZE:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+
+            if(window == nullptr) {
+                break;
+            }
+            
+            window->Resized(LOWORD(lParam), HIWORD(lParam));
+
+            RECT rect;
+            GetClientRect(hwnd, &rect);
+
+            POINT ul;
+            ul.x = rect.left;
+            ul.y = rect.top;
+
+            POINT lr;
+            lr.x = rect.right;
+            lr.y = rect.bottom;
+
+            MapWindowPoints(hwnd, nullptr, &ul, 1);
+            MapWindowPoints(hwnd, nullptr, &lr, 1);
+
+            rect.left = ul.x;
+            rect.top = ul.y;
+
+            rect.right = lr.x;
+            rect.bottom = lr.y;
+
+            ClipCursor(&rect);
+            break;
+        }
+        case WM_KEYDOWN:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window != nullptr) {
+                window->KeyPressed(wParam);
+            }
+            break;
+        }
+        case WM_KEYUP:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window != nullptr) {
+                window->KeyReleased(wParam);
+            }
+            break;
+        }
+        case WM_MOUSEMOVE:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window != nullptr) {
+                window->MouseMoved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            }
             break;
         }
     }
@@ -50,17 +102,14 @@ namespace P3D {
         wc.hIconSm = wc.hIcon;
 
         int posX, posY;
-        int width = 1024;
-        int height = 800;
+        width = 1024;
+        height = 800;
 
         int screenWidth = GetSystemMetrics(SM_CXSCREEN);
         int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
-        screenWidth = width;
-        screenHeight = height;
-
-        posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
-        posY = (GetSystemMetrics(SM_CYSCREEN) - screenHeight) / 2;
+        posX = (screenWidth - width) / 2;
+        posY = (screenHeight - height) / 2;
 
         RegisterClassExW(&wc);
 
@@ -81,14 +130,15 @@ namespace P3D {
                                        NULL,
                                        GetModuleHandle(NULL),
                                        NULL);
+        
+        // Save pointer to P3D::Window for WndProc to access
+        SetWindowLongPtr(windowHandle, GWLP_USERDATA, LONG_PTR(this));
 
         if (windowHandle == 0) {
             Logger::Err("WindowHandle is NULL.");
             Logger::Err(std::to_string(GetLastError()));
             return;
         }
-
-        ShowWindow(windowHandle, SW_SHOW);
     }
 
     Window::~Window() {
@@ -96,14 +146,15 @@ namespace P3D {
 
     void Window::Show() {
         Logger::Msg("Windows window showing!");
+        ShowWindow(windowHandle, SW_SHOW);
     }
 
+    MSG msg = {};
+    
     // Handle win32 window events
     void Window::HandleEvents() {
-        MSG msg = {};
-
         // Use PeekMessage, GetMessage blocks!
-        if (PeekMessage(&msg, windowHandle, 0, 0, PM_REMOVE) > 0)
+        while (PeekMessage(&msg, windowHandle, 0, 0, PM_REMOVE) > 0)
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
@@ -120,5 +171,32 @@ namespace P3D {
     
     HWND Window::GetWindowHandle() {
         return windowHandle;
+    }
+
+    void Window::Resized(int width, int height) {
+        this->width = width;
+        this->height = height;
+
+        if(windowResizedHandler != nullptr) {
+            windowResizedHandler();
+        }
+    }
+
+    void Window::KeyPressed(long key) {
+        if(keyHandler != nullptr) {
+            keyHandler(key, true);
+        }
+    }
+
+    void Window::KeyReleased(long key) {
+        if(keyHandler != nullptr) {
+            keyHandler(key, false);
+        }
+    }
+
+    void Window::MouseMoved(unsigned short x, unsigned short y) {
+        if(mouseHandler != nullptr) {
+            mouseHandler(x, y);
+        }
     }
 }

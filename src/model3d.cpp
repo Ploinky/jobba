@@ -3,12 +3,12 @@
 #include "direct3d.hpp"
 
 namespace P3D {
+    Model3D::~Model3D() {
+        vertexBuffer->Release();
+        indexBuffer->Release();
+    }
 
     bool Model3D::Initialize(Direct3D* direct3D) {
-        position.x = 0;
-        position.y = 0;
-        position.z = 0;
-
         vertexBuffer = direct3D->CreateVertexBuffer(vertices, vertexCount);
 
         if(vertexBuffer == nullptr) {
