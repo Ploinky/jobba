@@ -55,7 +55,6 @@ namespace P3D {
         };
         model2->vertices = vert2;
         model2->vertexCount = 6;
-        model2->position.y = -0.1f;
         models.push_back(model2);
 
         // Create and show window

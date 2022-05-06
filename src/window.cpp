@@ -101,7 +101,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 if(rawBuffer->header.dwType == RIM_TYPEMOUSE) {
                     window->MouseMoved(rawBuffer->data.mouse.lLastX, rawBuffer->data.mouse.lLastY);
                 } else if(rawBuffer->header.dwType == RIM_TYPEKEYBOARD) {
-                    P3D::Logger::Msg(std::to_string(rawBuffer->data.keyboard.Flags));
                     if(rawBuffer->data.keyboard.Flags == RI_KEY_MAKE) {
                         window->KeyPressed(rawBuffer->data.keyboard.VKey);
                     } else if(rawBuffer->data.keyboard.Flags == RI_KEY_BREAK) {
