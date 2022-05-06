@@ -193,10 +193,11 @@ namespace P3D {
         Rid[1].dwFlags = RIDEV_NOLEGACY;    // adds keyboard and also ignores legacy keyboard messages
         Rid[1].hwndTarget = 0;
 
-        if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE)
-        {
+        if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE) {
             //registration failed. Call GetLastError for the cause of the error
         }
+
+        ShowCursor(false);
     }
 
     Window::~Window() {
