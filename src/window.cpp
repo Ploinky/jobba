@@ -113,6 +113,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             return TRUE;
         }
+        case WM_ACTIVATE:
+        {
+            /*
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window == nullptr) {
+                break;
+            }
+
+            if(LOWORD(wParam) == WA_INACTIVE) {
+                window->FocusLost();
+            } else if(LOWORD(wParam) == WA_ACTIVE) {
+                window->FocusGained();
+            }
+            break;
+            */
+        }
+        case WM_SETFOCUS:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window == nullptr) {
+                break;
+            }
+
+            window->FocusGained();
+            break;
+        }
+        case WM_KILLFOCUS:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window == nullptr) {
+                break;
+            }
+
+            window->FocusLost();
+            break; 
+        }
     }
 
     return DefWindowProcW(hwnd, msg, wParam, lParam);
@@ -179,24 +215,6 @@ namespace P3D {
             Logger::Err(std::to_string(GetLastError()));
             return;
         }
-
-        RAWINPUTDEVICE Rid[2];
-                
-        Rid[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
-        Rid[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
-        Rid[0].dwFlags = RIDEV_NOLEGACY;    // adds mouse and also ignores legacy mouse messages
-        Rid[0].hwndTarget = 0;
-
-        Rid[1].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
-        Rid[1].usUsage = 0x06;              // HID_USAGE_GENERIC_KEYBOARD
-        Rid[1].dwFlags = RIDEV_NOLEGACY;    // adds keyboard and also ignores legacy keyboard messages
-        Rid[1].hwndTarget = 0;
-
-        if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE) {
-            //registration failed. Call GetLastError for the cause of the error
-        }
-
-        ShowCursor(false);
     }
 
     Window::~Window() {
@@ -255,6 +273,50 @@ namespace P3D {
     void Window::MouseMoved(unsigned short x, unsigned short y) {
         if(mouseHandler != nullptr) {
             mouseHandler(x, y);
+        }
+    }
+
+    void Window::FocusGained() {
+        Logger::Msg("Window gained focus");
+
+        ShowCursor(false);
+
+        RAWINPUTDEVICE Rid[2];
+                
+        Rid[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
+        Rid[0].dwFlags = RIDEV_NOLEGACY;    // adds mouse and also ignores legacy mouse messages
+        Rid[0].hwndTarget = windowHandle;
+
+        Rid[1].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[1].usUsage = 0x06;              // HID_USAGE_GENERIC_KEYBOARD
+        Rid[1].dwFlags = RIDEV_NOLEGACY;    // adds keyboard and also ignores legacy keyboard messages
+        Rid[1].hwndTarget = windowHandle;
+
+        if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE) {
+            Logger::Err("Failed to register raw input devices");
+        }
+    }
+
+    void Window::FocusLost() {
+        Logger::Msg("Window lost focus");
+        
+        ShowCursor(true);
+
+        RAWINPUTDEVICE Rid[2];
+                
+        Rid[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
+        Rid[0].dwFlags = RIDEV_REMOVE;    // adds mouse and also ignores legacy mouse messages
+        Rid[0].hwndTarget = 0;
+
+        Rid[1].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[1].usUsage = 0x06;              // HID_USAGE_GENERIC_KEYBOARD
+        Rid[1].dwFlags = RIDEV_REMOVE;    // adds keyboard and also ignores legacy keyboard messages
+        Rid[1].hwndTarget = 0;
+
+        if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE) {
+            Logger::Err("Failed to unregister raw input devices");
         }
     }
 }

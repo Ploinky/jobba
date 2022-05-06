@@ -32,6 +32,9 @@ namespace P3D {
             // Set value of 'shouldClose' to true. Can not be reversed -> window WILL close and P3D WILL quit!
             void SetShouldClose();
 
+            void FocusGained();
+            void FocusLost();
+
             void Resized(int width, int height);
 
             void KeyPressed(long key);
