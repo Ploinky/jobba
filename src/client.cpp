@@ -94,7 +94,7 @@ namespace P3D {
         };
 
         renderer = new Renderer();
-        renderer->Initialize(direct3D);
+        renderer->Initialize(direct3D, window->width, window->height);
         renderer->camera->position.y = 1;
         renderer->camera->position.z = 0;
         

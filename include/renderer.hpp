@@ -20,7 +20,7 @@ namespace P3D {
     class Renderer {
         public:
             ~Renderer();
-            void Initialize(Direct3D* direct3D);
+            void Initialize(Direct3D* direct3D, int width, int height);
             void Render(Mesh* model);
             void SetAspectRatio(float aspect);
             void UpdateCameraMatrix();

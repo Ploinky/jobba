@@ -17,12 +17,12 @@ namespace P3D {
         frameConstantBuffer->Release();
     }
 
-    void Renderer::Initialize(Direct3D* direct3D) {
+    void Renderer::Initialize(Direct3D* direct3D, int width, int height) {
         this->direct3D = direct3D;
         camera = new Camera();
 
         perspMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
-            DirectX::XMConvertToRadians(camera->fov), 1024.0f / 800.0f, camera->nearClip, camera->farClip));
+            DirectX::XMConvertToRadians(camera->fov), width / height, camera->nearClip, camera->farClip));
 
         // Where to set this?
         direct3D->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
