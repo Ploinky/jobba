@@ -9,7 +9,6 @@ namespace P3D {
     class Renderer;
     class Window;
     class KeyboardInput;
-    class MouseInput;
     
     class Client {
         public:
@@ -29,7 +28,6 @@ namespace P3D {
             long long lastFrame;
 
             KeyboardInput* keyboardInput;
-            MouseInput* mouseInput;
 
             std::vector<Mesh*> models;
 

@@ -30,9 +30,6 @@ namespace P3D {
 
         delete keyboardInput;
         keyboardInput = 0;
-
-        delete mouseInput;
-        mouseInput = 0;
     }
 
     void Client::Run() {
@@ -125,21 +122,26 @@ namespace P3D {
     }
 
     void Client::HandlePlayerInput(Mesh* model, float dt) {
-        if(keyboardInput->IsKeyDown('D')) {
-            renderer->camera->position.x += 10 * dt;
-        }
+        
+        DirectX::XMFLOAT3 move = DirectX::XMFLOAT3(
+            keyboardInput->IsKeyDown('D') - keyboardInput->IsKeyDown('A'),
+            0,
+            keyboardInput->IsKeyDown('W') - keyboardInput->IsKeyDown('S'));
+        DirectX::XMFLOAT3 r = renderer->camera->rotation;
 
-        if(keyboardInput->IsKeyDown('A')) {
-            renderer->camera->position.x -= 10 * dt;
-        }
+        DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw(
+            DirectX::XMConvertToRadians(r.x),
+            DirectX::XMConvertToRadians(r.y),
+            DirectX::XMConvertToRadians(r.z));
 
-        if(keyboardInput->IsKeyDown('W')) {
-            renderer->camera->position.z += 10 * dt;
-        }
+        DirectX::XMVECTOR vec = DirectX::XMLoadFloat3(&move);
+        vec = DirectX::XMVector3Transform(vec, rotMat);
 
-        if(keyboardInput->IsKeyDown('S')) {
-            renderer->camera->position.z -= 10 * dt;
-        }
+        DirectX::XMStoreFloat3(&move, vec);
+        
+        renderer->camera->position.x += move.x * 10 * dt;
+        renderer->camera->position.y += move.y * 10 * dt;
+        renderer->camera->position.z += move.z * 10 * dt;
 
         if(keyboardInput->IsKeyDown(VK_ESCAPE)) {
             isRunning = false;
