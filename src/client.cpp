@@ -85,6 +85,12 @@ namespace P3D {
         window->mouseHandler = [this](short x, short y) {
             renderer->camera->rotation.y += x * 0.1f;
             renderer->camera->rotation.x += y * 0.1f;
+
+            renderer->camera->rotation.x = renderer->camera->rotation.x > 90 ? 90 : renderer->camera->rotation.x;
+            renderer->camera->rotation.x = renderer->camera->rotation.x < -90 ? -90 : renderer->camera->rotation.x;
+
+            renderer->camera->rotation.y = renderer->camera->rotation.y > 360 ? renderer->camera->rotation.y - 360 : renderer->camera->rotation.y;
+            renderer->camera->rotation.y = renderer->camera->rotation.y < -360 ? renderer->camera->rotation.y + 360 : renderer->camera->rotation.y;
         };
 
         renderer = new Renderer();
