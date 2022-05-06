@@ -9,7 +9,6 @@
 #include <DirectXMath.h>
 #include "camera.hpp"
 #include "keyboard_input.hpp"
-#include "mouse_input.hpp"
 #include <chrono>
 
 namespace P3D {
@@ -76,7 +75,6 @@ namespace P3D {
             window->SetShouldClose();
         }
 
-        mouseInput = new MouseInput();
         keyboardInput = new KeyboardInput();
         
         window->windowResizedHandler = [this]() {
@@ -89,7 +87,8 @@ namespace P3D {
         };
 
         window->mouseHandler = [this](short x, short y) {
-            mouseInput->SetMousePos(x, y);
+            renderer->camera->rotation.y += x * 0.1f;
+            renderer->camera->rotation.x += y * 0.1f;
         };
 
         renderer = new Renderer();
@@ -125,30 +124,7 @@ namespace P3D {
         Logger::Msg("Game loop has been stopped.");
     }
 
-
-    short lastX;
-
-    short lastY;
-    bool initialValue = true;
-
-
     void Client::HandlePlayerInput(Mesh* model, float dt) {
-        if(initialValue) {
-            lastX = mouseInput->GetMouseX();
-            lastY = mouseInput->GetMouseY();
-            initialValue = false;
-        }
-
-        short newX = mouseInput->GetMouseX();
-        short newY = mouseInput->GetMouseY();
-        short mouseX = newX - lastX;
-        short mouseY = newY - lastY;
-        lastX = newX;
-        lastY = newY;
-
-        renderer->camera->rotation.y += ((float) mouseX) * dt * 100.0f;
-        renderer->camera->rotation.x += ((float) mouseY) * dt * 100.0f;
-
         if(keyboardInput->IsKeyDown('D')) {
             renderer->camera->position.x += 10 * dt;
         }

@@ -71,7 +71,48 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if(window != nullptr) {
                 window->MouseMoved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             }
+
             break;
+        }
+        case WM_INPUT:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window == nullptr) {
+                break;
+            }
+
+            RAWINPUT* rawBuffer;
+            UINT cbSize;
+
+            GetRawInputData((HRAWINPUT)lParam, 
+                            RID_INPUT, 
+                            NULL, 
+                            &cbSize,
+                            sizeof(RAWINPUTHEADER)
+                            );
+            
+	        rawBuffer = (PRAWINPUT)malloc(cbSize);
+
+            if(!rawBuffer) {
+                return FALSE;
+            }
+           
+            if(GetRawInputData((HRAWINPUT) lParam, RID_INPUT, rawBuffer, &cbSize, sizeof(RAWINPUTHEADER))) {
+                if(rawBuffer->header.dwType == RIM_TYPEMOUSE) {
+                    window->MouseMoved(rawBuffer->data.mouse.lLastX, rawBuffer->data.mouse.lLastY);
+                } else if(rawBuffer->header.dwType == RIM_TYPEKEYBOARD) {
+                    P3D::Logger::Msg(std::to_string(rawBuffer->data.keyboard.Flags));
+                    if(rawBuffer->data.keyboard.Flags == RI_KEY_MAKE) {
+                        window->KeyPressed(rawBuffer->data.keyboard.VKey);
+                    } else if(rawBuffer->data.keyboard.Flags == RI_KEY_BREAK) {
+                        window->KeyReleased(rawBuffer->data.keyboard.VKey);
+                    }
+                }
+            }
+            
+            free(rawBuffer);
+
+            return TRUE;
         }
     }
 
@@ -138,6 +179,23 @@ namespace P3D {
             Logger::Err("WindowHandle is NULL.");
             Logger::Err(std::to_string(GetLastError()));
             return;
+        }
+
+        RAWINPUTDEVICE Rid[2];
+                
+        Rid[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
+        Rid[0].dwFlags = RIDEV_NOLEGACY;    // adds mouse and also ignores legacy mouse messages
+        Rid[0].hwndTarget = 0;
+
+        Rid[1].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[1].usUsage = 0x06;              // HID_USAGE_GENERIC_KEYBOARD
+        Rid[1].dwFlags = RIDEV_NOLEGACY;    // adds keyboard and also ignores legacy keyboard messages
+        Rid[1].hwndTarget = 0;
+
+        if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE)
+        {
+            //registration failed. Call GetLastError for the cause of the error
         }
     }
 
