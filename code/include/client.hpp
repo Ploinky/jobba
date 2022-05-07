@@ -4,12 +4,11 @@
 
 // Main game application
 namespace P3D {
-    class Model3D;
+    class Mesh;
     class Direct3D;
     class Renderer;
     class Window;
     class KeyboardInput;
-    class MouseInput;
     
     class Client {
         public:
@@ -29,18 +28,17 @@ namespace P3D {
             long long lastFrame;
 
             KeyboardInput* keyboardInput;
-            MouseInput* mouseInput;
 
-            std::vector<Model3D*> models;
+            std::vector<Mesh*> models;
 
             // Clears the screen and prepares rendering
             void BeginRender();
             // Render the specified 3D model to the screen
-            void Render(Model3D* model);
+            void Render(Mesh* model);
             // Final rendering operations and presents the rendered image to the screen
             void FinishRender();
 
-            void HandlePlayerInput(Model3D* model, float dt);
+            void HandlePlayerInput(Mesh* model, float dt);
 
             long long GetSystemTime();
     };

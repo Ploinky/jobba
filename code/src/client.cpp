@@ -1,7 +1,7 @@
 #include "client.hpp"
 #include <iostream>
 #include "window.hpp"
-#include "model3d.hpp"
+#include "mesh.hpp"
 #include "vertex.hpp"
 #include "logger.hpp"
 #include "direct3d.hpp"
@@ -9,12 +9,12 @@
 #include <DirectXMath.h>
 #include "camera.hpp"
 #include "keyboard_input.hpp"
-#include "mouse_input.hpp"
 #include <chrono>
+#include "map.hpp"
 
 namespace P3D {
     Client::~Client() {
-        for(Model3D* m : models) {
+        for(Mesh* m : models) {
             delete m;
         }
 
@@ -31,51 +31,25 @@ namespace P3D {
 
         delete keyboardInput;
         keyboardInput = 0;
-
-        delete mouseInput;
-        mouseInput = 0;
     }
 
     void Client::Run() {
         Logger::Msg("Hello from general client!");
 
-        Model3D* model = new Model3D();
+        Map* map = new Map();
+        map->Load("./data/maps/map1/map1.omp");
+
+        Mesh* model = new Mesh();
         Vertex vert[] = { Vertex{{-0.5f, 0, 0}, {1.0f, 0, 0, 1}},
             Vertex{{0, 1, 0}, {0, 1.0f, 0, 1}},
             Vertex{{0.5f, 0, 0}, {0, 0, 1.0f, 1}}
         };
+        unsigned int indices[] = {0, 1, 2};
         model->vertices = vert;
         model->vertexCount = 3;
+        model->indices = indices;
+        model->indexCount = 3;
         models.push_back(model);
-
-        Model3D* model2 = new Model3D();
-        Vertex vert2[] = {
-            Vertex{{-10, 0, -10}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{-10, 0, 10}, {1.0f, 0, 0, 1}},
-            Vertex{{10, 0, -10}, {0, 1.0f, 0, 1}},
-            Vertex{{-10, 0, 10}, {1.0f, 0, 0, 1}},
-            Vertex{{10, 0, 10}, {0, 0, 1.0f, 1}},
-            Vertex{{10, 0, -10}, {0, 1.0f, 0, 1}},
-        };
-        model2->vertices = vert2;
-        model2->vertexCount = 6;
-        model2->position.y = -0.1f;
-        models.push_back(model2);
-
-        Model3D* model3 = new Model3D();
-        Vertex vert3[] = {
-            Vertex{{-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{-1, 0.3f, 0}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{1, 0.3f, 0}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{-1, 0, 0}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{1, 0.3f, 0}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{1, 0, 0}, {1.0f, 1.0f, 1.0f, 1}},
-        };
-        model3->position = model->position;
-        model3->rotation.x = 60;
-        model3->vertices = vert3;
-        model3->vertexCount = 6;
-        models.push_back(model3);
 
         // Create and show window
         window = new Window();
@@ -91,7 +65,6 @@ namespace P3D {
             window->SetShouldClose();
         }
 
-        mouseInput = new MouseInput();
         keyboardInput = new KeyboardInput();
         
         window->windowResizedHandler = [this]() {
@@ -104,11 +77,18 @@ namespace P3D {
         };
 
         window->mouseHandler = [this](short x, short y) {
-            mouseInput->SetMousePos(x, y);
+            renderer->camera->rotation.y += x * 0.1f;
+            renderer->camera->rotation.x += y * 0.1f;
+
+            renderer->camera->rotation.x = renderer->camera->rotation.x > 90 ? 90 : renderer->camera->rotation.x;
+            renderer->camera->rotation.x = renderer->camera->rotation.x < -90 ? -90 : renderer->camera->rotation.x;
+
+            renderer->camera->rotation.y = renderer->camera->rotation.y > 360 ? renderer->camera->rotation.y - 360 : renderer->camera->rotation.y;
+            renderer->camera->rotation.y = renderer->camera->rotation.y < -360 ? renderer->camera->rotation.y + 360 : renderer->camera->rotation.y;
         };
 
         renderer = new Renderer();
-        renderer->Initialize(direct3D);
+        renderer->Initialize(direct3D, window->width, window->height);
         renderer->camera->position.y = 1;
         renderer->camera->position.z = 0;
         
@@ -126,16 +106,15 @@ namespace P3D {
 
             // Game logic
             HandlePlayerInput(model, dt);
-            
-            model3->position = model->position;
-            model3->position.y = model->position.y + 1.4f;
 
             // Render scene
             BeginRender();
 
-            for(Model3D* m : models) {
+            for(Mesh* m : models) {
                 Render(m);
             }
+
+            Render(map->GetMesh());
 
             FinishRender();
         }
@@ -143,45 +122,27 @@ namespace P3D {
         Logger::Msg("Game loop has been stopped.");
     }
 
+    void Client::HandlePlayerInput(Mesh* model, float dt) {
+        
+        DirectX::XMFLOAT3 move = DirectX::XMFLOAT3(
+            keyboardInput->IsKeyDown('D') - keyboardInput->IsKeyDown('A'),
+            0,
+            keyboardInput->IsKeyDown('W') - keyboardInput->IsKeyDown('S'));
+        DirectX::XMFLOAT3 r = renderer->camera->rotation;
 
-    short lastX;
+        DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationRollPitchYaw(
+            DirectX::XMConvertToRadians(r.x),
+            DirectX::XMConvertToRadians(r.y),
+            DirectX::XMConvertToRadians(r.z));
 
-    short lastY;
-    bool initialValue = true;
+        DirectX::XMVECTOR vec = DirectX::XMLoadFloat3(&move);
+        vec = DirectX::XMVector3Transform(vec, rotMat);
 
-
-    void Client::HandlePlayerInput(Model3D* model, float dt) {
-        if(initialValue) {
-            lastX = mouseInput->GetMouseX();
-            lastY = mouseInput->GetMouseY();
-            initialValue = false;
-        }
-
-        short newX = mouseInput->GetMouseX();
-        short newY = mouseInput->GetMouseY();
-        short mouseX = newX - lastX;
-        short mouseY = newY - lastY;
-        lastX = newX;
-        lastY = newY;
-
-        renderer->camera->rotation.y += ((float) mouseX) * dt * 100.0f;
-        renderer->camera->rotation.x += ((float) mouseY) * dt * 100.0f;
-
-        if(keyboardInput->IsKeyDown('D')) {
-            renderer->camera->position.x += 10 * dt;
-        }
-
-        if(keyboardInput->IsKeyDown('A')) {
-            renderer->camera->position.x -= 10 * dt;
-        }
-
-        if(keyboardInput->IsKeyDown('W')) {
-            renderer->camera->position.z += 10 * dt;
-        }
-
-        if(keyboardInput->IsKeyDown('S')) {
-            renderer->camera->position.z -= 10 * dt;
-        }
+        DirectX::XMStoreFloat3(&move, vec);
+        
+        renderer->camera->position.x += move.x * 10 * dt;
+        renderer->camera->position.y += move.y * 10 * dt;
+        renderer->camera->position.z += move.z * 10 * dt;
 
         if(keyboardInput->IsKeyDown(VK_ESCAPE)) {
             isRunning = false;
@@ -201,7 +162,7 @@ namespace P3D {
         renderer->UpdateCameraMatrix();
     }
 
-    void Client::Render(Model3D* model) {
+    void Client::Render(Mesh* model) {
         renderer->Render(model);
     }
 

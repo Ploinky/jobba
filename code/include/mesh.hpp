@@ -9,7 +9,7 @@ namespace P3D {
     class Vector3D;
     class Vertex;
 
-    class Model3D {
+    class Mesh {
         public:
             Vertex* vertices;
             uint32_t vertexCount;
@@ -20,7 +20,7 @@ namespace P3D {
             DirectX::XMFLOAT3 position;
             DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3();
 
-            ~Model3D();
+            ~Mesh();
             bool Initialize(Direct3D* direct3D);
             bool IsInitialized();
 

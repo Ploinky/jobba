@@ -1,5 +1,5 @@
 #include "direct3d.hpp"
-#include "model3d.hpp"
+#include "mesh.hpp"
 #include "logger.hpp"
 #include "vertex.hpp"
 #include <comdef.h>

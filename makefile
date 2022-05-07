@@ -1,7 +1,7 @@
-SRC_DIR := src
-OBJ_DIR := build/obj
-PS_SRC := shaders/pixel
-VS_SRC := shaders/vertex
+SRC_DIR := code/src
+OBJ_DIR := obj
+PS_SRC := code/shaders/pixel
+VS_SRC := code/shaders/vertex
 PS_VS_DEST := build/shaders
 SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
@@ -9,20 +9,21 @@ PS_IN := $(wildcard $(PS_SRC)/*.hlsl)
 PS_OUT := $(patsubst $(PS_SRC)/%.hlsl,$(PS_VS_DEST)/%.cso,$(PS_IN))
 VS_IN := $(wildcard $(VS_SRC)/*.hlsl)
 VS_OUT := $(patsubst $(VS_SRC)/%.hlsl,$(PS_VS_DEST)/%.cso,$(VS_IN))
-EXE_FILE := build/bin/jobba.exe
-FOLDERS = build build/bin build/shaders build/obj
+EXE_FILE := build/jobba.exe
+FOLDERS = build build/data build/shaders build/obj
 all: $(FOLDERS) $(PS_OUT) $(VS_OUT) $(EXE_FILE)
 
 $(FOLDERS):
-	if not exist .\build\bin mkdir .\build\bin
+	if not exist .\build mkdir .\build
 	if not exist .\build\shaders mkdir .\build\shaders
-	if not exist .\build\obj mkdir .\build\obj
+	if not exist .\obj mkdir .\obj
+	if not exist .build\data xcopy data .\build\data /I /S /Y
 
 $(EXE_FILE): $(OBJ_FILES)
-	clang++ -Wall -std=c++17 $^ -I include -o $@ -l d3d11
+	clang++ -Wall -std=c++17 $^ -I code/include -o $@ -l d3d11
 
-build/obj/%.o: src/%.cpp include/%.hpp
-	clang++ -Wall -std=c++17 $< -c -I include -o $@
+obj/%.o: code/src/%.cpp code/include/%.hpp
+	clang++ -Wall -std=c++17 $< -c -I code/include -o $@
 
 $(PS_OUT): $(PS_IN)
 	fxc -T ps_5_0 /Fo $@ $<
@@ -31,7 +32,8 @@ $(VS_OUT): $(VS_IN)
 	fxc -T vs_5_0 /Fo $@ $<
 
 run:
-	.\build\bin\jobba.exe
+	.\build\jobba.exe
 
 clean:
 	if exist .\build rmdir /S /Q build
+	if exist .\obj rmdir /S /Q obj

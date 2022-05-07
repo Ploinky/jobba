@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include "direct3d.hpp"
-#include "model3d.hpp"
+#include "mesh.hpp"
 #include "logger.hpp"
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -71,7 +71,83 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if(window != nullptr) {
                 window->MouseMoved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             }
+
             break;
+        }
+        case WM_INPUT:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window == nullptr) {
+                break;
+            }
+
+            RAWINPUT* rawBuffer;
+            UINT cbSize;
+
+            GetRawInputData((HRAWINPUT)lParam, 
+                            RID_INPUT, 
+                            NULL, 
+                            &cbSize,
+                            sizeof(RAWINPUTHEADER)
+                            );
+            
+	        rawBuffer = (PRAWINPUT)malloc(cbSize);
+
+            if(!rawBuffer) {
+                return FALSE;
+            }
+           
+            if(GetRawInputData((HRAWINPUT) lParam, RID_INPUT, rawBuffer, &cbSize, sizeof(RAWINPUTHEADER))) {
+                if(rawBuffer->header.dwType == RIM_TYPEMOUSE) {
+                    window->MouseMoved(rawBuffer->data.mouse.lLastX, rawBuffer->data.mouse.lLastY);
+                } else if(rawBuffer->header.dwType == RIM_TYPEKEYBOARD) {
+                    if(rawBuffer->data.keyboard.Flags == RI_KEY_MAKE) {
+                        window->KeyPressed(rawBuffer->data.keyboard.VKey);
+                    } else if(rawBuffer->data.keyboard.Flags == RI_KEY_BREAK) {
+                        window->KeyReleased(rawBuffer->data.keyboard.VKey);
+                    }
+                }
+            }
+            
+            free(rawBuffer);
+
+            return TRUE;
+        }
+        case WM_ACTIVATE:
+        {
+            /*
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window == nullptr) {
+                break;
+            }
+
+            if(LOWORD(wParam) == WA_INACTIVE) {
+                window->FocusLost();
+            } else if(LOWORD(wParam) == WA_ACTIVE) {
+                window->FocusGained();
+            }
+            break;
+            */
+        }
+        case WM_SETFOCUS:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window == nullptr) {
+                break;
+            }
+
+            window->FocusGained();
+            break;
+        }
+        case WM_KILLFOCUS:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window == nullptr) {
+                break;
+            }
+
+            window->FocusLost();
+            break; 
         }
     }
 
@@ -197,6 +273,50 @@ namespace P3D {
     void Window::MouseMoved(unsigned short x, unsigned short y) {
         if(mouseHandler != nullptr) {
             mouseHandler(x, y);
+        }
+    }
+
+    void Window::FocusGained() {
+        Logger::Msg("Window gained focus");
+
+        ShowCursor(false);
+
+        RAWINPUTDEVICE Rid[2];
+                
+        Rid[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
+        Rid[0].dwFlags = RIDEV_NOLEGACY;    // adds mouse and also ignores legacy mouse messages
+        Rid[0].hwndTarget = windowHandle;
+
+        Rid[1].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[1].usUsage = 0x06;              // HID_USAGE_GENERIC_KEYBOARD
+        Rid[1].dwFlags = RIDEV_NOLEGACY;    // adds keyboard and also ignores legacy keyboard messages
+        Rid[1].hwndTarget = windowHandle;
+
+        if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE) {
+            Logger::Err("Failed to register raw input devices");
+        }
+    }
+
+    void Window::FocusLost() {
+        Logger::Msg("Window lost focus");
+        
+        ShowCursor(true);
+
+        RAWINPUTDEVICE Rid[2];
+                
+        Rid[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
+        Rid[0].dwFlags = RIDEV_REMOVE;    // adds mouse and also ignores legacy mouse messages
+        Rid[0].hwndTarget = 0;
+
+        Rid[1].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[1].usUsage = 0x06;              // HID_USAGE_GENERIC_KEYBOARD
+        Rid[1].dwFlags = RIDEV_REMOVE;    // adds keyboard and also ignores legacy keyboard messages
+        Rid[1].hwndTarget = 0;
+
+        if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE) {
+            Logger::Err("Failed to unregister raw input devices");
         }
     }
 }

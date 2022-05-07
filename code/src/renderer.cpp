@@ -1,5 +1,5 @@
 #include "renderer.hpp"
-#include "model3d.hpp"
+#include "mesh.hpp"
 #include "logger.hpp"
 #include "vertex.hpp"
 #include "direct3d.hpp"
@@ -17,12 +17,12 @@ namespace P3D {
         frameConstantBuffer->Release();
     }
 
-    void Renderer::Initialize(Direct3D* direct3D) {
+    void Renderer::Initialize(Direct3D* direct3D, int width, int height) {
         this->direct3D = direct3D;
         camera = new Camera();
 
         perspMatrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixPerspectiveFovLH(
-            DirectX::XMConvertToRadians(camera->fov), 1024.0f / 800.0f, camera->nearClip, camera->farClip));
+            DirectX::XMConvertToRadians(camera->fov), width / height, camera->nearClip, camera->farClip));
 
         // Where to set this?
         direct3D->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -33,8 +33,8 @@ namespace P3D {
             {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
         };
 
-        file_t shaderByteCode = Util::ReadBytesFromFile("../shaders/vertex.cso");
-        file_t psByteCode = Util::ReadBytesFromFile("../shaders/pixel.cso");
+        file_t shaderByteCode = Util::ReadBytesFromFile("./shaders/vertex.cso");
+        file_t psByteCode = Util::ReadBytesFromFile("./shaders/pixel.cso");
 
         direct3D->device->CreateVertexShader(shaderByteCode.data, shaderByteCode.size, nullptr, &vertexShader);
         direct3D->device->CreatePixelShader(psByteCode.data, psByteCode.size, nullptr, &pixelShader);
@@ -67,7 +67,7 @@ namespace P3D {
         direct3D->device->CreateBuffer(&desc, &data, &frameConstantBuffer);
     }
 
-    void Renderer::Render(Model3D* model) {
+    void Renderer::Render(Mesh* model) {
         // Lazy initialize the model's Direct3D resources
         if(!model->IsInitialized()) {
             if(!model->Initialize(direct3D)) {
@@ -100,9 +100,9 @@ namespace P3D {
       
         direct3D->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         direct3D->context->IASetVertexBuffers(0, 1, &model->vertexBuffer, &stride, &offset);
-        direct3D->context->IASetIndexBuffer(model->indexBuffer, DXGI_FORMAT_R16_UINT, 0);
+        direct3D->context->IASetIndexBuffer(model->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-        direct3D->context->Draw(model->indexCount, 0);
+        direct3D->context->DrawIndexed(model->indexCount, 0, 0);
     }
 
     void Renderer::SetAspectRatio(float aspect) {

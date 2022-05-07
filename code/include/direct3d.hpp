@@ -1,10 +1,11 @@
-// Provides access to Direct3D API
+#pragma once
 
 #include <d3d11.h>
 
+// Provides access to Direct3D API
 namespace P3D {
     // Forward declarations
-    class Model3D;
+    class Mesh;
     class Vertex;
     
     class Direct3D {
@@ -36,7 +37,7 @@ namespace P3D {
             ID3D11Buffer* CreateIndexBuffer(unsigned int* indices, int indexCount);
             
             // Renders the specified model to the screen
-            void Render(Model3D* model);
+            void Render(Mesh* model);
             
             ID3D11Device* device;
             ID3D11DeviceContext* context;

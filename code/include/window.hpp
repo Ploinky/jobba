@@ -7,7 +7,6 @@
 namespace P3D {
     // Forward declarations to avoid too many headers
     class Direct3D;
-    class Model3D;
 
     class Window {
         public:
@@ -32,6 +31,9 @@ namespace P3D {
             bool ShouldClose();
             // Set value of 'shouldClose' to true. Can not be reversed -> window WILL close and P3D WILL quit!
             void SetShouldClose();
+
+            void FocusGained();
+            void FocusLost();
 
             void Resized(int width, int height);
 
