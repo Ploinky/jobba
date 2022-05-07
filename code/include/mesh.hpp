@@ -25,8 +25,9 @@ namespace P3D {
             ID3D11Buffer* indexBuffer;
             DirectX::XMFLOAT3 position;
             DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3();
-            texture_t metallic;
+            texture_t albedo;
             texture_t normal;
+            texture_t metallic;
             texture_t roughness;
 
             ~Mesh();

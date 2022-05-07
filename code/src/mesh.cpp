@@ -24,6 +24,7 @@ namespace P3D {
             return false;
         }
 
+        LoadTexture(direct3D, L"./data/maps/map1/albedo.dds", &albedo);
         LoadTexture(direct3D, L"./data/maps/map1/metallic.dds", &metallic);
         LoadTexture(direct3D, L"./data/maps/map1/normal.dds", &normal);
         LoadTexture(direct3D, L"./data/maps/map1/roughness.dds", &roughness);

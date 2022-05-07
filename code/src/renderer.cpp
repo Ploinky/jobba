@@ -32,7 +32,6 @@ namespace P3D {
         D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[] = {
             {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
             {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-            {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
             {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
         };
 
@@ -42,7 +41,7 @@ namespace P3D {
         direct3D->device->CreateVertexShader(shaderByteCode.data, shaderByteCode.size, nullptr, &vertexShader);
         direct3D->device->CreatePixelShader(psByteCode.data, psByteCode.size, nullptr, &pixelShader);
 
-        direct3D->device->CreateInputLayout(inputLayoutDesc, 4, shaderByteCode.data, shaderByteCode.size, &inputLayout);
+        direct3D->device->CreateInputLayout(inputLayoutDesc, 3, shaderByteCode.data, shaderByteCode.size, &inputLayout);
 
         DirectX::XMStoreFloat4x4(&frameConstBuffer.projMatrix, perspMatrix);
         DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(
@@ -133,9 +132,10 @@ namespace P3D {
         direct3D->context->PSSetShader(pixelShader, 0, 0);
         direct3D->context->PSSetSamplers(0, 1, &sampler);
 	    direct3D->context->PSSetConstantBuffers(0, 1, &frameConstantBuffer);
-        direct3D->context->PSSetShaderResources(3, 1, &model->normal.shaderResourceView);
-        direct3D->context->PSSetShaderResources(4, 1, &model->roughness.shaderResourceView);
-        direct3D->context->PSSetShaderResources(5, 1, &model->metallic.shaderResourceView);
+        direct3D->context->PSSetShaderResources(0, 1, &model->albedo.shaderResourceView);
+        direct3D->context->PSSetShaderResources(1, 1, &model->normal.shaderResourceView);
+        direct3D->context->PSSetShaderResources(2, 1, &model->metallic.shaderResourceView);
+        direct3D->context->PSSetShaderResources(3, 1, &model->roughness.shaderResourceView);
         direct3D->context->IASetInputLayout(inputLayout);
       
         direct3D->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

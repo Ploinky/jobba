@@ -10,12 +10,11 @@ cbuffer perObjectBuffer {
     float4x4 modelMatrix;
 }
 
-void main(float3 position : POSITION, float3 normal : NORMAL, float4 color : COLOR, float2 uv : TEXCOORD, out float4 positionOut : SV_POSITION, out  float3 normalOut : NORMAL, out float4 colorOut : COLOR, out float2 uvOut : TEXCOORD) {
+void main(float3 position : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD, out float4 positionOut : SV_POSITION, out  float3 normalOut : NORMAL, out float2 uvOut : TEXCOORD) {
     positionOut = float4(position, 1.0f);
     positionOut = mul(positionOut, modelMatrix);
     positionOut = mul(positionOut, cameraMatrix);
     positionOut = mul(positionOut, projMatrix);
-    colorOut = color;
     uvOut = uv;
     normalOut = normal;
 }
