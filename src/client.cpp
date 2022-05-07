@@ -10,6 +10,7 @@
 #include "camera.hpp"
 #include "keyboard_input.hpp"
 #include <chrono>
+#include "map.hpp"
 
 namespace P3D {
     Client::~Client() {
@@ -34,6 +35,9 @@ namespace P3D {
 
     void Client::Run() {
         Logger::Msg("Hello from general client!");
+
+        Map* m = new Map();
+        m->Load("./data/maps/map1/map1.omp");
 
         Mesh* model = new Mesh();
         Vertex vert[] = { Vertex{{-0.5f, 0, 0}, {1.0f, 0, 0, 1}},
