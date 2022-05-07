@@ -16,14 +16,6 @@ namespace P3D {
             return false;
         }
 
-        indices = new unsigned int[vertexCount];
-        indexCount = vertexCount;
-
-        // This is very naive, no?
-        for(int i = 0; i < vertexCount; i++) {
-            indices[i] = i;
-        }
-
         indexBuffer = direct3D->CreateIndexBuffer(indices, indexCount);
 
         if(indexBuffer == nullptr) {

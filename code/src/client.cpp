@@ -36,30 +36,20 @@ namespace P3D {
     void Client::Run() {
         Logger::Msg("Hello from general client!");
 
-        Map* m = new Map();
-        m->Load("./data/maps/map1/map1.omp");
+        Map* map = new Map();
+        map->Load("./data/maps/map1/map1.omp");
 
         Mesh* model = new Mesh();
         Vertex vert[] = { Vertex{{-0.5f, 0, 0}, {1.0f, 0, 0, 1}},
             Vertex{{0, 1, 0}, {0, 1.0f, 0, 1}},
             Vertex{{0.5f, 0, 0}, {0, 0, 1.0f, 1}}
         };
+        unsigned int indices[] = {0, 1, 2};
         model->vertices = vert;
         model->vertexCount = 3;
+        model->indices = indices;
+        model->indexCount = 3;
         models.push_back(model);
-
-        Mesh* model2 = new Mesh();
-        Vertex vert2[] = {
-            Vertex{{-10, 0, -10}, {1.0f, 1.0f, 1.0f, 1}},
-            Vertex{{-10, 0, 10}, {1.0f, 0, 0, 1}},
-            Vertex{{10, 0, -10}, {0, 1.0f, 0, 1}},
-            Vertex{{-10, 0, 10}, {1.0f, 0, 0, 1}},
-            Vertex{{10, 0, 10}, {0, 0, 1.0f, 1}},
-            Vertex{{10, 0, -10}, {0, 1.0f, 0, 1}},
-        };
-        model2->vertices = vert2;
-        model2->vertexCount = 6;
-        models.push_back(model2);
 
         // Create and show window
         window = new Window();
@@ -123,6 +113,8 @@ namespace P3D {
             for(Mesh* m : models) {
                 Render(m);
             }
+
+            Render(map->GetMesh());
 
             FinishRender();
         }

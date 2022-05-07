@@ -8,6 +8,7 @@ namespace P3D {
         ~Map();
 
         void Load(std::string fileName);
+        Mesh* GetMesh();
     private:
         Mesh* mesh;
         std::string mapName;

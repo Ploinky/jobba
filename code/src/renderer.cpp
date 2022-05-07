@@ -100,9 +100,9 @@ namespace P3D {
       
         direct3D->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
         direct3D->context->IASetVertexBuffers(0, 1, &model->vertexBuffer, &stride, &offset);
-        direct3D->context->IASetIndexBuffer(model->indexBuffer, DXGI_FORMAT_R16_UINT, 0);
+        direct3D->context->IASetIndexBuffer(model->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-        direct3D->context->Draw(model->indexCount, 0);
+        direct3D->context->DrawIndexed(model->indexCount, 0, 0);
     }
 
     void Renderer::SetAspectRatio(float aspect) {
