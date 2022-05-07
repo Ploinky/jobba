@@ -13,25 +13,25 @@ def export_omp(context, filepath):
         
         for face in mesh.polygons:
             indices.append(face.vertices[0])
-            indices.append(face.vertices[1])
             indices.append(face.vertices[2])
+            indices.append(face.vertices[1])
             
         for vertex in mesh.vertices:
-            pos = [vertex.co[0], vertex.co[1], vertex.co[2]]
+            pos = [vertex.co[0], vertex.co[2], vertex.co[1]]
             verts.append(pos)
                 
     with open(filepath, 'wb') as f:
         f.write("omp".encode())
         f.write(struct.pack('i', 1))
         
-        f.write(struct.pack('i', len(verts))
+        f.write(struct.pack('i', len(verts)))
         
         for v in verts:
             f.write(struct.pack('f', v[0]))
             f.write(struct.pack('f', v[1]))
             f.write(struct.pack('f', v[2]))
         
-        f.write(struct.pack('i', len(indices))
+        f.write(struct.pack('i', len(indices)))
         
         for i in indices:
             f.write(struct.pack('i', i))
