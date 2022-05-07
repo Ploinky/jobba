@@ -15,6 +15,9 @@ namespace P3D {
     struct frame_constant_buffer {
         DirectX::XMFLOAT4X4 projMatrix;
         DirectX::XMFLOAT4X4 cameraMatrix;
+        DirectX::XMFLOAT4 lightPositions[4];
+        DirectX::XMFLOAT4 lightColours[4];
+        DirectX::XMFLOAT4 camPos;
     };
 
     class Renderer {
@@ -32,6 +35,7 @@ namespace P3D {
             ID3D11PixelShader* pixelShader;
             ID3D11Buffer* constantBuffer;
             ID3D11Buffer* frameConstantBuffer;
+            ID3D11SamplerState* sampler;
             object_constant_buffer vsConstData;
             frame_constant_buffer frameConstBuffer;
 

@@ -39,18 +39,6 @@ namespace P3D {
         Map* map = new Map();
         map->Load("./data/maps/map1/map1.omp");
 
-        Mesh* model = new Mesh();
-        Vertex vert[] = { Vertex{{-0.5f, 0, 0}, {1.0f, 0, 0, 1}},
-            Vertex{{0, 1, 0}, {0, 1.0f, 0, 1}},
-            Vertex{{0.5f, 0, 0}, {0, 0, 1.0f, 1}}
-        };
-        unsigned int indices[] = {0, 1, 2};
-        model->vertices = vert;
-        model->vertexCount = 3;
-        model->indices = indices;
-        model->indexCount = 3;
-        models.push_back(model);
-
         // Create and show window
         window = new Window();
         window->Show();
@@ -105,7 +93,7 @@ namespace P3D {
             window->HandleEvents();
 
             // Game logic
-            HandlePlayerInput(model, dt);
+            HandlePlayerInput(dt);
 
             // Render scene
             BeginRender();
@@ -122,7 +110,7 @@ namespace P3D {
         Logger::Msg("Game loop has been stopped.");
     }
 
-    void Client::HandlePlayerInput(Mesh* model, float dt) {
+    void Client::HandlePlayerInput(float dt) {
         
         DirectX::XMFLOAT3 move = DirectX::XMFLOAT3(
             keyboardInput->IsKeyDown('D') - keyboardInput->IsKeyDown('A'),

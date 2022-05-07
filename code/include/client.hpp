@@ -38,7 +38,7 @@ namespace P3D {
             // Final rendering operations and presents the rendered image to the screen
             void FinishRender();
 
-            void HandlePlayerInput(Mesh* model, float dt);
+            void HandlePlayerInput(float dt);
 
             long long GetSystemTime();
     };

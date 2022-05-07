@@ -53,6 +53,13 @@ namespace P3D {
             v.color[2] = 0.5f;
             v.color[3] = 1.0f;
             
+            v.normal[0] = 0;
+            v.normal[1] = 1;
+            v.normal[2] = 0;
+
+            v.texCoord[0] = v.position[0];
+            v.texCoord[1] = v.position[2];
+
             mesh->vertices[i] = v;
         }
 

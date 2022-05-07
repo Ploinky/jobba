@@ -15,6 +15,7 @@ namespace P3D {
         pixelShader->Release();
         constantBuffer->Release();
         frameConstantBuffer->Release();
+        sampler->Release();
     }
 
     void Renderer::Initialize(Direct3D* direct3D, int width, int height) {
@@ -30,7 +31,9 @@ namespace P3D {
         // Describes the input layout
         D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[] = {
             {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-            {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0}
+            {"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+            {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+            {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
         };
 
         file_t shaderByteCode = Util::ReadBytesFromFile("./shaders/vertex.cso");
@@ -39,12 +42,23 @@ namespace P3D {
         direct3D->device->CreateVertexShader(shaderByteCode.data, shaderByteCode.size, nullptr, &vertexShader);
         direct3D->device->CreatePixelShader(psByteCode.data, psByteCode.size, nullptr, &pixelShader);
 
-        direct3D->device->CreateInputLayout(inputLayoutDesc, 2, shaderByteCode.data, shaderByteCode.size, &inputLayout);
+        direct3D->device->CreateInputLayout(inputLayoutDesc, 4, shaderByteCode.data, shaderByteCode.size, &inputLayout);
 
         DirectX::XMStoreFloat4x4(&frameConstBuffer.projMatrix, perspMatrix);
         DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, DirectX::XMMatrixTranslation(
             camera->position.x, camera->position.y, camera->position.z))));
         DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0, 0, 10)));
+        
+        int lightIndex = 0;
+        for (int i = 0; i < 2; ++i)
+        {
+            for (int j = 0; j < 2; ++j)
+            {
+                frameConstBuffer.lightPositions[lightIndex] = DirectX::XMFLOAT4(0.1f + i * 0.1f, 0.1f + j * 0.1f, 0.0f, 0.0f);
+                frameConstBuffer.lightColours[lightIndex] = DirectX::XMFLOAT4(300.0f, 300.0f, 300.0f, 0.0f);
+                ++lightIndex;
+            }
+	}
         
         D3D11_BUFFER_DESC desc;
         desc.ByteWidth = sizeof(object_constant_buffer);
@@ -65,6 +79,27 @@ namespace P3D {
         data.pSysMem = &frameConstBuffer;
 
         direct3D->device->CreateBuffer(&desc, &data, &frameConstantBuffer);
+        
+        D3D11_SAMPLER_DESC samplerDesc;
+        samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+        samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+        samplerDesc.MipLODBias = 0.0f;
+        samplerDesc.MaxAnisotropy = 1;
+        samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+        samplerDesc.BorderColor[0] = 0;
+        samplerDesc.BorderColor[1] = 0;
+        samplerDesc.BorderColor[2] = 0;
+        samplerDesc.BorderColor[3] = 0;
+        samplerDesc.MinLOD = 0;
+        samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+        HRESULT hr = direct3D->device->CreateSamplerState(&samplerDesc, &sampler);
+        if (FAILED(hr)) {
+            MessageBoxW(NULL, L"ouch", L"YIKES", MB_ICONERROR);
+            return;
+        }
     }
 
     void Renderer::Render(Mesh* model) {
@@ -96,6 +131,11 @@ namespace P3D {
         direct3D->context->VSSetConstantBuffers(0, 1, &frameConstantBuffer);
         direct3D->context->VSSetConstantBuffers(1, 1, &constantBuffer);
         direct3D->context->PSSetShader(pixelShader, 0, 0);
+        direct3D->context->PSSetSamplers(0, 1, &sampler);
+	    direct3D->context->PSSetConstantBuffers(0, 1, &frameConstantBuffer);
+        direct3D->context->PSSetShaderResources(3, 1, &model->normal.shaderResourceView);
+        direct3D->context->PSSetShaderResources(4, 1, &model->roughness.shaderResourceView);
+        direct3D->context->PSSetShaderResources(5, 1, &model->metallic.shaderResourceView);
         direct3D->context->IASetInputLayout(inputLayout);
       
         direct3D->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -120,6 +160,8 @@ namespace P3D {
         DirectX::XMMATRIX transMat =  DirectX::XMMatrixTranslation(camera->position.x, camera->position.y, camera->position.z);
 
         DirectX::XMStoreFloat4x4(&frameConstBuffer.cameraMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(nullptr, rotMat * transMat)));
+
+        frameConstBuffer.camPos = DirectX::XMFLOAT4(camera->position.x, camera->position.y, camera->position.z, 0.0f);
 
         UpdateFrameConstantBuffer();
     }
