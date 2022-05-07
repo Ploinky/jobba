@@ -1,7 +1,7 @@
-SRC_DIR := src
+SRC_DIR := code/src
 OBJ_DIR := obj
-PS_SRC := shaders/pixel
-VS_SRC := shaders/vertex
+PS_SRC := code/shaders/pixel
+VS_SRC := code/shaders/vertex
 PS_VS_DEST := build/shaders
 SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
@@ -20,10 +20,10 @@ $(FOLDERS):
 	if not exist .build\data xcopy data .\build\data /I /S /Y
 
 $(EXE_FILE): $(OBJ_FILES)
-	clang++ -Wall -std=c++17 $^ -I include -o $@ -l d3d11
+	clang++ -Wall -std=c++17 $^ -I code/include -o $@ -l d3d11
 
-obj/%.o: src/%.cpp include/%.hpp
-	clang++ -Wall -std=c++17 $< -c -I include -o $@
+obj/%.o: code/src/%.cpp code/include/%.hpp
+	clang++ -Wall -std=c++17 $< -c -I code/include -o $@
 
 $(PS_OUT): $(PS_IN)
 	fxc -T ps_5_0 /Fo $@ $<
@@ -36,3 +36,4 @@ run:
 
 clean:
 	if exist .\build rmdir /S /Q build
+	if exist .\obj rmdir /S /Q obj
