@@ -22,11 +22,11 @@ Texture2D metallicMap : register(t3);
 
 float4 main(float4 worldPos : SV_POSITION, float4 wPosIn : TEXCOORD1, float3 normal : NORMAL, float2 uv : TEXCOORD) : SV_TARGET
 {
-    float4 ambient = float4(0.0f, 0.0f, 0.0f, 1.0f);
-    float4 att = float4(0.0f, 0.1f, 0.1f, 1.0f);
+    float4 ambient = float4(0.5f, 0.5f, 0.5f, 1.0f);
+    float4 att = float4(0.0f, 0.1f, 0.01f, 1.0f);
 
     // normal map vector rotated relative to vertex normal
-    normal = normalize(normalMap.Sample(textureSampler, uv).rgb * normal);
+    normal = normalize(normalMap.Sample(textureSampler, uv).rgb) * normalize(normal);
 
     float4 diffuse = albedoMap.Sample( textureSampler, uv );
 
@@ -69,4 +69,5 @@ float4 main(float4 worldPos : SV_POSITION, float4 wPosIn : TEXCOORD1, float3 nor
     
     //Return Final Color
     return float4(finalColor, diffuse.a);
+
 }
