@@ -48,12 +48,18 @@ namespace P3D {
             file.read((char*) &v.position[1], sizeof(float));
             file.read((char*) &v.position[2], sizeof(float));
             
-            v.normal[0] = 0;
-            v.normal[1] = 1;
-            v.normal[2] = 0;
+            if(v.position[1] != 0) {
+                v.normal[0] = 1;
+                v.normal[1] = 0;
+                v.normal[2] = 0;
+            } else {
+                v.normal[0] = 0;
+                v.normal[1] = 1;
+                v.normal[2] = 0;
+            }
 
-            v.texCoord[0] = v.position[1] != 0 ? v.position[1] / 10 :  v.position[0] / 10;
-            v.texCoord[1] = v.position[2] / 10;
+            v.texCoord[0] = (v.position[1] != 0 ? v.position[1] :  v.position[0]) / 5;
+            v.texCoord[1] = v.position[2] / 5;
 
             mesh->vertices[i] = v;
         }
