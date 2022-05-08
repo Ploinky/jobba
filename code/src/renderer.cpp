@@ -48,16 +48,10 @@ namespace P3D {
             camera->position.x, camera->position.y, camera->position.z))));
         DirectX::XMStoreFloat4x4(&vsConstData.modelMatrix, DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0, 0, 10)));
         
-        int lightIndex = 0;
-        for (int i = 0; i < 2; ++i)
-        {
-            for (int j = 0; j < 2; ++j)
-            {
-                frameConstBuffer.lightPositions[lightIndex] = DirectX::XMFLOAT4(0.1f + i * 0.1f, 0.1f + j * 0.1f, 0.0f, 0.0f);
-                frameConstBuffer.lightColours[lightIndex] = DirectX::XMFLOAT4(300.0f, 300.0f, 300.0f, 0.0f);
-                ++lightIndex;
-            }
-	}
+        point_light_t light;
+        light.position = DirectX::XMFLOAT4(0.0f, 2.0f, 0.0f, 0.0f);
+        light.color = DirectX::XMFLOAT4(300.0f, 300.0f, 300.0f, 0.0f);
+        frameConstBuffer.pointLights[0] = light;
         
         D3D11_BUFFER_DESC desc;
         desc.ByteWidth = sizeof(object_constant_buffer);

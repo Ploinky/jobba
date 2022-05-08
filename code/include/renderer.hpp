@@ -12,11 +12,15 @@ namespace P3D {
         DirectX::XMFLOAT4X4 modelMatrix;
     };
 
+    struct point_light_t {
+        DirectX::XMFLOAT4 position;
+        DirectX::XMFLOAT4 color;
+    };
+
     struct frame_constant_buffer {
         DirectX::XMFLOAT4X4 projMatrix;
         DirectX::XMFLOAT4X4 cameraMatrix;
-        DirectX::XMFLOAT4 lightPositions[4];
-        DirectX::XMFLOAT4 lightColours[4];
+        point_light_t pointLights[4];
         DirectX::XMFLOAT4 camPos;
     };
 
