@@ -22,12 +22,9 @@ void draw_pixel(int x, int y, u32 color)
 
 void clear_screen(u32 color)
 {
-    u32 *pixel = (u32 *)memory;
-    for(int i = 0;
-        i < client_width * client_height;
-        ++i)
+    for(int i = 0; i < client_width * client_height; ++i)
     {
-        *pixel++ = color;
+        memory[i] = color;
     }
 }
 
@@ -80,7 +77,7 @@ wWinMain(HINSTANCE instance,
     freopen_s((FILE**)stderr, "CONOUT$", "w", stderr);
     // window creation
     
-    WNDCLASS window_class = {};
+    WNDCLASS window_class = {0};
     
     const wchar_t class_name[] = L"MyWindowClass";
     
@@ -144,8 +141,10 @@ wWinMain(HINSTANCE instance,
     int running = 1;
     
     int c = 0;
+
     // clear screen with gray color
     clear_screen(0x333333);
+
     long tickCount = clock();
     
     struct timeb tmb;
@@ -154,14 +153,10 @@ wWinMain(HINSTANCE instance,
 
     while(running)
     {
-        // long now = clock();
-        // printf("%ld\n", now - tickCount);
-        // tickCount = now;
-
         ftime(&tmb);
         long now = tmb.time * 1000 + tmb.millitm;
 
-        printf("%ld\n", now - tickCount);
+        printf("%ld\n", (long) (1000 / (now - tickCount + 1)));
 
         tickCount = now;
 
@@ -175,10 +170,9 @@ wWinMain(HINSTANCE instance,
 
         for(int x = 0; x < client_width; x++) {
             for(int y = 0; y < client_height; y++) {
-                draw_pixel(x, y, c + 0x00ffff);
+                draw_pixel(x, y, 0xffffff);
             }
         }
-        c++;
         
         StretchDIBits(hdc,
                       0,
