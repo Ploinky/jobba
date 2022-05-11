@@ -23,12 +23,15 @@ int client_height;
 
 float playerX;
 float playerY;
+float playerHeight;
 
 typedef struct {
     float startX;
     float startY;
     float endX;
     float endY;
+    float posY;
+    float height;
 } wall_t;
 
 float playerA;

@@ -150,14 +150,16 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
     ftime(&tmb);
     tickCount = tmb.time * 1000 + tmb.millitm;
 
+    playerHeight = 2;
+
     int wallCount = 5;
     wall_t* walls = malloc(sizeof(wall_t) * wallCount);
 
-    wall_t wall1 = {0, 0, 30, 0};
-    wall_t wall2 = {30, 0, 30, 30};
-    wall_t wall3 = {30, 30, 0, 30};
-    wall_t wall4 = {0, 30, 0, 0};
-    wall_t wall5 = {5, 5, 20, 1};
+    wall_t wall1 = {0, 0, 30, 0, 0, 4};
+    wall_t wall2 = {30, 0, 30, 30, 0, 5};
+    wall_t wall3 = {30, 30, 0, 30, 0, 6};
+    wall_t wall4 = {0, 30, 0, 0, 0, 7};
+    wall_t wall5 = {5, 5, 20, 1, -2, 2};
 
     walls[0] = wall1;
     walls[1] = wall2;
@@ -234,33 +236,53 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                 float rayAngle = (playerA - fovV / 2.0f) + (x / ((float) client_width)) * fovV;
 
                 vec2_t r = { cos(toRadians(rayAngle)), sin(toRadians(rayAngle)) };
+                
+                if(cross(r, s) == 0) {
+                    continue;
+                }
 
                 float u = cross(subtract(q, p), r) / cross(r, s);
+
+                if(u < 0 || u > 1) {
+                    continue;
+                }
+
                 float t = cross(subtract(q, p), s) / cross(r, s);
+
+                if(t < 0 ) {
+                    continue;
+                }
 
                 vec2_t intersect = { p.x + r.x * t, p.y + r.y * t };
                 vec2_t dist = { intersect.x - playerX, intersect.y - playerY };
 
-                float a = 2.0f;
+                float a = walls[w].height;
                 float c = length(dist);
                 float b = sqrt(a * a + c * c);
+
+                float oA = walls[w].posY;
+                float oB = sqrt(oA * oA + c * c);
+
                 float angle = acos((b*b + c*c - a*a) / (2.0f * b * c));
-                float height = ((float) client_height) * (toDegrees(angle) * 2 / fovV);
+                float angleOffset = acos((oB*oB + c*c - oA*oA) / (2.0f * oB * c));
+                float height = ((float) client_height) * (toDegrees(angle) / fovV);
+                float offset = ((float) client_height) * (toDegrees(angleOffset) / fovV);
 
+                if(oA < 0) {
+                    offset *= -1;
+                }
 
-                int startY = max(0.0f, (((float) client_height) - height) / 2.0f);
+                int startY = max(0.0f, (((float) client_height) - height) / 2 + offset);
                 int endY = min(client_height - 1, startY + height);
 
-                if(cross(r, s) != 0 && t >= 0 && u >= 0 && u <= 1) {
-                    for(int y = 0; y < startY; y++) {
-                        draw_pixel(x, y, 0x0f0f0f);
-                    }
-                    for(int y = startY; y <= endY; y++) {
-                        draw_pixel(x, y, colors[w]);
-                    }
-                    for(int y = endY + 1; y < client_height; y++) {
-                        draw_pixel(x, y, 0xf0f0f0);
-                    }
+                for(int y = 0; y < startY; y++) {
+                    draw_pixel(x, y, 0x0f0f0f);
+                }
+                for(int y = startY; y <= endY; y++) {
+                    draw_pixel(x, y, colors[w]);
+                }
+                for(int y = endY + 1; y < client_height; y++) {
+                    draw_pixel(x, y, 0xf0f0f0);
                 }
             }
         }
