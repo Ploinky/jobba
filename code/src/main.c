@@ -156,10 +156,10 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
     wall_t* walls = malloc(sizeof(wall_t) * wallCount);
 
     wall_t wall1 = {0, 0, 30, 0, 0, 4};
-    wall_t wall2 = {30, 0, 30, 30, 0, 5};
-    wall_t wall3 = {30, 30, 0, 30, 0, 6};
-    wall_t wall4 = {0, 30, 0, 0, 0, 7};
-    wall_t wall5 = {5, 5, 20, 1, -2, 2};
+    wall_t wall2 = {30, 0, 30, 30, 0, 4};
+    wall_t wall3 = {30, 30, 0, 30, 0, 4};
+    wall_t wall4 = {0, 30, 0, 0, 0, 4};
+    wall_t wall5 = {5, 5, 20, 1, 0, 2};
 
     walls[0] = wall1;
     walls[1] = wall2;
