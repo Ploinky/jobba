@@ -1,44 +1,13 @@
-#define WIN32_LEAN_AND_MEAN
-#define UNICODE
-#include <windows.h>
-#include <stdint.h>
-#include <time.h>
-#include <stdio.h>
-#include <sys/timeb.h>
+#include "main.h"
 
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "gdi32.lib")
 
-typedef uint32_t u32;
-
-u32* memory;
-int client_width;
-int client_height;
-
-float playerX;
-float playerY;
-
-typedef struct {
-    float startX;
-    float startY;
-    float endX;
-    float endY;
-} wall_t;
-
-float playerA;
-
-typedef struct {
-    float x;
-    float y;
-} vec2_t;
-
-void draw_pixel(int x, int y, u32 color)
-{
+void draw_pixel(int x, int y, u32 color) {
     memory[(y * client_width + x)] = color;
 }
 
-void clear_screen(u32 color)
-{
+void clear_screen(u32 color) {
     for(int i = 0; i < client_width * client_height; ++i)
     {
         memory[i] = color;
@@ -47,12 +16,7 @@ void clear_screen(u32 color)
 
 short keys[WM_KEYLAST];
 
-LRESULT CALLBACK 
-window_proc(HWND window, 
-            UINT message, 
-            WPARAM w_param, 
-            LPARAM l_param)
-{
+LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
     switch(message)
     {
         case WM_KEYDOWN:
@@ -99,11 +63,11 @@ float length(vec2_t vec) {
 
 
 float toDegrees(float radians) {
-    return radians * (180.0 / 3.14159265358979323846f);
+    return radians * (180.0 / M_PI);
 }
 
 float toRadians(float degrees) {
-    return degrees * (3.14159265358979323846f / 180.0); 
+    return degrees * (M_PI / 180.0); 
 }
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line, int cmd_show) {

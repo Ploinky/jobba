@@ -11,7 +11,7 @@ build/wnw.exe: obj/main.obj
 	clang-cl -Wall $^ -o $@
 
 obj/%.obj: code/src/%.c code/include/%.h
-	clang-cl -Wall $< -c -I . -o $@
+	clang-cl -Wall $< -c -I code/include -o $@
 
 clean:
 	if exist .\obj\ rmdir /S /Q .\obj
