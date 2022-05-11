@@ -1,13 +1,16 @@
 FOLDERS = build obj
 
-$(FODLERS):
+
+all: $(FOLDERS) build/wnw.exe
+
+$(FOLDERS):
 	if not exist .\obj\ mkdir obj
 	if not exist .\build\ mkdir build
 
 build/wnw.exe: obj/main.obj
 	clang-cl -Wall $^ -o $@
 
-obj/%.obj: %.c %.h
+obj/%.obj: code/src/%.c code/include/%.h
 	clang-cl -Wall $< -c -I . -o $@
 
 clean:
