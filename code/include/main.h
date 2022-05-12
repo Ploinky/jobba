@@ -1,3 +1,6 @@
+#ifndef __MAIN_H_
+#define __MAIN_H_
+
 #define WIN32_LEAN_AND_MEAN
 #define UNICODE
 #define _USE_MATH_DEFINES // for C
@@ -13,7 +16,6 @@
 
 #pragma comment(lib,"user32.lib")
 #pragma comment(lib,"gdi32.lib")
-
 
 typedef uint32_t u32;
 
@@ -32,6 +34,7 @@ typedef struct {
     float endY;
     float posY;
     float height;
+    int texture;
 } wall_t;
 
 float playerA;
@@ -49,8 +52,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void draw_pixel(int x, int y, u32 color);
 void clear_screen(u32 color);
 float cross(vec2_t a, vec2_t b);
+float dot (vec2_t a, vec2_t b);
 vec2_t subtract(vec2_t a, vec2_t b);
 float length(vec2_t vec);
 float toDegrees(float radians);
 float toRadians(float degrees);
 LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param);
+
+#endif

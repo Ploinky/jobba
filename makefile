@@ -7,11 +7,11 @@ $(FOLDERS):
 	if not exist .\obj\ mkdir obj
 	if not exist .\build\ mkdir build
 
-build/wnw.exe: obj/main.obj
-	clang-cl -Wall $^ -o $@
+build/wnw.exe: obj/main.obj obj/texture.obj
+	clang-cl $^ -o $@
 
 obj/%.obj: code/src/%.c code/include/%.h
-	clang-cl -Wall $< -c -I code/include -o $@
+	clang-cl $< -c -I code/include -o $@
 
 clean:
 	if exist .\obj\ rmdir /S /Q .\obj
