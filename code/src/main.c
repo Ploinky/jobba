@@ -462,8 +462,12 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                     wEScreen.x += renderWindowSize + renderWindowSize / 2;
                     wEScreen.y += renderWindowSize / 2;
 
-                    setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
-                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[wall->color]);
+                    if(wallStartScreen.y > 0 || wallEndScreen.y > 0) {
+                        setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
+                        drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[wall->color]);
+                    }
+                    
+
                 }
 
                 // ---- 3D view ----
