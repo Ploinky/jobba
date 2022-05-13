@@ -11,7 +11,7 @@ short keys[WM_KEYLAST];
 
 uint32_t* buffer;
 
-LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l_param) {
+LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param) {
     switch(message)
     {
         case WM_KEYDOWN:
@@ -31,7 +31,7 @@ LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l
         }
         default:
         {
-            return DefWindowProc(window, message, w_param, l_param);
+            return DefWindowProc(hwnd, message, w_param, l_param);
         }
     }
     
@@ -41,11 +41,12 @@ LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l
 vec2_t drawClipTL;
 vec2_t drawClipBR;
 
-void clip(int x1, int y1, int x2, int y2) {
-                    drawClipTL.x = x1;
-                    drawClipTL.y = y1;
-                    drawClipBR.x = x2;
-                    drawClipBR.y = y2;
+void setDrawClip(int x1, int y1, int x2, int y2) {
+    drawClipTL.x = x1;
+    drawClipTL.y = y1;
+
+    drawClipBR.x = x2;
+    drawClipBR.y = y2;
 }
 
 void setPixel(int x, int y, uint32_t color) {
@@ -161,14 +162,6 @@ void drawLine(int x1, int y1, int x2, int y2, uint32_t color) {
     } 
 }
 
-void setDrawClip(int x1, int x2, int y1, int y2) {
-    drawClipTL.x = x1;
-    drawClipTL.y = y1;
-
-    drawClipBR.x = x1;
-    drawClipBR.y = y2;
-}
-
 float toDegrees(float radians) {
     return radians * (180.0 / M_PI);
 }
@@ -188,7 +181,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
 
     WNDCLASS window_class = {0};
     
-    const wchar_t class_name[] = L"MyWindowClass";
+    const wchar_t class_name[] = L"JobbaWindow";
     
     window_class.lpfnWndProc = window_proc;
     window_class.hInstance = instance;
@@ -201,9 +194,9 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         return GetLastError();
     }
     
-    HWND window = CreateWindowEx(0,
+    HWND hwnd = CreateWindowEx(0,
                                  class_name,
-                                 L"Window",
+                                 L"Jobba development build - v0.0.1a",
                                  WS_OVERLAPPEDWINDOW|WS_VISIBLE,
                                  CW_USEDEFAULT,
                                  CW_USEDEFAULT,
@@ -214,21 +207,26 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                                  instance,
                                  0);
     
-    if(!window) {
+    if(!hwnd) {
         MessageBox(0, L"CreateWindowEx failed", 0, 0);
         return GetLastError();
     }
     
     RECT rect;
-    GetClientRect(window, &rect);
+    GetClientRect(hwnd, &rect);
     clientWidth = rect.right - rect.left;
     clientHeight = rect.bottom - rect.top;
+
+    int xPos = (GetSystemMetrics(SM_CXSCREEN) - rect.right)/2;
+    int yPos = (GetSystemMetrics(SM_CYSCREEN) - rect.bottom)/2;
+
+    SetWindowPos(hwnd, 0, xPos, yPos, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 
     int bufferSize = clientWidth * clientHeight * sizeof(uint32_t);
     buffer = malloc(bufferSize);
     clearBuffer(0x000000);
 
-    HDC hdc = GetDC(window);
+    HDC hdc = GetDC(hwnd);
 
     BITMAPINFOHEADER bitmapInfoHeader = {0};
     bitmapInfoHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -316,7 +314,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
             playerPos.y -= sin(toRadians(playerA)) * dt * 5;
         }
 
-        clip(0, 0, clientWidth, clientHeight);
+        setDrawClip(0, 0, clientWidth, clientHeight);
         clearBuffer(0x000000);
 
         float renderWindowSize = clientWidth / 3;
@@ -344,7 +342,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
             pScreen.x += renderWindowSize / 2;
             pScreen.y += renderWindowSize / 2;
 
-            clip(0, 0, renderWindowSize, renderWindowSize);
+            setDrawClip(0, 0, renderWindowSize, renderWindowSize);
             drawRect(0, 0, renderWindowSize, renderWindowSize, 0xff0000);
             fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
             drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
@@ -382,7 +380,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
             pScreen.x += renderWindowSize + renderWindowSize / 2;
             pScreen.y += renderWindowSize / 2;
 
-            clip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
+            setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
             drawRect(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize, 0x00ff00);
             fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
             drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
@@ -390,7 +388,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
 
         // ---- 3D view ----
         {
-            clip(renderWindowSize * 2, 0, renderWindowSize * 3, renderWindowSize);
+            setDrawClip(renderWindowSize * 2, 0, renderWindowSize * 3, renderWindowSize);
             drawRect(renderWindowSize * 2, 0, renderWindowSize * 3, renderWindowSize, 0x0000ff);
         }
 
@@ -422,7 +420,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                     wEScreen.x += renderWindowSize / 2;
                     wEScreen.y += renderWindowSize / 2;
 
-                    clip(0, 0, renderWindowSize, renderWindowSize);
+                    setDrawClip(0, 0, renderWindowSize, renderWindowSize);
                     drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0xff00ff);
                 }
 
@@ -464,7 +462,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                     wEScreen.x += renderWindowSize + renderWindowSize / 2;
                     wEScreen.y += renderWindowSize / 2;
 
-                    clip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
+                    setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
                     drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0xff00ff);
                 }
 
