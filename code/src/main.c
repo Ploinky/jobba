@@ -421,7 +421,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                     wEScreen.y += renderWindowSize / 2;
 
                     setDrawClip(0, 0, renderWindowSize, renderWindowSize);
-                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0xff00ff);
+                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[wall->color]);
                 }
 
                 // Translate everything to player specific coordinate system
@@ -463,7 +463,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                     wEScreen.y += renderWindowSize / 2;
 
                     setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
-                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0xff00ff);
+                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[wall->color]);
                 }
 
                 // ---- 3D view ----

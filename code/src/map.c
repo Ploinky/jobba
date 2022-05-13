@@ -13,16 +13,16 @@ int g_wallCount;
 sector_t** g_sectors;
 int g_sectorCount;
 
-int* colors;
+int* g_colors;
 
 void LoadMap() {
-    colors = malloc(sizeof(int) * 6);
-    colors[0] = 0xff0000;
-    colors[1] = 0x00ff00;
-    colors[2] = 0x0000ff;
-    colors[3] = 0x00ffff;
-    colors[4] = 0xffff00;
-    colors[5] = 0xff00ff;
+    g_colors = malloc(sizeof(int) * 6);
+    g_colors[0] = 0xff0000;
+    g_colors[1] = 0x00ff00;
+    g_colors[2] = 0x0000ff;
+    g_colors[3] = 0x00ffff;
+    g_colors[4] = 0xffff00;
+    g_colors[5] = 0xff00ff;
 
     g_wallCount = 6;
     g_walls = malloc(sizeof(wall_t) * g_wallCount);
@@ -62,16 +62,22 @@ void LoadMap() {
     wall_t* wall6 = malloc(sizeof(wall_t));
     wall1->startCorner = 0; 
     wall1->endCorner = 1;
+    wall1->color = 0;
     wall2->startCorner = 1; 
     wall2->endCorner = 2;
+    wall2->color = 1;
     wall3->startCorner = 2; 
     wall3->endCorner = 3;
+    wall3->color = 2;
     wall4->startCorner = 3; 
     wall4->endCorner = 4;
+    wall4->color = 3;
     wall5->startCorner = 4; 
     wall5->endCorner = 5;
+    wall5->color = 4;
     wall6->startCorner = 5; 
     wall6->endCorner = 0;
+    wall6->color = 5;
     g_walls[0] = wall1;
     g_walls[1] = wall2;
     g_walls[2] = wall3;

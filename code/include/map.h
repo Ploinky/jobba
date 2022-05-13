@@ -28,7 +28,7 @@ extern int g_wallCount;
 extern sector_t** g_sectors;
 extern int g_sectorCount;
 
-extern int* colors;
+extern int* g_colors;
 
 void LoadMap();
 
