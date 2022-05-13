@@ -7,7 +7,7 @@ $(FOLDERS):
 	if not exist .\obj\ mkdir obj
 	if not exist .\build\ mkdir build
 
-build/wnw.exe: obj/main.obj obj/texture.obj
+build/wnw.exe: obj/main.obj obj/map.obj
 	clang-cl $^ -o $@
 
 obj/%.obj: code/src/%.c code/include/%.h

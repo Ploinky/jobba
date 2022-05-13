@@ -17,29 +17,16 @@
 #pragma comment(lib,"user32.lib")
 #pragma comment(lib,"gdi32.lib")
 
-
-int clientWidth;
-int clientHeight;
-
 typedef struct {
     float x;
     float y;
 } vec2_t; 
 
-typedef struct {
-    vec2_t start;
-    vec2_t end;
-} wall_t;
+extern int clientWidth;
+extern int clientHeight;
 
-typedef struct {
-    wall_t* walls;
-    int wallCount;
-    float ceilHeight;
-    float floorHeight;
-} sector_t;
-
-vec2_t playerPos;
-float playerA;
+extern vec2_t playerPos;
+extern float playerA;
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line, int cmd_show);
 

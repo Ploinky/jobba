@@ -1,4 +1,11 @@
 #include "main.h"
+#include "map.h"
+
+int clientWidth;
+int clientHeight;
+
+vec2_t playerPos;
+float playerA;
 
 short keys[WM_KEYLAST];
 
@@ -33,6 +40,13 @@ LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM w_param, LPARAM l
 
 vec2_t drawClipTL;
 vec2_t drawClipBR;
+
+void clip(int x1, int y1, int x2, int y2) {
+                    drawClipTL.x = x1;
+                    drawClipTL.y = y1;
+                    drawClipBR.x = x2;
+                    drawClipBR.y = y2;
+}
 
 void setPixel(int x, int y, uint32_t color) {
     if(x < drawClipTL.x || x > drawClipBR.x || y < drawClipTL.y || y > drawClipBR.y) {
@@ -234,28 +248,6 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
 
     int c = 0;
 
-    int worldWidth = 20;
-    int worldHeight = 20;
-
-    wall_t wall1 = { { -8, 8 } , { 2, 8 } };
-    wall_t wall2 = { { 2, 8 } , { 8, 2 } };
-    wall_t wall3 = { { 8, 2 } , { 8, -8 } };
-    wall_t wall4 = { { 8, -8 } , { -2, -8 } };
-    wall_t wall5 = { { -2, -8 } , { -8, -2 } };
-    wall_t wall6 = { { -8, -2 } , { -8, 8 } };
-
-    sector_t sector;
-    sector.wallCount = 6;
-    sector.walls = malloc(sizeof(wall_t) * sector.wallCount);
-    sector.walls[0] = wall1;
-    sector.walls[1] = wall2;
-    sector.walls[2] = wall3;
-    sector.walls[3] = wall4;
-    sector.walls[4] = wall5;
-    sector.walls[5] = wall6;
-    sector.floorHeight = 0;
-    sector.ceilHeight = 4;
-
     playerPos.x = 0;
     playerPos.y = 0;
     playerA = 0;
@@ -264,6 +256,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
     ftime(&tmb);
     long tickCount = tmb.time * 1000 + tmb.millitm;
 
+    LoadMap();
 
     int running = 1;
     while(running) {
@@ -323,11 +316,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
             playerPos.y -= sin(toRadians(playerA)) * dt * 5;
         }
 
-        drawClipTL.x = 0;
-        drawClipTL.y = 0;
-        drawClipBR.x = clientWidth;
-        drawClipBR.y = clientHeight;
-
+        clip(0, 0, clientWidth, clientHeight);
         clearBuffer(0x000000);
 
         float renderWindowSize = clientWidth / 3;
@@ -345,17 +334,18 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
             pLScreen.y *= -1;
 
             // Scale to screen coordinates
-            pScreen.x = pScreen.x / worldWidth * renderWindowSize;
-            pScreen.y = pScreen.y / worldHeight * renderWindowSize;
+            pScreen.x = pScreen.x / g_worldWidth * renderWindowSize;
+            pScreen.y = pScreen.y / g_worldHeight * renderWindowSize;
 
-            pLScreen.x = pLScreen.x / worldWidth * renderWindowSize;
-            pLScreen.y = pLScreen.y / worldHeight * renderWindowSize;
+            pLScreen.x = pLScreen.x / g_worldWidth * renderWindowSize;
+            pLScreen.y = pLScreen.y / g_worldHeight * renderWindowSize;
 
             // Move origin to center of screen
             pScreen.x += renderWindowSize / 2;
             pScreen.y += renderWindowSize / 2;
 
-            drawRect(0, 0, renderWindowSize, renderWindowSize, 0xff000);
+            clip(0, 0, renderWindowSize, renderWindowSize);
+            drawRect(0, 0, renderWindowSize, renderWindowSize, 0xff0000);
             fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
             drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
         }
@@ -382,103 +372,105 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
             pLScreen.y *= -1;
                 
             // Scale to screen coordinates
-            pScreen.x = pScreen.x / worldWidth * renderWindowSize;
-            pScreen.y = pScreen.y / worldHeight * renderWindowSize;
+            pScreen.x = pScreen.x / g_worldWidth * renderWindowSize;
+            pScreen.y = pScreen.y / g_worldHeight * renderWindowSize;
 
-            pLScreen.x = pLScreen.x / worldWidth * renderWindowSize;
-            pLScreen.y = pLScreen.y / worldHeight * renderWindowSize;
+            pLScreen.x = pLScreen.x / g_worldWidth * renderWindowSize;
+            pLScreen.y = pLScreen.y / g_worldHeight * renderWindowSize;
         
             // Move origin to center of screen
             pScreen.x += renderWindowSize + renderWindowSize / 2;
             pScreen.y += renderWindowSize / 2;
 
-            drawRect(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize, 0x00ff0);
+            clip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
+            drawRect(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize, 0x00ff00);
             fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
             drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
         }
 
-        for(int w = 0; w < sector.wallCount; w++) {
-            wall_t wall = sector.walls[w];
-            vec2_t wallStartScreen = { wall.start.x, wall.start.y };
-            vec2_t wallEndScreen = { wall.end.x, wall.end.y };
+        // ---- 3D view ----
+        {
+            clip(renderWindowSize * 2, 0, renderWindowSize * 3, renderWindowSize);
+            drawRect(renderWindowSize * 2, 0, renderWindowSize * 3, renderWindowSize, 0x0000ff);
+        }
 
-            // ---- Top view static ----
-            {   
-                vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
-                vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
+        for(int s = 0; s < g_sectorCount; s++) {
+            sector_t* sector = g_sectors[s];
+            for(int w = 0; w < sector->wallCount; w++) {
+                wall_t* wall = g_walls[sector->walls[w]];
+                vec2_t wallStartScreen = { g_corners[wall->startCorner]->x, g_corners[wall->startCorner]->y };
+                vec2_t wallEndScreen = { g_corners[wall->endCorner]->x, g_corners[wall->endCorner]->y };
 
-                // Flip y axis
-                wSScreen.y *= -1;
-                wEScreen.y *= -1;
-                
-                // Scale to screen coordinates
-                wSScreen.x = wSScreen.x / worldWidth * renderWindowSize;
-                wSScreen.y = wSScreen.y / worldHeight * renderWindowSize ;
-                wEScreen.x = wEScreen.x / worldWidth * renderWindowSize;
-                wEScreen.y = wEScreen.y / worldHeight * renderWindowSize;
-                
-                // Move origin to center of screen
-                wSScreen.x += renderWindowSize / 2;
-                wSScreen.y += renderWindowSize / 2;
-                wEScreen.x += renderWindowSize / 2;
-                wEScreen.y += renderWindowSize / 2;
+                // ---- Top view static ----
+                {   
+                    vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
+                    vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
 
-                drawClipTL.x = 0;
-                drawClipTL.y = 0;
-                drawClipBR.x = renderWindowSize;
-                drawClipBR.y = renderWindowSize;
-                drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0xff00ff);
-            }
+                    // Flip y axis
+                    wSScreen.y *= -1;
+                    wEScreen.y *= -1;
+                    
+                    // Scale to screen coordinates
+                    wSScreen.x = wSScreen.x / g_worldWidth * renderWindowSize;
+                    wSScreen.y = wSScreen.y / g_worldHeight * renderWindowSize ;
+                    wEScreen.x = wEScreen.x / g_worldWidth * renderWindowSize;
+                    wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSize;
+                    
+                    // Move origin to center of screen
+                    wSScreen.x += renderWindowSize / 2;
+                    wSScreen.y += renderWindowSize / 2;
+                    wEScreen.x += renderWindowSize / 2;
+                    wEScreen.y += renderWindowSize / 2;
 
-            // Translate everything to player specific coordinate system
+                    clip(0, 0, renderWindowSize, renderWindowSize);
+                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0xff00ff);
+                }
 
-            wallStartScreen.x -= playerPos.x;
-            wallStartScreen.y -= playerPos.y;
+                // Translate everything to player specific coordinate system
 
-            wallEndScreen.x -= playerPos.x;
-            wallEndScreen.y -= playerPos.y;
+                wallStartScreen.x -= playerPos.x;
+                wallStartScreen.y -= playerPos.y;
 
-            // Rotate everything else around the player (opposite of player rotation)
-            temp = wallStartScreen.x; 
-            wallStartScreen.x = wallStartScreen.x * pacos - wallStartScreen.y * pasin;
-            wallStartScreen.y = temp * pasin + wallStartScreen.y * pacos;
+                wallEndScreen.x -= playerPos.x;
+                wallEndScreen.y -= playerPos.y;
 
-            temp = wallEndScreen.x;
-            wallEndScreen.x = wallEndScreen.x * pacos - wallEndScreen.y * pasin;
-            wallEndScreen.y = temp * pasin + wallEndScreen.y * pacos;
+                // Rotate everything else around the player (opposite of player rotation)
+                temp = wallStartScreen.x; 
+                wallStartScreen.x = wallStartScreen.x * pacos - wallStartScreen.y * pasin;
+                wallStartScreen.y = temp * pasin + wallStartScreen.y * pacos;
 
-            // ---- Top view dynamic ----
-            {
-                vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
-                vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
+                temp = wallEndScreen.x;
+                wallEndScreen.x = wallEndScreen.x * pacos - wallEndScreen.y * pasin;
+                wallEndScreen.y = temp * pasin + wallEndScreen.y * pacos;
 
-                // Flip y axis
-                wSScreen.y *= -1;
-                wEScreen.y *= -1;
-                
-                // Scale to screen coordinates
-                wSScreen.x = wSScreen.x / worldWidth * renderWindowSize;
-                wSScreen.y = wSScreen.y / worldHeight * renderWindowSize ;
-                wEScreen.x = wEScreen.x / worldWidth * renderWindowSize;
-                wEScreen.y = wEScreen.y / worldHeight * renderWindowSize;
-                
-                // Move origin to center of screen
-                wSScreen.x += renderWindowSize + renderWindowSize / 2;
-                wSScreen.y += renderWindowSize / 2;
-                wEScreen.x += renderWindowSize + renderWindowSize / 2;
-                wEScreen.y += renderWindowSize / 2;
+                // ---- Top view dynamic ----
+                {
+                    vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
+                    vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
 
-                drawClipTL.x = renderWindowSize;
-                drawClipTL.y = 0;
-                drawClipBR.x = renderWindowSize * 2;
-                drawClipBR.y = renderWindowSize;
-                
-                drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0xff00ff);
-            }
+                    // Flip y axis
+                    wSScreen.y *= -1;
+                    wEScreen.y *= -1;
+                    
+                    // Scale to screen coordinates
+                    wSScreen.x = wSScreen.x / g_worldWidth * renderWindowSize;
+                    wSScreen.y = wSScreen.y / g_worldHeight * renderWindowSize ;
+                    wEScreen.x = wEScreen.x / g_worldWidth * renderWindowSize;
+                    wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSize;
+                    
+                    // Move origin to center of screen
+                    wSScreen.x += renderWindowSize + renderWindowSize / 2;
+                    wSScreen.y += renderWindowSize / 2;
+                    wEScreen.x += renderWindowSize + renderWindowSize / 2;
+                    wEScreen.y += renderWindowSize / 2;
 
-            // ---- 3D view ----
-            {
-                drawRect(renderWindowSize * 2, 0, renderWindowSize * 3, renderWindowSize, 0x0000ff);
+                    clip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
+                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0xff00ff);
+                }
+
+                // ---- 3D view ----
+                {
+                }
             }
         }
 
