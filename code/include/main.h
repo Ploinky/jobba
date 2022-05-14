@@ -33,6 +33,7 @@ typedef struct {
 
 extern vec2_t g_playerPos;
 extern float g_playerA;
+extern short g_keys[];
 
 
 float toDegrees(float radians);

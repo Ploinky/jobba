@@ -5,19 +5,19 @@
 vec2_t g_playerPos;
 float g_playerA;
 
-short keys[WM_KEYLAST];
+short g_keys[WM_KEYLAST];
 
 LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param) {
     switch(message)
     {
         case WM_KEYDOWN:
         {
-            keys[w_param] = 1;
+            g_keys[w_param] = 1;
             break;
         }
         case WM_KEYUP:
         {
-            keys[w_param] = 0;
+            g_keys[w_param] = 0;
             break;
         }
         case WM_DESTROY:
@@ -135,15 +135,15 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
             DispatchMessage(&msg);
         }
 
-        if(keys[VK_ESCAPE]) {
+        if(g_keys[VK_ESCAPE]) {
             PostQuitMessage(0);
         }
 
-        if(keys['Q']) {
+        if(g_keys['Q']) {
             g_playerA -= 90 * dt;
         }
 
-        if(keys['E']) {
+        if(g_keys['E']) {
             g_playerA += 90 * dt;
         }
 
@@ -155,22 +155,22 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
             g_playerA -= 360;
         }
         
-        if(keys['W']) {
+        if(g_keys['W']) {
             g_playerPos.x += sin(toRadians(g_playerA)) * dt * 5;
             g_playerPos.y += cos(toRadians(g_playerA)) * dt * 5;
         }
         
-        if(keys['A']) {
+        if(g_keys['A']) {
             g_playerPos.x -= cos(toRadians(g_playerA)) * dt * 5;
             g_playerPos.y += sin(toRadians(g_playerA)) * dt * 5;
         }
         
-        if(keys['S']) {
+        if(g_keys['S']) {
             g_playerPos.x -= sin(toRadians(g_playerA)) * dt * 5;
             g_playerPos.y -= cos(toRadians(g_playerA)) * dt * 5;
         }
 
-        if(keys['D']) {
+        if(g_keys['D']) {
             g_playerPos.x += cos(toRadians(g_playerA)) * dt * 5;
             g_playerPos.y -= sin(toRadians(g_playerA)) * dt * 5;
         }

@@ -105,9 +105,47 @@ void renderMapDynamic() {
         sector_t* sector = g_sectors[s];
         for(int w = 0; w < sector->wallCount; w++) {
             wall_t* wall = g_walls[sector->walls[w]];
+
             vec2_t wallStartScreen = { g_corners[wall->startCorner]->x, g_corners[wall->startCorner]->y };
             vec2_t wallEndScreen = { g_corners[wall->endCorner]->x, g_corners[wall->endCorner]->y };
             
+            // Clip wall in world space first to avoid calculations on clipped walls
+            int visible = 0;
+
+            vec2_t intersectLeft = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA - g_fovH / 2);
+            vec2_t intersectRight = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA + g_fovH / 2);
+
+
+            // Wall is clipped at left side of screen
+            if(intersectLeft.x > 0 && intersectLeft.y > 0 && intersectLeft.y < 1) {
+                wallStartScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectLeft.y;
+                wallStartScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectLeft.y;
+                visible = 1;
+            }
+
+            // Wall is clipped at right side of screen
+            if(intersectRight.x > 0 && intersectRight.y > 0 && intersectRight.y < 1) {
+                wallEndScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectRight.y;
+                wallEndScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectRight.y;
+                visible = 1;
+            }
+
+            // Wall is completely in fov
+            if(!visible) {
+                if((intersectLeft.y < 0 && intersectLeft.x > 1) && (intersectRight.y > 1 || intersectRight.x < 0)) {
+                    visible = 1;
+                }
+
+                if((intersectRight.y > 1 && intersectRight.x > 1) && (intersectLeft.y < 0 || intersectLeft.x < 0)) {
+                    visible = 1;
+                }
+            }
+
+            if(!visible) {
+                // Wall is clipped
+                continue;
+            }
+
             wallStartScreen.x -= g_playerPos.x;
             wallStartScreen.y -= g_playerPos.y;
 
@@ -142,37 +180,7 @@ void renderMapDynamic() {
             wEScreen.x += renderWindowSize + renderWindowSize / 2;
             wEScreen.y += renderWindowSize / 4 * 3;
 
-            if(wallStartScreen.y < 0 && wallEndScreen.y < 0) {
-                continue;
-            }
-
-            vec2_t intersectLeft = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA - g_fovH / 2);
-            vec2_t intersectRight = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA + g_fovH / 2);
-
-            int visible = 0;
-
-            // Wall is clipped at left side of screen
-            if(intersectLeft.y > 0 && intersectLeft.y < 1) {
-                wSScreen.x = wSScreen.x + (wEScreen.x - wSScreen.x) * intersectLeft.y;
-                wSScreen.y = wSScreen.y + (wEScreen.y - wSScreen.y) * intersectLeft.y;
-                visible = 1;
-            }
-
-            // Wall is clipped at right side of screen
-            if(intersectRight.y > 0 && intersectRight.y < 1) {
-                wEScreen.x = wSScreen.x + (wEScreen.x - wSScreen.x) * intersectRight.y;
-                wEScreen.y = wSScreen.y + (wEScreen.y - wSScreen.y) * intersectRight.y;
-                visible = 1;
-            }
-
-            // Wall is completely in fov
-            if(intersectLeft.y < 0 && intersectRight.y > 1) {
-                visible = 1;
-            }
-
-            if(visible) {
-                drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[wall->color]);
-            }
+            drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[wall->color]);
         }
     }
 }
