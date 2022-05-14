@@ -14,8 +14,8 @@ vec2_t vectorIntersect(vec2_t fromA, vec2_t toA, vec2_t fromB, vec2_t toB) {
     vec2_t s = toB;
     vec2_t r = { cos(g_playerA), sin(g_playerA) };
 
-    float t = (q - p) * s / (r * s);
-    float u = (q - p) * r / (r * s);
+    float t = cross(subtract(q, p), s) / cross(r, s);
+    float u = cross(subtract(q, p), r) / cross(r, s);
 
     return ret;
 }

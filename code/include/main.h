@@ -17,15 +17,14 @@
 #pragma comment(lib,"user32.lib")
 #pragma comment(lib,"gdi32.lib")
 
-struct vec2_t {
+typedef struct {
     float x;
     float y;
-};
+} vec2_t;
 
-vec2_t subtract(vec2_t a, vec2_t b) {
-    vec2_t ret = { a.x - b.x, a.y - b.y};
-    return ret;
-}
+vec2_t subtract(vec2_t a, vec2_t b);
+
+float cross(vec2_t a, vec2_t b);
 
 typedef struct {
     vec2_t tl;

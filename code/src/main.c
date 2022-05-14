@@ -42,6 +42,15 @@ float toRadians(float degrees) {
     return degrees * (M_PI / 180.0); 
 }
 
+vec2_t subtract(vec2_t a, vec2_t b) {
+    vec2_t ret = { a.x - b.x, a.y - b.y};
+    return ret;
+}
+
+float cross(vec2_t a, vec2_t b) {
+    return a.x * b.y - a.y * b.x;
+}
+
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line, int cmd_show) {
     // Allocate a console for debugging
