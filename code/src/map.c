@@ -1,6 +1,5 @@
 #include "map.h"
 
-
 int g_worldWidth = 20;
 int g_worldHeight = 20;
 
@@ -16,6 +15,56 @@ int g_sectorCount;
 int* g_colors;
 
 void LoadMap() {
+    
+    FILE* fp = fopen("map1.omp", "rt");
+
+    if(!fp) {
+        perror("map1.omp.txt");
+        exit(1);
+    }
+
+    char Buf[256], word[256], *ptr;
+
+    vec2_t* vert = NULL, v;
+
+    int n, m, NumVertices = 0;
+    while(fgets(Buf, sizeof Buf, fp))
+        switch(sscanf(ptr = Buf, "%32s%n", word, &n) == 1 ? word[0] : '\0')
+        {
+            case 'w':
+                for(sscanf(ptr += n, "%f%n", &v.y, &n); sscanf(ptr += n, "%f%n", &v.x, &n) == 1; )
+                    { vert = realloc(vert, ++NumVertices * sizeof(*vert)); vert[NumVertices-1] = v; }
+                break;
+            case 'c': // vertex
+                for(sscanf(ptr += n, "%f%n", &v.y, &n); sscanf(ptr += n, "%f%n", &v.x, &n) == 1; )
+                    { vert = realloc(vert, ++NumVertices * sizeof(*vert)); vert[NumVertices-1] = v; }
+                break;
+            case 's': // sector
+                g_sectors = realloc(g_sectors, ++g_sectorCount * sizeof(*g_sectors));
+                sector_t* sect = &g_sectors[g_sectorCount-1];
+                int* num = NULL;
+                sscanf(ptr += n, "%f%f%n", &sect->floorHeight,&sect->ceilHeight, &n);
+                for(m=0; sscanf(ptr += n, "%32s%n", word, &n) == 1 && word[0] != '#'; )
+                    { num = realloc(num, ++m * sizeof(*num)); num[m-1] = word[0]=='x' ? -1 : atoi(word); }
+                sect->wallCount   = m /= 2;
+                // sect->neighbors = malloc( (m  ) * sizeof(*sect->neighbors) );
+                sect->walls    = malloc( (m+1) * sizeof(*sect->walls)    );
+                // for(n=0; n<m; ++n) sect->neighbors[n] = num[m + n];
+                for(n=0; n<m; ++n) sect->walls[n+1]  = num[n]; // TODO: Range checking
+                sect->walls[0] = sect->walls[m]; // Ensure the vertexes form a loop
+                free(num);
+                break;
+                /*
+            case 'p':; // player
+                float angle;
+                sscanf(ptr += n, "%f %f %f %d", &v.x, &v.y, &angle,&n);
+                player = (struct player) { {v.x, v.y, 0}, {0,0,0}, angle,0,0,0, n }; // TODO: Range checking
+                player.where.z = g_sectors[player.sector].floor + EyeHeight;
+            */
+        }
+    fclose(fp);
+    free(vert);
+
     g_colors = malloc(sizeof(int) * 6);
     g_colors[0] = 0xff0000;
     g_colors[1] = 0x00ff00;
