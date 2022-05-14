@@ -1,21 +1,29 @@
 #include "r_main.h"
 #include "r_dmap.h"
 
-vec2_t rayIntersect(vec2_t fromA, vec2_t toA, vec2_t rayStart, vec2_t rayDir) {
+vec2_t rayIntersect(vec2_t fromA, vec2_t toA, vec2_t rayStart, float rayAngle) {
     vec2_t ret = { NAN, NAN };
+    vec2_t q = fromA;
+    vec2_t s = subtract(toA, fromA);
+
+    vec2_t p = rayStart;
+    vec2_t r = { sin(toRadians(rayAngle)), cos(toRadians(rayAngle)) };
+
+    if(cross(r, s) == 0) {
+        return ret;
+    }
+
+    float t = cross(subtract(q, p), s) / cross(r, s);
+    float u = cross(subtract(q, p), r) / cross(r, s);
+
+    ret.x = t;
+    ret.y = u;
 
     return ret;
 }
 
 vec2_t vectorIntersect(vec2_t fromA, vec2_t toA, vec2_t fromB, vec2_t toB) {
     vec2_t ret = { NAN, NAN };
-    vec2_t q = fromA;
-    vec2_t p = fromB;
-    vec2_t s = toB;
-    vec2_t r = { cos(g_playerA), sin(g_playerA) };
-
-    float t = cross(subtract(q, p), s) / cross(r, s);
-    float u = cross(subtract(q, p), r) / cross(r, s);
 
     return ret;
 }
@@ -77,7 +85,7 @@ void renderMapDynamic() {
     
         // Move origin to center of screen
         pScreen.x += renderWindowSize + renderWindowSize / 2;
-        pScreen.y += renderWindowSize / 2;
+        pScreen.y += renderWindowSize / 4 * 3;
 
         pFovL.x = pFovL.x / g_worldWidth * renderWindowSize;
         pFovL.y = pFovL.y / g_worldHeight * renderWindowSize;
@@ -85,7 +93,6 @@ void renderMapDynamic() {
         pFovR.x = pFovR.x / g_worldWidth * renderWindowSize;
         pFovR.y = pFovR.y / g_worldHeight * renderWindowSize;
 
-        setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
         drawRect(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize, 0x00ff00);
         fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
         drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
@@ -116,33 +123,55 @@ void renderMapDynamic() {
             wallEndScreen.x = wallEndScreen.x * pacos - wallEndScreen.y * pasin;
             wallEndScreen.y = temp * pasin + wallEndScreen.y * pacos;
 
-            // ---- Top view dynamic ----
-            {
-                vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
-                vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
+            vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
+            vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
 
-                // Flip y axis
-                wSScreen.y *= -1;
-                wEScreen.y *= -1;
-                
-                // Scale to screen coordinates
-                wSScreen.x = wSScreen.x / g_worldWidth * renderWindowSize;
-                wSScreen.y = wSScreen.y / g_worldHeight * renderWindowSize ;
-                wEScreen.x = wEScreen.x / g_worldWidth * renderWindowSize;
-                wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSize;
-                
-                // Move origin to center of screen
-                wSScreen.x += renderWindowSize + renderWindowSize / 2;
-                wSScreen.y += renderWindowSize / 2;
-                wEScreen.x += renderWindowSize + renderWindowSize / 2;
-                wEScreen.y += renderWindowSize / 2;
+            // Flip y axis
+            wSScreen.y *= -1;
+            wEScreen.y *= -1;
+            
+            // Scale to screen coordinates
+            wSScreen.x = wSScreen.x / g_worldWidth * renderWindowSize;
+            wSScreen.y = wSScreen.y / g_worldHeight * renderWindowSize ;
+            wEScreen.x = wEScreen.x / g_worldWidth * renderWindowSize;
+            wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSize;
+            
+            // Move origin to center of screen
+            wSScreen.x += renderWindowSize + renderWindowSize / 2;
+            wSScreen.y += renderWindowSize / 4 * 3;
+            wEScreen.x += renderWindowSize + renderWindowSize / 2;
+            wEScreen.y += renderWindowSize / 4 * 3;
 
-                if(wallStartScreen.y > 0 || wallEndScreen.y > 0) {
-                    setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
-                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[wall->color]);
-                }
-                
+            if(wallStartScreen.y < 0 && wallEndScreen.y < 0) {
+                continue;
+            }
 
+            vec2_t intersectLeft = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA - g_fovH / 2);
+            vec2_t intersectRight = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA + g_fovH / 2);
+
+            int visible = 0;
+
+            // Wall is clipped at left side of screen
+            if(intersectLeft.y > 0 && intersectLeft.y < 1) {
+                wSScreen.x = wSScreen.x + (wEScreen.x - wSScreen.x) * intersectLeft.y;
+                wSScreen.y = wSScreen.y + (wEScreen.y - wSScreen.y) * intersectLeft.y;
+                visible = 1;
+            }
+
+            // Wall is clipped at right side of screen
+            if(intersectRight.y > 0 && intersectRight.y < 1) {
+                wEScreen.x = wSScreen.x + (wEScreen.x - wSScreen.x) * intersectRight.y;
+                wEScreen.y = wSScreen.y + (wEScreen.y - wSScreen.y) * intersectRight.y;
+                visible = 1;
+            }
+
+            // Wall is completely in fov
+            if(intersectLeft.y < 0 && intersectRight.y > 1) {
+                visible = 1;
+            }
+
+            if(visible) {
+                drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[wall->color]);
             }
         }
     }

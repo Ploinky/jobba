@@ -190,7 +190,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
 
         // ---- 3D view ----
         {
-            setDrawClip(renderWindowSize * 2, 0, renderWindowSize * 3, renderWindowSize);
+            setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
             g_mapRenderMode = RENDER_MAP_DYNAMIC;
             renderMap();
         }
