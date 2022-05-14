@@ -20,13 +20,19 @@
 typedef struct {
     float x;
     float y;
-} vec2_t; 
+} vec2_t;
 
-extern int clientWidth;
-extern int clientHeight;
+typedef struct {
+    vec2_t tl;
+    vec2_t br;
+} rect_t;
 
-extern vec2_t playerPos;
-extern float playerA;
+extern vec2_t g_playerPos;
+extern float g_playerA;
+
+
+float toDegrees(float radians);
+float toRadians(float degrees);
 
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line, int cmd_show);
 
