@@ -1,6 +1,25 @@
 #include "r_main.h"
 #include "r_dmap.h"
 
+vec2_t rayIntersect(vec2_t fromA, vec2_t toA, vec2_t rayStart, vec2_t rayDir) {
+    vec2_t ret = { NAN, NAN };
+
+    return ret;
+}
+
+vec2_t vectorIntersect(vec2_t fromA, vec2_t toA, vec2_t fromB, vec2_t toB) {
+    vec2_t ret = { NAN, NAN };
+    vec2_t q = fromA;
+    vec2_t p = fromB;
+    vec2_t s = toB;
+    vec2_t r = { cos(g_playerA), sin(g_playerA) };
+
+    float t = (q - p) * s / (r * s);
+    float u = (q - p) * r / (r * s);
+
+    return ret;
+}
+
 void renderMapDynamic() {
     vec2_t playerScreen = { g_playerPos.x, g_playerPos.y };
     vec2_t playerLook = { sin(toRadians(g_playerA)) * 1, cos(toRadians(g_playerA)) * 1 };
