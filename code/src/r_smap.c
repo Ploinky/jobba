@@ -73,7 +73,12 @@ void renderMapStatic() {
                 wEScreen.y += renderWindowSize / 2;
 
                 setDrawClip(0, 0, renderWindowSize, renderWindowSize);
-                drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[wall->color]);
+
+                if(g_sides[wall->sides[0]]->type == SIDE_SOLID) {
+                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[g_sides[wall->sides[0]]->color]);
+                } else {
+                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0x606060);
+                }
             }
         }
     }

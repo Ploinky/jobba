@@ -148,26 +148,58 @@ void renderMapDynamic() {
                 draw = 1;
             }
 
-            if(angleStart - angleEnd < -180 &&  angleStart > 45 && angleStart < 135 ) {
+            if(angleStart - angleEnd < -180 &&  angleStart > 45 && angleStart < 180 ) {
                 draw = 1;
             }
 
             if(!draw) {
-                continue;
+                // Cull backfaces
+                if(wall->sideCount < 2) {
+                    continue;
+                }
+
+                vec2_t tempStart = wallStartScreen;
+                wallStartScreen = wallEndScreen;
+                wallEndScreen = tempStart;
+
+                angleStart = toDegrees(atan2(wallStartScreen.y, wallStartScreen.x));
+                if(angleStart < 0) {
+                    angleStart = 360 + angleStart;
+                }
+
+                angleEnd = toDegrees(atan2(wallEndScreen.y, wallEndScreen.x));
+                if(angleEnd < 0) {
+                    angleEnd = 360 + angleEnd;
+                }
+
+                draw = 0;
+
+                if(angleStart - angleEnd < 180 && angleStart - angleEnd > 0 && angleEnd < 135 && angleStart > 45) {
+                    draw = 1;
+                }
+
+                if(angleStart - angleEnd < -180 &&  angleStart > 45 && angleStart < 180 ) {
+                    draw = 1;
+                }
+                
+                if(!draw) {
+                    continue;
+                }
             }
 
             if(g_keys['I']) {
-                printf("%X, %f, %f\n", g_colors[wall->color], angleStart, angleEnd);
+                printf("%X, %f, %f\n", g_colors[g_sides[wall->sides[0]]->color], angleStart, angleEnd);
             }
 
-            vec2_t intersectLeft = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA - g_fovH / 2);
-            vec2_t intersectRight = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA + g_fovH / 2);
+            vec2_t intersectLeft = rayIntersect(wallStartScreen, wallEndScreen, playerScreen, -g_fovH / 2);
 
             // Wall is clipped at left side of screen
             if(intersectLeft.x > 0 && intersectLeft.y > 0 && intersectLeft.y < 1) {
                 wallStartScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectLeft.y;
                 wallStartScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectLeft.y;
             }
+            
+            vec2_t intersectRight = rayIntersect(wallStartScreen, wallEndScreen, playerScreen, g_fovH / 2);
 
             // Wall is clipped at right side of screen
             if(intersectRight.x > 0 && intersectRight.y > 0 && intersectRight.y < 1) {
@@ -194,7 +226,12 @@ void renderMapDynamic() {
             wEScreen.x += renderWindowSize + renderWindowSize / 2;
             wEScreen.y += renderWindowSize / 4 * 3;
 
-            drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[wall->color]);
+
+            if(g_sides[wall->sides[0]]->type == SIDE_SOLID) {
+                drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[g_sides[wall->sides[0]]->color]);
+            } else {
+                drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0x606060);
+            }
         }
     }
     g_keys['I'] = 0;

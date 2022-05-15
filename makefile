@@ -1,13 +1,13 @@
 FOLDERS = build obj
+EXE = build/jobba.exe
 
-
-all: $(FOLDERS) build/wnw.exe
+all: $(FOLDERS) $(EXE)
 
 $(FOLDERS):
 	if not exist .\obj\ mkdir obj
 	if not exist .\build\ mkdir build
 
-build/wnw.exe: obj/main.obj obj/map.obj obj/r_main.obj obj/r_smap.obj obj/r_dmap.obj
+$(EXE): obj/main.obj obj/map.obj obj/r_main.obj obj/r_smap.obj obj/r_dmap.obj
 	clang-cl $^ -o $@
 
 obj/%.obj: code/src/%.c code/include/%.h
@@ -18,4 +18,4 @@ clean:
 	if exist  .\build\ rmdir /S /Q .\build
 
 run:
-	.\build\wnw.exe
+	$(EXE)
