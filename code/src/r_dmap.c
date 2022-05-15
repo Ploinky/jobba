@@ -37,7 +37,8 @@ void renderMapDynamic() {
     vec2_t playerFovRight = { sin(toRadians(g_playerA + g_fovH / 2)) * 40,
         cos(toRadians(g_playerA + g_fovH / 2))  * 40,  };
 
-    float renderWindowSize = drawClipBR.x - drawClipTL.x;
+    float renderWindowWidth = drawClipBR.x - drawClipTL.x;
+    float renderWindowHeight = drawClipBR.y - drawClipTL.y;
     // Translate everything to player specific coordinate system
     playerScreen.x -= g_playerPos.x;
     playerScreen.y -= g_playerPos.y;
@@ -72,29 +73,29 @@ void renderMapDynamic() {
         pFovR.y *= -1;
             
         // Scale to screen coordinates
-        pScreen.x = pScreen.x / g_worldWidth * renderWindowSize;
-        pScreen.y = pScreen.y / g_worldHeight * renderWindowSize;
+        pScreen.x = pScreen.x / g_worldWidth * renderWindowWidth;
+        pScreen.y = pScreen.y / g_worldHeight * renderWindowHeight;
 
-        pLScreen.x = pLScreen.x / g_worldWidth * renderWindowSize;
-        pLScreen.y = pLScreen.y / g_worldHeight * renderWindowSize;
+        pLScreen.x = pLScreen.x / g_worldWidth * renderWindowWidth;
+        pLScreen.y = pLScreen.y / g_worldHeight * renderWindowHeight;
 
-        pFovL.x = pFovL.x / g_worldWidth * renderWindowSize;
-        pFovL.y = pFovL.y / g_worldHeight * renderWindowSize;
+        pFovL.x = pFovL.x / g_worldWidth * renderWindowWidth;
+        pFovL.y = pFovL.y / g_worldHeight * renderWindowHeight;
 
-        pFovR.x = pFovR.x / g_worldWidth * renderWindowSize;
-        pFovR.y = pFovR.y / g_worldHeight * renderWindowSize;
+        pFovR.x = pFovR.x / g_worldWidth * renderWindowWidth;
+        pFovR.y = pFovR.y / g_worldHeight * renderWindowHeight;
     
         // Move origin to center of screen
-        pScreen.x += renderWindowSize + renderWindowSize / 2;
-        pScreen.y += renderWindowSize / 4 * 3;
+        pScreen.x += drawClipTL.x + renderWindowWidth / 2;
+        pScreen.y += drawClipTL.y + renderWindowHeight / 4 * 3;
 
-        pFovL.x = pFovL.x / g_worldWidth * renderWindowSize;
-        pFovL.y = pFovL.y / g_worldHeight * renderWindowSize;
+        pFovL.x = pFovL.x / g_worldWidth * renderWindowWidth;
+        pFovL.y = pFovL.y / g_worldHeight * renderWindowHeight;
 
-        pFovR.x = pFovR.x / g_worldWidth * renderWindowSize;
-        pFovR.y = pFovR.y / g_worldHeight * renderWindowSize;
+        pFovR.x = pFovR.x / g_worldWidth * renderWindowWidth;
+        pFovR.y = pFovR.y / g_worldHeight * renderWindowHeight;
 
-        drawRect(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize, 0x00ff00);
+        drawRect(drawClipTL.x, drawClipTL.y, drawClipBR.x, drawClipBR.y, 0x00ff00);
         fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
         drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
         drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovL.x, pScreen.y + pFovL.y, 0xffffff);
@@ -215,16 +216,16 @@ void renderMapDynamic() {
             wEScreen.y *= -1;
             
             // Scale to screen coordinates
-            wSScreen.x = wSScreen.x / g_worldWidth * renderWindowSize;
-            wSScreen.y = wSScreen.y / g_worldHeight * renderWindowSize ;
-            wEScreen.x = wEScreen.x / g_worldWidth * renderWindowSize;
-            wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSize;
+            wSScreen.x = wSScreen.x / g_worldWidth * renderWindowWidth;
+            wSScreen.y = wSScreen.y / g_worldHeight * renderWindowHeight ;
+            wEScreen.x = wEScreen.x / g_worldWidth * renderWindowWidth;
+            wEScreen.y = wEScreen.y / g_worldHeight * renderWindowHeight;
             
             // Move origin to center of screen
-            wSScreen.x += renderWindowSize + renderWindowSize / 2;
-            wSScreen.y += renderWindowSize / 4 * 3;
-            wEScreen.x += renderWindowSize + renderWindowSize / 2;
-            wEScreen.y += renderWindowSize / 4 * 3;
+            wSScreen.x += drawClipTL.x + renderWindowWidth / 2;
+            wSScreen.y += drawClipTL.y + renderWindowHeight / 4 * 3;
+            wEScreen.x += drawClipTL.x + renderWindowWidth / 2;
+            wEScreen.y += drawClipTL.y + renderWindowHeight / 4 * 3;
 
 
             if(g_sides[wall->sides[0]]->type == SIDE_SOLID) {
