@@ -142,22 +142,18 @@ void renderMapDynamic() {
                 angleEnd = 360 + angleEnd;
             }
 
-            if(angleEnd > angleStart) {
-                if(angleEnd - 180 < angleStart) {
-                    // Does this work for backface culling?
-                    if(g_keys['J']) {
-                        printf("%X, %f, %f\n", g_colors[wall->color], angleStart, angleEnd);
-                    }
-                    continue;
-                }
-            } else {
-                if(angleStart - 180 > angleEnd) {
-                    // Does this work for backface culling?
-                    if(g_keys['J']) {
-                        printf("%X, %f, %f\n", g_colors[wall->color], angleStart, angleEnd);
-                    }
-                    continue;
-                }
+            int draw = 0;
+
+            if(angleStart - angleEnd < 180 && angleStart - angleEnd > 0 && angleEnd < 135 && angleStart > 45) {
+                draw = 1;
+            }
+
+            if(angleStart - angleEnd < -180 &&  angleStart > 45 && angleStart < 135 ) {
+                draw = 1;
+            }
+
+            if(!draw) {
+                continue;
             }
 
             if(g_keys['I']) {
@@ -166,17 +162,6 @@ void renderMapDynamic() {
 
             vec2_t intersectLeft = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA - g_fovH / 2);
             vec2_t intersectRight = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA + g_fovH / 2);
-
-            if(wallStartScreen.y < 0 || fabsf(wallStartScreen.x / wallStartScreen.y) > 1) {
-                if(wallEndScreen.y < 0 || fabsf(wallEndScreen.x / wallEndScreen.y) > 1) {
-                    //if(intersectLeft.x < 0 || intersectRight.x < 0 || intersectLeft.y > 1 || intersectRight.y < 0) {
-                        //continue;
-                    //}
-                }
-            }
-
-            /*
-            int visible = 0;
 
             // Wall is clipped at left side of screen
             if(intersectLeft.x > 0 && intersectLeft.y > 0 && intersectLeft.y < 1) {
@@ -189,7 +174,6 @@ void renderMapDynamic() {
                 wallEndScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectRight.y;
                 wallEndScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectRight.y;
             }
-            */
             
             vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
             vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
