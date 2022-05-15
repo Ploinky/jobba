@@ -1,5 +1,4 @@
-#ifndef __MAIN_H_
-#define __MAIN_H_
+#pragma once
 
 #define WIN32_LEAN_AND_MEAN
 #define UNICODE
@@ -42,4 +41,3 @@ float toRadians(float degrees);
 int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line, int cmd_show);
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-#endif

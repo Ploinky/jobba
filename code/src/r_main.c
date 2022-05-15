@@ -64,6 +64,11 @@ void renderMap() {
             renderMapDynamic();
             break;
         }
+        case RENDER_MAP_PERSPECTIVE:
+        {
+            renderMapPerspective();
+            break;
+        }
     }
 }
 
@@ -76,6 +81,9 @@ void setDrawClip(int x1, int y1, int x2, int y2) {
 }
 
 void setPixel(int x, int y, uint32_t color) {
+    x += drawClipTL.x;
+    y += drawClipTL.y;
+    
     if(x < drawClipTL.x || x > drawClipBR.x || y < drawClipTL.y || y > drawClipBR.y) {
         return;
     }

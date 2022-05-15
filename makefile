@@ -1,5 +1,9 @@
-FOLDERS = build obj
-EXE = build/jobba.exe
+FOLDERS := build obj
+EXE := build/jobba.exe
+OBJ_DIR := obj
+SRC_DIR := code/src
+SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
+OBJ_FILES := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.obj,$(SRC_FILES))
 
 all: $(FOLDERS) $(EXE)
 
@@ -7,7 +11,7 @@ $(FOLDERS):
 	if not exist .\obj\ mkdir obj
 	if not exist .\build\ mkdir build
 
-$(EXE): obj/main.obj obj/map.obj obj/r_main.obj obj/r_smap.obj obj/r_dmap.obj
+$(EXE): $(OBJ_FILES)
 	clang-cl $^ -o $@
 
 obj/%.obj: code/src/%.c code/include/%.h

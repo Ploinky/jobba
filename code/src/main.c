@@ -103,9 +103,6 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
 
     SetWindowPos(hwnd, 0, xPos, yPos, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 
-
-    int c = 0;
-
     g_playerPos.x = 0;
     g_playerPos.y = 0;
     g_playerA = 0;
@@ -126,6 +123,13 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         float dt = (now - tickCount) / 1000.0f;
 
         tickCount = now;
+        
+
+        RECT rect;
+        rect.left = 10;
+        rect.top = 10;
+        rect.right = 110;
+        rect.bottom = 110;
 
         MSG msg;
         while(PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
@@ -188,10 +192,17 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
             renderMap();
         }
 
-        // ---- 3D view ----
+        // ---- Top view dynamic ----
         {
             setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
             g_mapRenderMode = RENDER_MAP_DYNAMIC;
+            renderMap();
+        }
+
+        // ---- 3D view ----
+        {
+            setDrawClip(renderWindowSize * 2, 0, renderWindowSize * 3, renderWindowSize);
+            g_mapRenderMode = RENDER_MAP_PERSPECTIVE;
             renderMap();
         }
         

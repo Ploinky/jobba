@@ -1,5 +1,4 @@
-#ifndef __MAP_H_
-#define __MAP_H_
+#pragma once
 
 #define SIDE_SOLID 0
 #define SIDE_PORTAL 1
@@ -44,5 +43,3 @@ extern int g_sectorCount;
 extern int* g_colors;
 
 void LoadMap();
-
-#endif
