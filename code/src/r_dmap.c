@@ -14,7 +14,8 @@ vec2_t rayIntersect(vec2_t fromA, vec2_t toA, vec2_t rayStart, float rayAngle) {
     }
 
     float t = cross(subtract(q, p), s) / cross(r, s);
-    float u = cross(subtract(q, p), r) / cross(r, s);
+    float u = cross(subtract(q, p), r) / 
+    cross(r, s);
 
     ret.x = t;
     ret.y = u;
@@ -108,43 +109,6 @@ void renderMapDynamic() {
 
             vec2_t wallStartScreen = { g_corners[wall->startCorner]->x, g_corners[wall->startCorner]->y };
             vec2_t wallEndScreen = { g_corners[wall->endCorner]->x, g_corners[wall->endCorner]->y };
-            
-            // Clip wall in world space first to avoid calculations on clipped walls
-            int visible = 0;
-
-            vec2_t intersectLeft = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA - g_fovH / 2);
-            vec2_t intersectRight = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA + g_fovH / 2);
-
-
-            // Wall is clipped at left side of screen
-            if(intersectLeft.x > 0 && intersectLeft.y > 0 && intersectLeft.y < 1) {
-                wallStartScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectLeft.y;
-                wallStartScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectLeft.y;
-                visible = 1;
-            }
-
-            // Wall is clipped at right side of screen
-            if(intersectRight.x > 0 && intersectRight.y > 0 && intersectRight.y < 1) {
-                wallEndScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectRight.y;
-                wallEndScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectRight.y;
-                visible = 1;
-            }
-
-            // Wall is completely in fov
-            if(!visible) {
-                if((intersectLeft.y < 0 && intersectLeft.x > 1) && (intersectRight.y > 1 || intersectRight.x < 0)) {
-                    visible = 1;
-                }
-
-                if((intersectRight.y > 1 && intersectRight.x > 1) && (intersectLeft.y < 0 || intersectLeft.x < 0)) {
-                    visible = 1;
-                }
-            }
-
-            if(!visible) {
-                // Wall is clipped
-                continue;
-            }
 
             wallStartScreen.x -= g_playerPos.x;
             wallStartScreen.y -= g_playerPos.y;
@@ -160,7 +124,73 @@ void renderMapDynamic() {
             temp = wallEndScreen.x;
             wallEndScreen.x = wallEndScreen.x * pacos - wallEndScreen.y * pasin;
             wallEndScreen.y = temp * pasin + wallEndScreen.y * pacos;
+            
+            // Clip
+            if(wallStartScreen.y < 0 && wallEndScreen.y < 0) {
+                // Both vertices behind player, definitely clip!
+                // This seems like a pretty cheap check to do right off the bat
+                continue;
+            }
+            
+            float angleStart = toDegrees(atan2(wallStartScreen.y, wallStartScreen.x));
+            if(angleStart < 0) {
+                angleStart = 360 + angleStart;
+            }
 
+            float angleEnd = toDegrees(atan2(wallEndScreen.y, wallEndScreen.x));
+            if(angleEnd < 0) {
+                angleEnd = 360 + angleEnd;
+            }
+
+            if(angleEnd > angleStart) {
+                if(angleEnd - 180 < angleStart) {
+                    // Does this work for backface culling?
+                    if(g_keys['J']) {
+                        printf("%X, %f, %f\n", g_colors[wall->color], angleStart, angleEnd);
+                    }
+                    continue;
+                }
+            } else {
+                if(angleStart - 180 > angleEnd) {
+                    // Does this work for backface culling?
+                    if(g_keys['J']) {
+                        printf("%X, %f, %f\n", g_colors[wall->color], angleStart, angleEnd);
+                    }
+                    continue;
+                }
+            }
+
+            if(g_keys['I']) {
+                printf("%X, %f, %f\n", g_colors[wall->color], angleStart, angleEnd);
+            }
+
+            vec2_t intersectLeft = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA - g_fovH / 2);
+            vec2_t intersectRight = rayIntersect(*g_corners[wall->startCorner], *g_corners[wall->endCorner], g_playerPos, g_playerA + g_fovH / 2);
+
+            if(wallStartScreen.y < 0 || fabsf(wallStartScreen.x / wallStartScreen.y) > 1) {
+                if(wallEndScreen.y < 0 || fabsf(wallEndScreen.x / wallEndScreen.y) > 1) {
+                    //if(intersectLeft.x < 0 || intersectRight.x < 0 || intersectLeft.y > 1 || intersectRight.y < 0) {
+                        //continue;
+                    //}
+                }
+            }
+
+            /*
+            int visible = 0;
+
+            // Wall is clipped at left side of screen
+            if(intersectLeft.x > 0 && intersectLeft.y > 0 && intersectLeft.y < 1) {
+                wallStartScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectLeft.y;
+                wallStartScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectLeft.y;
+            }
+
+            // Wall is clipped at right side of screen
+            if(intersectRight.x > 0 && intersectRight.y > 0 && intersectRight.y < 1) {
+                wallEndScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectRight.y;
+                wallEndScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectRight.y;
+            }
+            */
+            
             vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
             vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
 
@@ -183,4 +213,6 @@ void renderMapDynamic() {
             drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[wall->color]);
         }
     }
+    g_keys['I'] = 0;
+    g_keys['J'] = 0;
 }
