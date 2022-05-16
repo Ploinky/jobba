@@ -1,5 +1,9 @@
 #include "r_pmap.h"
 
+float length(vec2_t vec) {
+    return sqrt(vec.x * vec.x + vec.y * vec.y);
+}
+
 void renderMapPerspective() {
     vec2_t playerScreen = { g_playerPos.x, g_playerPos.y };
     vec2_t playerLook = { sin(toRadians(g_playerA)) * 1, cos(toRadians(g_playerA)) * 1 };
@@ -10,6 +14,7 @@ void renderMapPerspective() {
 
     float renderWindowWidth = drawClipBR.x - drawClipTL.x;
     float renderWindowHeight = drawClipBR.y - drawClipTL.y;
+    float renderWindowSize = min(renderWindowWidth, renderWindowHeight);
     // Translate everything to player specific coordinate system
     playerScreen.x -= g_playerPos.x;
     playerScreen.y -= g_playerPos.y;
@@ -66,7 +71,7 @@ void renderMapPerspective() {
         //pFovR.x = pFovR.x / g_worldWidth * renderWindowWidth;
         //pFovR.y = pFovR.y / g_worldHeight * renderWindowHeight;
 
-        drawRect(0, 0, renderWindowWidth, renderWindowHeight, 0x00ff00);
+        drawRect(0, 0, renderWindowSize, renderWindowSize, 0x00ff00);
         //fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
         //drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
         //drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovL.x, pScreen.y + pFovL.y, 0xffffff);
@@ -181,7 +186,7 @@ void renderMapPerspective() {
             
             if(g_sides[wall->sides[0]]->type == SIDE_SOLID) {
                 // Draw wall
-            
+                
                 float angleStart = toDegrees(atan2(wallStartScreen.y, wallStartScreen.x));
                 if(angleStart < 0) {
                     angleStart = 360 + angleStart;
@@ -196,19 +201,40 @@ void renderMapPerspective() {
                 angleStart -= 90;
                 angleEnd -= 90;
 
-                float xWallStart = renderWindowWidth - (angleStart / g_fovH + 0.5)  * renderWindowWidth;
-                float xWallEnd = renderWindowWidth - (angleEnd / g_fovH + 0.5)  * renderWindowWidth;
+                float xWallStart = renderWindowSize - (angleStart / g_fovH + 0.5)  * renderWindowSize;
+                float xWallEnd = renderWindowSize - (angleEnd / g_fovH + 0.5)  * renderWindowSize;
 
-                //printf("draw %f,%f - %f,%f - %X!\n", xWallStart, renderWindowHeight / 2, xWallEnd, renderWindowHeight / 2, g_colors[g_sides[wall->sides[0]]->color]);
-                for(int x = xWallStart; x < xWallEnd; x++) {
-                    vec2_t intersect = rayIntersect(wallStartScreen, wallEndScreen, playerScreen, x / xWallEnd * (angleStart - angleEnd) + angleEnd);
-                    float ceil = renderWindowHeight / 2 - (1 - 1 / intersect.x) * (renderWindowHeight / 4);
-                    float floor = renderWindowHeight / 2 + (1  - 1 / intersect.x) * (renderWindowHeight / 4);
-                    for(int y = ceil; y < floor; y++) {
-                        // Probably need more smart linkedlist magic and such instead of just blindly drawing?! See how doom did it, as per usual...
-                        setPixel(x, y, g_colors[g_sides[wall->sides[0]]->color]);
-                    }
+                vec2_t st = {(wallStartScreen.x - playerScreen.x), (wallStartScreen.y - playerScreen.y)};
+                vec2_t en = {(wallEndScreen.x - playerScreen.x), (wallEndScreen.y - playerScreen.y)};
+                
+                float wallStartDist = length(st);
+                float wallEndDist = length(en);
+
+                float yWallStartTop = renderWindowSize / 2 - renderWindowSize / 2 * (1 / wallStartDist);
+                float yWallStartBottom = renderWindowSize / 2 + renderWindowSize / 2 * (1 / wallStartDist);
+                float yWallEndTop = renderWindowSize / 2 - renderWindowSize / 2 * (1 / wallEndDist);
+                float yWallEndBottom = renderWindowSize / 2 + renderWindowSize / 2 * (1 / wallEndDist);
+
+                wallStartScreen.y *= -1;
+                wallEndScreen.y *= -1;
+
+                wallStartScreen.x = wallStartScreen.x / g_worldWidth * renderWindowSize + renderWindowSize / 2;
+                wallStartScreen.y = wallStartScreen.y / g_worldHeight * renderWindowSize  + renderWindowSize / 2;
+                wallEndScreen.x = wallEndScreen.x / g_worldWidth * renderWindowSize + renderWindowSize / 2;
+                wallEndScreen.y = wallEndScreen.y / g_worldHeight * renderWindowSize + renderWindowSize / 2;
+
+                //printf("draw %f,%f - %f,%f - %X!\n", wallStartScreen.x, wallStartScreen.y, wallEndScreen.x, wallEndScreen.y, g_colors[g_sides[wall->sides[0]]->color]);
+
+                drawLine(xWallStart, yWallStartTop, xWallEnd, yWallEndTop, g_colors[g_sides[wall->sides[0]]->color]);
+
+                drawLine(xWallStart, yWallStartBottom, xWallEnd, yWallEndBottom, g_colors[g_sides[wall->sides[0]]->color]);
+
+                if(xWallStart > 0) {
+                    drawLine(xWallStart, yWallStartTop, xWallStart, yWallStartBottom, g_colors[g_sides[wall->sides[0]]->color]);
                 }
+                if(xWallEnd < g_clientWidth) {
+                    drawLine(xWallEnd, yWallEndTop, xWallEnd, yWallEndBottom, g_colors[g_sides[wall->sides[0]]->color]);
+                }                
             } else {
                 // Draw portal indicator
             }

@@ -81,8 +81,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                                  WS_OVERLAPPEDWINDOW|WS_VISIBLE,
                                  CW_USEDEFAULT,
                                  CW_USEDEFAULT,
-                                 900,
-                                 500,
+                                 860,
+                                 480,
                                  0,
                                  0,
                                  instance,
@@ -109,22 +109,23 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
 
     struct timeb tmb;
     ftime(&tmb);
-    long tickCount = tmb.time * 1000 + tmb.millitm;
+    uint64_t tickCount = tmb.time * 1000 + tmb.millitm;
 
     R_Initialize(hwnd);
     LoadMap();
+
+    g_mapRenderMode = RENDER_MAP_STATIC;
 
     int running = 1;
     while(running) {
         
         ftime(&tmb);
-        long now = tmb.time * 1000 + tmb.millitm;
+        uint64_t now = tmb.time * 1000.0 + tmb.millitm;
 
-        float dt = (now - tickCount) / 1000.0f;
+        double dt = (now - tickCount) / 1000.0;
 
         tickCount = now;
         
-
         RECT rect;
         rect.left = 10;
         rect.top = 10;
@@ -183,27 +184,46 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         R_SetDrawClip((rect_t) {0, 0, g_clientWidth, g_clientHeight});
         R_ClearScreen(0x000000);
 
-        float renderWindowSize = g_clientWidth / 3;
-        
+        float renderWindowSize = g_clientWidth / 2;
+
+        if(g_keys['V']) {
+            switch(g_mapRenderMode) {
+                case RENDER_MAP_STATIC:
+                    g_mapRenderMode = RENDER_MAP_DYNAMIC;
+                    break;
+                case RENDER_MAP_DYNAMIC:
+                    g_mapRenderMode = RENDER_MAP_PERSPECTIVE;
+                    break;
+                case RENDER_MAP_PERSPECTIVE:
+                    g_mapRenderMode = RENDER_MAP_STATIC;
+                    break;
+            }
+            g_keys['V'] = 0;
+        }
+
+        setDrawClip(0, 0, g_clientWidth, g_clientHeight);
+        renderMap();
         // ---- Top view static ----
-        {   
-            setDrawClip(0, 0, renderWindowSize, renderWindowSize);
-            g_mapRenderMode = RENDER_MAP_STATIC;
-            renderMap();
-        }
+        if(0) {
+            {   
+                setDrawClip(0, 0, renderWindowSize, renderWindowSize);
+                g_mapRenderMode = RENDER_MAP_STATIC;
+                renderMap();
+            }
 
-        // ---- Top view dynamic ----
-        {
-            setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
-            g_mapRenderMode = RENDER_MAP_DYNAMIC;
-            renderMap();
-        }
+            // ---- Top view dynamic ----
+            {
+                setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
+                g_mapRenderMode = RENDER_MAP_DYNAMIC;
+                renderMap();
+            }
 
-        // ---- 3D view ----
-        {
-            setDrawClip(renderWindowSize * 2, 0, renderWindowSize * 3, renderWindowSize);
-            g_mapRenderMode = RENDER_MAP_PERSPECTIVE;
-            renderMap();
+            // ---- 3D view ----
+            {
+                setDrawClip(renderWindowSize * 2, 0, renderWindowSize * 3, renderWindowSize);
+                g_mapRenderMode = RENDER_MAP_PERSPECTIVE;
+                renderMap();
+            }
         }
         
         R_SwapBuffer();

@@ -1,6 +1,7 @@
 #include "r_main.h"
 #include "r_smap.h"
 #include "r_dmap.h"
+#include "r_pmap.h"
 
 int g_mapRenderMode = RENDER_MAP_STATIC;
 rect_t g_renderTarget;
@@ -66,6 +67,7 @@ void renderMap() {
         }
         case RENDER_MAP_PERSPECTIVE:
         {
+            
             renderMapPerspective();
             break;
         }
@@ -84,7 +86,7 @@ void setPixel(int x, int y, uint32_t color) {
     x += drawClipTL.x;
     y += drawClipTL.y;
     
-    if(x < drawClipTL.x || x > drawClipBR.x || y < drawClipTL.y || y > drawClipBR.y) {
+    if(x <= drawClipTL.x || x >= drawClipBR.x || y <= drawClipTL.y || y >= drawClipBR.y) {
         return;
     }
 

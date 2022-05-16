@@ -9,7 +9,9 @@ void renderMapStatic() {
     vec2_t playerFovRight = { sin(toRadians(g_playerA + g_fovH / 2)) * 40,
         cos(toRadians(g_playerA + g_fovH / 2))  * 40,  };
         
-    float renderWindowSize = drawClipBR.x - drawClipTL.x;
+    float renderWindowWidth = drawClipBR.x - drawClipTL.x;
+    float renderWindowHeight = drawClipBR.y - drawClipTL.y;
+    float renderWindowSize = min(renderWindowWidth, renderWindowHeight);
     vec2_t pScreen = { playerScreen.x, playerScreen.y };
     vec2_t pLScreen = { playerLook.x, playerLook.y };
     vec2_t pFovL = { playerFovLeft.x, playerFovLeft.y };
