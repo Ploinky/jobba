@@ -12,10 +12,10 @@ $(FOLDERS):
 	if not exist .\build\ mkdir build
 
 $(EXE): $(OBJ_FILES)
-	clang-cl $^ -o $@
+	clang -g $^ -o $@
 
 obj/%.obj: code/src/%.c code/include/%.h
-	clang-cl $< -c -I code/include -o $@
+	clang $< -c -I code/include -o $@
 
 clean:
 	if exist .\obj\ rmdir /S /Q .\obj
