@@ -15,6 +15,8 @@ int g_wallCount;
 sector_t** g_sectors;
 int g_sectorCount;
 
+node_t* g_rootNode;
+
 int* g_colors;
 
 void LoadMap() {
@@ -192,4 +194,13 @@ void LoadMap() {
 
     g_sectors[0] = sector;
     g_sectors[1] = sector1;
+
+    g_rootNode = malloc(sizeof(node_t*));
+    g_rootNode->start = 0;
+    g_rootNode->end = 1;
+    g_rootNode->nodeLeft = 0;
+    g_rootNode->nodeRight = 0;
+    g_rootNode->sectorLeft = 1;
+    g_rootNode->sectorRight = 0;
+    printf("%p\n", g_rootNode);
 }

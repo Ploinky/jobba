@@ -29,6 +29,30 @@ vec2_t vectorIntersect(vec2_t fromA, vec2_t toA, vec2_t fromB, vec2_t toB) {
     return ret;
 }
 
+sector_t* findSector(node_t* currentNode) {
+    vec2_t* v1 = g_corners[currentNode->start];
+    vec2_t* v2 = g_corners[g_rootNode->end];
+
+    float angle1 = toDegrees(atan2(v2->y - v1->y, v2->x - v1->x));
+    float angle2 = toDegrees(atan2(g_playerPos.y - v1->y, g_playerPos.x - v1->x));
+
+    if(angle1 > angle2) {
+        // right side
+        if(currentNode->nodeRight != 0) {
+            return findSector(currentNode->nodeRight);
+        } else {
+            return g_sectors[currentNode->sectorRight];
+        }
+    } else {
+        // left side
+        if(currentNode->nodeLeft != 0) {
+            return findSector(currentNode->nodeLeft);
+        } else {
+            return g_sectors[currentNode->sectorLeft];
+        }
+    }
+}
+
 void renderMapDynamic() {
     vec2_t playerScreen = { g_playerPos.x, g_playerPos.y };
     vec2_t playerLook = { sin(toRadians(g_playerA)) * 1, cos(toRadians(g_playerA)) * 1 };
@@ -41,13 +65,20 @@ void renderMapDynamic() {
     float renderWindowHeight = drawClipBR.y - drawClipTL.y;
     
     float renderWindowSize = min(renderWindowWidth, renderWindowHeight);
-    // Translate everything to player specific coordinate system
-    playerScreen.x -= g_playerPos.x;
-    playerScreen.y -= g_playerPos.y;
 
     // Rotate everything else around the player (opposite of player rotation)
     float pasin = sin(toRadians(g_playerA));
     float pacos = cos(toRadians(g_playerA));
+
+
+    // Find which sector we are currently in by traversing the node tree
+    sector_t* sector = findSector(g_rootNode);
+    // Render our current sector? Remembering where we draw other sectors?
+    
+    
+    // Translate everything to player specific coordinate system
+    playerScreen.x -= g_playerPos.x;
+    playerScreen.y -= g_playerPos.y;
 
     float temp = playerLook.x;
     playerLook.x = playerLook.x * pacos - playerLook.y * pasin;
@@ -61,50 +92,47 @@ void renderMapDynamic() {
     playerFovRight.x = playerFovRight.x * pacos - playerFovRight.y * pasin;
     playerFovRight.y = temp * pasin + playerFovRight.y * pacos;
 
-    // ---- Top view dynamic ----
-    {
-        vec2_t pScreen = { playerScreen.x, playerScreen.y };
-        vec2_t pLScreen = { playerLook.x, playerLook.y };
-        vec2_t pFovL = { playerFovLeft.x, playerFovLeft.y };
-        vec2_t pFovR = { playerFovRight.x, playerFovRight.y };
+    vec2_t pScreen = { playerScreen.x, playerScreen.y };
+    vec2_t pLScreen = { playerLook.x, playerLook.y };
+    vec2_t pFovL = { playerFovLeft.x, playerFovLeft.y };
+    vec2_t pFovR = { playerFovRight.x, playerFovRight.y };
 
-        // Flip y axis
-        pScreen.y *= -1;
-        pLScreen.y *= -1;
-        pFovL.y *= -1;
-        pFovR.y *= -1;
-            
-        // Scale to screen coordinates
-        pScreen.x = pScreen.x / g_worldWidth * renderWindowSize;
-        pScreen.y = pScreen.y / g_worldHeight * renderWindowSize;
-
-        pLScreen.x = pLScreen.x / g_worldWidth * renderWindowSize;
-        pLScreen.y = pLScreen.y / g_worldHeight * renderWindowSize;
-
-        pFovL.x = pFovL.x / g_worldWidth * renderWindowSize;
-        pFovL.y = pFovL.y / g_worldHeight * renderWindowSize;
-
-        pFovR.x = pFovR.x / g_worldWidth * renderWindowSize;
-        pFovR.y = pFovR.y / g_worldHeight * renderWindowSize;
-    
-        // Move origin to center of screen
-        pScreen.x += renderWindowWidth / 2;
-        pScreen.y += renderWindowHeight / 4 * 3;
-
-        // Draw an outline if we're not rendered across the entire client window
-        if(renderWindowHeight != g_clientHeight || renderWindowWidth != renderWindowWidth) {
-            drawRect(0, 0, renderWindowWidth, renderWindowHeight, 0x00ff00);
-        }
-
-        fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
-        drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
-        drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovL.x, pScreen.y + pFovL.y, 0xffffff);
-        drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovR.x, pScreen.y + pFovR.y, 0xffffff);
-    }
-    
+    // Flip y axis
+    pScreen.y *= -1;
+    pLScreen.y *= -1;
+    pFovL.y *= -1;
+    pFovR.y *= -1;
         
-    for(int s = 0; s < g_sectorCount; s++) {
-        sector_t* sector = g_sectors[s];
+    // Scale to screen coordinates
+    pScreen.x = pScreen.x / g_worldWidth * renderWindowSize;
+    pScreen.y = pScreen.y / g_worldHeight * renderWindowSize;
+
+    pLScreen.x = pLScreen.x / g_worldWidth * renderWindowSize;
+    pLScreen.y = pLScreen.y / g_worldHeight * renderWindowSize;
+
+    pFovL.x = pFovL.x / g_worldWidth * renderWindowSize;
+    pFovL.y = pFovL.y / g_worldHeight * renderWindowSize;
+
+    pFovR.x = pFovR.x / g_worldWidth * renderWindowSize;
+    pFovR.y = pFovR.y / g_worldHeight * renderWindowSize;
+
+    // Move origin to center of screen
+    pScreen.x += renderWindowWidth / 2;
+    pScreen.y += renderWindowHeight / 4 * 3;
+
+    // Draw an outline if we're not rendered across the entire client window
+    if(renderWindowHeight != g_clientHeight || renderWindowWidth != renderWindowWidth) {
+        drawRect(0, 0, renderWindowWidth, renderWindowHeight, 0x00ff00);
+    }
+
+    fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
+    drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
+    drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovL.x, pScreen.y + pFovL.y, 0xffffff);
+    drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovR.x, pScreen.y + pFovR.y, 0xffffff);
+
+        
+    //for(int s = 0; s < g_sectorCount; s++) {
+    //    sector_t* sector = g_sectors[s];
         for(int w = 0; w < sector->wallCount; w++) {
             wall_t* wall = g_walls[sector->walls[w]];
 
@@ -118,7 +146,7 @@ void renderMapDynamic() {
             wallEndScreen.y -= g_playerPos.y;
 
             // Rotate everything else around the player (opposite of player rotation)
-            temp = wallStartScreen.x; 
+            float temp = wallStartScreen.x; 
             wallStartScreen.x = wallStartScreen.x * pacos - wallStartScreen.y * pasin;
             wallStartScreen.y = temp * pasin + wallStartScreen.y * pacos;
 
@@ -234,7 +262,7 @@ void renderMapDynamic() {
                 drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0x606060);
             }
         }
-    }
+    //}
     g_keys['I'] = 0;
     g_keys['J'] = 0;
 }

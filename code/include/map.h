@@ -6,6 +6,15 @@
 #include "main.h"
 
 typedef struct {
+    int start;
+    int end;
+    void* nodeLeft;
+    void* nodeRight;
+    int sectorLeft;
+    int sectorRight;
+} node_t;
+
+typedef struct {
     int type;
     int sector;
     int color;
@@ -39,6 +48,8 @@ extern int g_wallCount;
 
 extern sector_t** g_sectors;
 extern int g_sectorCount;
+
+extern node_t* g_rootNode;
 
 extern int* g_colors;
 
