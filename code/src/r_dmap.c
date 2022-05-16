@@ -39,6 +39,7 @@ void renderMapDynamic() {
 
     float renderWindowWidth = drawClipBR.x - drawClipTL.x;
     float renderWindowHeight = drawClipBR.y - drawClipTL.y;
+    
     float renderWindowSize = min(renderWindowWidth, renderWindowHeight);
     // Translate everything to player specific coordinate system
     playerScreen.x -= g_playerPos.x;
@@ -87,16 +88,14 @@ void renderMapDynamic() {
         pFovR.y = pFovR.y / g_worldHeight * renderWindowSize;
     
         // Move origin to center of screen
-        pScreen.x += renderWindowSize / 2;
-        pScreen.y += renderWindowSize / 4 * 3;
+        pScreen.x += renderWindowWidth / 2;
+        pScreen.y += renderWindowHeight / 4 * 3;
 
-        pFovL.x = pFovL.x / g_worldWidth * renderWindowSize;
-        pFovL.y = pFovL.y / g_worldHeight * renderWindowSize;
+        // Draw an outline if we're not rendered across the entire client window
+        if(renderWindowHeight != g_clientHeight || renderWindowWidth != renderWindowWidth) {
+            drawRect(0, 0, renderWindowWidth, renderWindowHeight, 0x00ff00);
+        }
 
-        pFovR.x = pFovR.x / g_worldWidth * renderWindowSize;
-        pFovR.y = pFovR.y / g_worldHeight * renderWindowSize;
-
-        drawRect(0, 0, renderWindowSize, renderWindowSize, 0x00ff00);
         fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
         drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
         drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovL.x, pScreen.y + pFovL.y, 0xffffff);
@@ -223,10 +222,10 @@ void renderMapDynamic() {
             wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSize;
             
             // Move origin to center of screen
-            wSScreen.x += renderWindowSize / 2;
-            wSScreen.y += renderWindowSize / 4 * 3;
-            wEScreen.x += renderWindowSize / 2;
-            wEScreen.y += renderWindowSize / 4 * 3;
+            wSScreen.x += renderWindowWidth / 2;
+            wSScreen.y += renderWindowHeight / 4 * 3;
+            wEScreen.x += renderWindowWidth / 2;
+            wEScreen.y += renderWindowHeight / 4 * 3;
 
 
             if(g_sides[wall->sides[0]]->type == SIDE_SOLID) {

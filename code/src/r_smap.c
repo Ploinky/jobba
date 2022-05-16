@@ -11,7 +11,9 @@ void renderMapStatic() {
         
     float renderWindowWidth = drawClipBR.x - drawClipTL.x;
     float renderWindowHeight = drawClipBR.y - drawClipTL.y;
-    float renderWindowSize = min(renderWindowWidth, renderWindowHeight);
+
+    float renderWindowSmallerSize = min(renderWindowWidth, renderWindowHeight);
+
     vec2_t pScreen = { playerScreen.x, playerScreen.y };
     vec2_t pLScreen = { playerLook.x, playerLook.y };
     vec2_t pFovL = { playerFovLeft.x, playerFovLeft.y };
@@ -24,23 +26,28 @@ void renderMapStatic() {
     pFovR.y *= -1;
 
     // Scale to screen coordinates
-    pScreen.x = pScreen.x / g_worldWidth * renderWindowSize;
-    pScreen.y = pScreen.y / g_worldHeight * renderWindowSize;
+    pScreen.x = pScreen.x / g_worldWidth * renderWindowSmallerSize;
+    pScreen.y = pScreen.y / g_worldHeight * renderWindowSmallerSize;
 
-    pLScreen.x = pLScreen.x / g_worldWidth * renderWindowSize;
-    pLScreen.y = pLScreen.y / g_worldHeight * renderWindowSize;
+    pLScreen.x = pLScreen.x / g_worldWidth * renderWindowSmallerSize;
+    pLScreen.y = pLScreen.y / g_worldHeight * renderWindowSmallerSize;
 
-    pFovL.x = pFovL.x / g_worldWidth * renderWindowSize;
-    pFovL.y = pFovL.y / g_worldHeight * renderWindowSize;
+    pFovL.x = pFovL.x / g_worldWidth * renderWindowSmallerSize;
+    pFovL.y = pFovL.y / g_worldHeight * renderWindowSmallerSize;
 
-    pFovR.x = pFovR.x / g_worldWidth * renderWindowSize;
-    pFovR.y = pFovR.y / g_worldHeight * renderWindowSize;
+    pFovR.x = pFovR.x / g_worldWidth * renderWindowSmallerSize;
+    pFovR.y = pFovR.y / g_worldHeight * renderWindowSmallerSize;
 
     // Move origin to center of screen
-    pScreen.x += renderWindowSize / 2;
-    pScreen.y += renderWindowSize / 2;
+    pScreen.x += renderWindowWidth / 2;
+    pScreen.y += renderWindowHeight / 2;
 
-    drawRect(0, 0, renderWindowSize, renderWindowSize, 0xff0000);
+    // Draw an outline if we're not rendered across the entire client window
+    if(renderWindowHeight != g_clientHeight || renderWindowWidth != renderWindowWidth) {
+        drawRect(0, 0, renderWindowWidth, renderWindowHeight, 0xff0000);
+    }
+
+
     fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
     drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
     drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovL.x, pScreen.y + pFovL.y, 0xffffff);
@@ -53,32 +60,29 @@ void renderMapStatic() {
             vec2_t wallStartScreen = { g_corners[wall->startCorner]->x, g_corners[wall->startCorner]->y };
             vec2_t wallEndScreen = { g_corners[wall->endCorner]->x, g_corners[wall->endCorner]->y };
 
-            // ---- Top view static ----
-            {   
-                vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
-                vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
+            vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
+            vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
 
-                // Flip y axis
-                wSScreen.y *= -1;
-                wEScreen.y *= -1;
-                
-                // Scale to screen coordinates
-                wSScreen.x = wSScreen.x / g_worldWidth * renderWindowSize;
-                wSScreen.y = wSScreen.y / g_worldHeight * renderWindowSize ;
-                wEScreen.x = wEScreen.x / g_worldWidth * renderWindowSize;
-                wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSize;
-                
-                // Move origin to center of screen
-                wSScreen.x += renderWindowSize / 2;
-                wSScreen.y += renderWindowSize / 2;
-                wEScreen.x += renderWindowSize / 2;
-                wEScreen.y += renderWindowSize / 2;
+            // Flip y axis
+            wSScreen.y *= -1;
+            wEScreen.y *= -1;
+            
+            // Scale to screen coordinates
+            wSScreen.x = wSScreen.x / g_worldWidth * renderWindowSmallerSize;
+            wSScreen.y = wSScreen.y / g_worldHeight * renderWindowSmallerSize ;
+            wEScreen.x = wEScreen.x / g_worldWidth * renderWindowSmallerSize;
+            wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSmallerSize;
+            
+            // Move origin to center of screen
+            wSScreen.x += renderWindowWidth / 2;
+            wSScreen.y += renderWindowHeight / 2;
+            wEScreen.x += renderWindowWidth / 2;
+            wEScreen.y += renderWindowHeight / 2;
 
-                if(g_sides[wall->sides[0]]->type == SIDE_SOLID) {
-                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[g_sides[wall->sides[0]]->color]);
-                } else {
-                    drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0x606060);
-                }
+            if(g_sides[wall->sides[0]]->type == SIDE_SOLID) {
+                drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[g_sides[wall->sides[0]]->color]);
+            } else {
+                drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0x606060);
             }
         }
     }

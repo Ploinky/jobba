@@ -33,8 +33,11 @@ void renderMapPerspective() {
     playerFovRight.x = playerFovRight.x * pacos - playerFovRight.y * pasin;
     playerFovRight.y = temp * pasin + playerFovRight.y * pacos;
 
-    drawRect(0, 0, renderWindowWidth, renderWindowHeight, 0x00ff00);
-    
+    // Draw an outline if we're not rendered across the entire client window
+    if(renderWindowHeight != g_clientHeight || renderWindowWidth != renderWindowWidth) {
+        drawRect(0, 0, renderWindowWidth, renderWindowHeight, 0x00ff00);
+    }
+
     for(int s = 0; s < g_sectorCount; s++) {
         sector_t* sector = g_sectors[s];
         for(int w = 0; w < sector->wallCount; w++) {
