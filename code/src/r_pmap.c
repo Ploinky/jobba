@@ -7,14 +7,12 @@ float length(vec2_t vec) {
 void renderMapPerspective() {
     vec2_t playerScreen = { g_playerPos.x, g_playerPos.y };
     vec2_t playerLook = { sin(toRadians(g_playerA)) * 1, cos(toRadians(g_playerA)) * 1 };
-    vec2_t playerFovLeft = { sin(toRadians(g_playerA - g_fovH / 2)) * 40,
-        cos(toRadians(g_playerA - g_fovH / 2))  * 40,  };
-    vec2_t playerFovRight = { sin(toRadians(g_playerA + g_fovH / 2)) * 40,
-        cos(toRadians(g_playerA + g_fovH / 2))  * 40,  };
+    vec2_t playerFovLeft = { sin(toRadians(g_playerA - g_fovH / 2)) * 40, cos(toRadians(g_playerA - g_fovH / 2))  * 40,  };
+    vec2_t playerFovRight = { sin(toRadians(g_playerA + g_fovH / 2)) * 40, cos(toRadians(g_playerA + g_fovH / 2))  * 40,  };
 
     float renderWindowWidth = drawClipBR.x - drawClipTL.x;
     float renderWindowHeight = drawClipBR.y - drawClipTL.y;
-    float renderWindowSize = min(renderWindowWidth, renderWindowHeight);
+
     // Translate everything to player specific coordinate system
     playerScreen.x -= g_playerPos.x;
     playerScreen.y -= g_playerPos.y;
@@ -35,50 +33,8 @@ void renderMapPerspective() {
     playerFovRight.x = playerFovRight.x * pacos - playerFovRight.y * pasin;
     playerFovRight.y = temp * pasin + playerFovRight.y * pacos;
 
-    // ---- Top view dynamic ----
-    {
-        //vec2_t pScreen = { playerScreen.x, playerScreen.y };
-        //vec2_t pLScreen = { playerLook.x, playerLook.y };
-        //vec2_t pFovL = { playerFovLeft.x, playerFovLeft.y };
-        //vec2_t pFovR = { playerFovRight.x, playerFovRight.y };
-
-        // Flip y axis
-        //pScreen.y *= -1;
-        //pLScreen.y *= -1;
-        //pFovL.y *= -1;
-        //pFovR.y *= -1;
-            
-        // Scale to screen coordinates
-        //pScreen.x = pScreen.x / g_worldWidth * renderWindowWidth;
-        //pScreen.y = pScreen.y / g_worldHeight * renderWindowHeight;
-
-        //pLScreen.x = pLScreen.x / g_worldWidth * renderWindowWidth;
-        //pLScreen.y = pLScreen.y / g_worldHeight * renderWindowHeight;
-
-        //pFovL.x = pFovL.x / g_worldWidth * renderWindowWidth;
-        //pFovL.y = pFovL.y / g_worldHeight * renderWindowHeight;
-
-        //pFovR.x = pFovR.x / g_worldWidth * renderWindowWidth;
-        //pFovR.y = pFovR.y / g_worldHeight * renderWindowHeight;
+    drawRect(0, 0, renderWindowWidth, renderWindowHeight, 0x00ff00);
     
-        // Move origin to center of screen
-        //pScreen.x += drawClipTL.x + renderWindowWidth / 2;
-        //pScreen.y += drawClipTL.y + renderWindowHeight / 4 * 3;
-
-        //pFovL.x = pFovL.x / g_worldWidth * renderWindowWidth;
-        //pFovL.y = pFovL.y / g_worldHeight * renderWindowHeight;
-
-        //pFovR.x = pFovR.x / g_worldWidth * renderWindowWidth;
-        //pFovR.y = pFovR.y / g_worldHeight * renderWindowHeight;
-
-        drawRect(0, 0, renderWindowSize, renderWindowSize, 0x00ff00);
-        //fillRect(pScreen.x - 1, pScreen.y - 1, pScreen.x + 1, pScreen.y + 1, 0xffffff);
-        //drawLine(pScreen.x, pScreen.y,  pScreen.x + pLScreen.x, pScreen.y + pLScreen.y, 0xffffff);
-        //drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovL.x, pScreen.y + pFovL.y, 0xffffff);
-        //drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovR.x, pScreen.y + pFovR.y, 0xffffff);
-    }
-    
-        
     for(int s = 0; s < g_sectorCount; s++) {
         sector_t* sector = g_sectors[s];
         for(int w = 0; w < sector->wallCount; w++) {
@@ -201,8 +157,8 @@ void renderMapPerspective() {
                 angleStart -= 90;
                 angleEnd -= 90;
 
-                float xWallStart = renderWindowSize - (angleStart / g_fovH + 0.5)  * renderWindowSize;
-                float xWallEnd = renderWindowSize - (angleEnd / g_fovH + 0.5)  * renderWindowSize;
+                float xWallStart = renderWindowWidth - (angleStart / g_fovH + 0.5)  * renderWindowWidth;
+                float xWallEnd = renderWindowWidth - (angleEnd / g_fovH + 0.5)  * renderWindowWidth;
 
                 vec2_t st = {(wallStartScreen.x - playerScreen.x), (wallStartScreen.y - playerScreen.y)};
                 vec2_t en = {(wallEndScreen.x - playerScreen.x), (wallEndScreen.y - playerScreen.y)};
@@ -210,20 +166,18 @@ void renderMapPerspective() {
                 float wallStartDist = length(st);
                 float wallEndDist = length(en);
 
-                float yWallStartTop = renderWindowSize / 2 - renderWindowSize / 2 * (1 / wallStartDist);
-                float yWallStartBottom = renderWindowSize / 2 + renderWindowSize / 2 * (1 / wallStartDist);
-                float yWallEndTop = renderWindowSize / 2 - renderWindowSize / 2 * (1 / wallEndDist);
-                float yWallEndBottom = renderWindowSize / 2 + renderWindowSize / 2 * (1 / wallEndDist);
+                float yWallStartTop = renderWindowHeight / 2 - renderWindowHeight / 2 * (1 / wallStartDist);
+                float yWallStartBottom = renderWindowHeight / 2 + renderWindowHeight / 2 * (1 / wallStartDist);
+                float yWallEndTop = renderWindowHeight / 2 - renderWindowHeight / 2 * (1 / wallEndDist);
+                float yWallEndBottom = renderWindowHeight / 2 + renderWindowHeight / 2 * (1 / wallEndDist);
 
                 wallStartScreen.y *= -1;
                 wallEndScreen.y *= -1;
 
-                wallStartScreen.x = wallStartScreen.x / g_worldWidth * renderWindowSize + renderWindowSize / 2;
-                wallStartScreen.y = wallStartScreen.y / g_worldHeight * renderWindowSize  + renderWindowSize / 2;
-                wallEndScreen.x = wallEndScreen.x / g_worldWidth * renderWindowSize + renderWindowSize / 2;
-                wallEndScreen.y = wallEndScreen.y / g_worldHeight * renderWindowSize + renderWindowSize / 2;
-
-                //printf("draw %f,%f - %f,%f - %X!\n", wallStartScreen.x, wallStartScreen.y, wallEndScreen.x, wallEndScreen.y, g_colors[g_sides[wall->sides[0]]->color]);
+                wallStartScreen.x = wallStartScreen.x / g_worldWidth * renderWindowWidth + renderWindowWidth / 2;
+                wallStartScreen.y = wallStartScreen.y / g_worldHeight * renderWindowHeight  + renderWindowHeight / 2;
+                wallEndScreen.x = wallEndScreen.x / g_worldWidth * renderWindowWidth + renderWindowWidth / 2;
+                wallEndScreen.y = wallEndScreen.y / g_worldHeight * renderWindowHeight + renderWindowHeight / 2;
 
                 drawLine(xWallStart, yWallStartTop, xWallEnd, yWallEndTop, g_colors[g_sides[wall->sides[0]]->color]);
 
