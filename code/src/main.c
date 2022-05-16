@@ -81,8 +81,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                                  WS_OVERLAPPEDWINDOW|WS_VISIBLE,
                                  CW_USEDEFAULT,
                                  CW_USEDEFAULT,
-                                 860,
-                                 480,
+                                 1920,
+                                 1080,
                                  0,
                                  0,
                                  instance,
@@ -184,7 +184,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         R_SetDrawClip((rect_t) {0, 0, g_clientWidth, g_clientHeight});
         R_ClearScreen(0x000000);
 
-        float renderWindowSize = g_clientWidth / 2;
+        float renderWindowSize = g_clientWidth / 3;
 
         if(g_keys['V']) {
             switch(g_mapRenderMode) {
@@ -201,10 +201,10 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
             g_keys['V'] = 0;
         }
 
-        setDrawClip(0, 0, g_clientWidth, g_clientHeight);
-        renderMap();
+        //setDrawClip(0, 0, g_clientWidth, g_clientHeight);
+        //renderMap();
         // ---- Top view static ----
-        if(0) {
+        if(1) {
             {   
                 setDrawClip(0, 0, renderWindowSize, renderWindowSize);
                 g_mapRenderMode = RENDER_MAP_STATIC;

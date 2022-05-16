@@ -86,7 +86,7 @@ void setPixel(int x, int y, uint32_t color) {
     x += drawClipTL.x;
     y += drawClipTL.y;
     
-    if(x <= drawClipTL.x || x >= drawClipBR.x || y <= drawClipTL.y || y >= drawClipBR.y) {
+    if(x < drawClipTL.x || x >= drawClipBR.x || y < drawClipTL.y || y >= drawClipBR.y) {
         return;
     }
 
