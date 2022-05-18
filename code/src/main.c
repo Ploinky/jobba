@@ -178,11 +178,18 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         if(g_keys['D']) {
             g_playerPos.x += cos(toRadians(g_playerA)) * dt * 5;
             g_playerPos.y -= sin(toRadians(g_playerA)) * dt * 5;
-        }
+        }    
 
-        // Clear entire screen to black
-        R_SetDrawClip((rect_t) {0, 0, g_clientWidth, g_clientHeight});
-        R_ClearScreen(0x000000);
+        switch(g_mapRenderMode) {
+            case RENDER_MAP_STATIC:
+            case RENDER_MAP_DYNAMIC:
+                R_ClearScreen(0x000000);
+                break;
+        }
+        
+        if(!g_keys['P']) {
+                R_ClearScreen(0x000000);
+        }
 
         float renderWindowSize = g_clientWidth / 3;
 

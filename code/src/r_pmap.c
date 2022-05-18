@@ -182,16 +182,29 @@ void renderMapPerspective() {
                 wallEndScreen.x = wallEndScreen.x / g_worldWidth * renderWindowWidth + renderWindowWidth / 2;
                 wallEndScreen.y = wallEndScreen.y / g_worldHeight * renderWindowHeight + renderWindowHeight / 2;
 
-                drawLine(xWallStart, yWallStartTop, xWallEnd, yWallEndTop, g_colors[g_sides[wall->sides[0]]->color]);
+                if(g_keys['P']) {
+                    for(float x = xWallStart; x < xWallEnd; x++) {
+                        float frac = (x - xWallStart) / (xWallEnd - xWallStart);
 
-                drawLine(xWallStart, yWallStartBottom, xWallEnd, yWallEndBottom, g_colors[g_sides[wall->sides[0]]->color]);
+                        float yTop = yWallStartTop + frac * (yWallEndTop - yWallStartTop);
+                        float yBottom = yWallStartBottom + frac * (yWallEndBottom - yWallStartBottom);
 
-                if(xWallStart > 0) {
-                    drawLine(xWallStart, yWallStartTop, xWallStart, yWallStartBottom, g_colors[g_sides[wall->sides[0]]->color]);
+                        drawLine(x, 0, x, yTop, 0x606060);
+                        drawLine(x, yTop, x, yBottom, g_colors[g_sides[wall->sides[0]]->color]);
+                        drawLine(x, yBottom, x, renderWindowHeight, 0x060606);       
+                    }
+                } else {
+                    drawLine(xWallStart, yWallStartTop, xWallEnd, yWallEndTop, g_colors[g_sides[wall->sides[0]]->color]);
+
+                    drawLine(xWallStart, yWallStartBottom, xWallEnd, yWallEndBottom, g_colors[g_sides[wall->sides[0]]->color]);
+
+                    if(xWallStart > 0) {
+                        drawLine(xWallStart, yWallStartTop, xWallStart, yWallStartBottom, g_colors[g_sides[wall->sides[0]]->color]);
+                    }
+                    if(xWallEnd < g_clientWidth) {
+                        drawLine(xWallEnd, yWallEndTop, xWallEnd, yWallEndBottom, g_colors[g_sides[wall->sides[0]]->color]);
+                    }                
                 }
-                if(xWallEnd < g_clientWidth) {
-                    drawLine(xWallEnd, yWallEndTop, xWallEnd, yWallEndBottom, g_colors[g_sides[wall->sides[0]]->color]);
-                }                
             } else {
                 // Draw portal indicator
             }

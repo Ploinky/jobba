@@ -202,5 +202,5 @@ void LoadMap() {
     g_rootNode->nodeRight = 0;
     g_rootNode->sectorLeft = 1;
     g_rootNode->sectorRight = 0;
-    printf("%p\n", g_rootNode);
+    g_rootNode->nodeParent = 0;
 }

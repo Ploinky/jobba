@@ -1,6 +1,18 @@
 #include "r_main.h"
 #include "r_dmap.h"
 
+typedef struct {
+    int filled;
+    float startX;
+    float startY;
+    void* last;
+    void* next;
+} slice_t;
+
+slice_t first;
+
+float* remaining;
+
 vec2_t rayIntersect(vec2_t fromA, vec2_t toA, vec2_t rayStart, float rayAngle) {
     vec2_t ret = { NAN, NAN };
     vec2_t q = fromA;
@@ -29,7 +41,7 @@ vec2_t vectorIntersect(vec2_t fromA, vec2_t toA, vec2_t fromB, vec2_t toB) {
     return ret;
 }
 
-sector_t* findSector(node_t* currentNode) {
+node_t* findSector(node_t* currentNode) {
     vec2_t* v1 = g_corners[currentNode->start];
     vec2_t* v2 = g_corners[g_rootNode->end];
 
@@ -41,19 +53,21 @@ sector_t* findSector(node_t* currentNode) {
         if(currentNode->nodeRight != 0) {
             return findSector(currentNode->nodeRight);
         } else {
-            return g_sectors[currentNode->sectorRight];
+            return currentNode;
         }
     } else {
         // left side
         if(currentNode->nodeLeft != 0) {
             return findSector(currentNode->nodeLeft);
         } else {
-            return g_sectors[currentNode->sectorLeft];
+            return currentNode;
         }
     }
 }
 
 void renderMapDynamic() {
+    remaining = malloc(sizeof(float) * g_clientWidth * 2);
+
     vec2_t playerScreen = { g_playerPos.x, g_playerPos.y };
     vec2_t playerLook = { sin(toRadians(g_playerA)) * 1, cos(toRadians(g_playerA)) * 1 };
     vec2_t playerFovLeft = { sin(toRadians(g_playerA - g_fovH / 2)) * 40,
@@ -69,12 +83,6 @@ void renderMapDynamic() {
     // Rotate everything else around the player (opposite of player rotation)
     float pasin = sin(toRadians(g_playerA));
     float pacos = cos(toRadians(g_playerA));
-
-
-    // Find which sector we are currently in by traversing the node tree
-    sector_t* sector = findSector(g_rootNode);
-    // Render our current sector? Remembering where we draw other sectors?
-    
     
     // Translate everything to player specific coordinate system
     playerScreen.x -= g_playerPos.x;
@@ -130,48 +138,113 @@ void renderMapDynamic() {
     drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovL.x, pScreen.y + pFovL.y, 0xffffff);
     drawLine(pScreen.x, pScreen.y,  pScreen.x + pFovR.x, pScreen.y + pFovR.y, 0xffffff);
 
+
+    node_t* currentNode = findSector(g_rootNode);
+
+    int c = 0;
+
+    while(c == 0 && (!first.filled || first.startX != 0 || first.startY != g_clientWidth)) {
+        c++;
+        vec2_t* v1 = g_corners[currentNode->start];
+        vec2_t* v2 = g_corners[currentNode->end];
+
+        float angle1 = toDegrees(atan2(v2->y - v1->y, v2->x - v1->x));
+        float angle2 = toDegrees(atan2(g_playerPos.y - v1->y, g_playerPos.x - v1->x));
+
+        if(angle2 < angle1) {
+            // right side
+            if(currentNode->sectorRight != -1) {
+                return renderSector(g_sectors[currentNode->sectorRight], playerScreen);
+            }
+        } else {
+            // left side
+            if(currentNode->sectorLeft != -1) {
+                return renderSector(g_sectors[currentNode->sectorLeft], playerScreen);
+            }
+        }
+
+    }
+}
+
+void renderSector(sector_t* sector, vec2_t playerScreen) {
+    float renderWindowWidth = drawClipBR.x - drawClipTL.x;
+    float renderWindowHeight = drawClipBR.y - drawClipTL.y;
+    
+    float renderWindowSize = min(renderWindowWidth, renderWindowHeight);
+
+    // Rotate everything else around the player (opposite of player rotation)
+    float pasin = sin(toRadians(g_playerA));
+    float pacos = cos(toRadians(g_playerA));
         
-    //for(int s = 0; s < g_sectorCount; s++) {
-    //    sector_t* sector = g_sectors[s];
-        for(int w = 0; w < sector->wallCount; w++) {
-            wall_t* wall = g_walls[sector->walls[w]];
+    for(int w = 0; w < sector->wallCount; w++) {
+        wall_t* wall = g_walls[sector->walls[w]];
 
-            vec2_t wallStartScreen = { g_corners[wall->startCorner]->x, g_corners[wall->startCorner]->y };
-            vec2_t wallEndScreen = { g_corners[wall->endCorner]->x, g_corners[wall->endCorner]->y };
+        vec2_t wallStartScreen = { g_corners[wall->startCorner]->x, g_corners[wall->startCorner]->y };
+        vec2_t wallEndScreen = { g_corners[wall->endCorner]->x, g_corners[wall->endCorner]->y };
 
-            wallStartScreen.x -= g_playerPos.x;
-            wallStartScreen.y -= g_playerPos.y;
+        wallStartScreen.x -= g_playerPos.x;
+        wallStartScreen.y -= g_playerPos.y;
 
-            wallEndScreen.x -= g_playerPos.x;
-            wallEndScreen.y -= g_playerPos.y;
+        wallEndScreen.x -= g_playerPos.x;
+        wallEndScreen.y -= g_playerPos.y;
 
-            // Rotate everything else around the player (opposite of player rotation)
-            float temp = wallStartScreen.x; 
-            wallStartScreen.x = wallStartScreen.x * pacos - wallStartScreen.y * pasin;
-            wallStartScreen.y = temp * pasin + wallStartScreen.y * pacos;
+        // Rotate everything else around the player (opposite of player rotation)
+        float temp = wallStartScreen.x; 
+        wallStartScreen.x = wallStartScreen.x * pacos - wallStartScreen.y * pasin;
+        wallStartScreen.y = temp * pasin + wallStartScreen.y * pacos;
 
-            temp = wallEndScreen.x;
-            wallEndScreen.x = wallEndScreen.x * pacos - wallEndScreen.y * pasin;
-            wallEndScreen.y = temp * pasin + wallEndScreen.y * pacos;
-            
-            // Clip
-            if(wallStartScreen.y < 0 && wallEndScreen.y < 0) {
-                // Both vertices behind player, definitely clip!
-                // This seems like a pretty cheap check to do right off the bat
+        temp = wallEndScreen.x;
+        wallEndScreen.x = wallEndScreen.x * pacos - wallEndScreen.y * pasin;
+        wallEndScreen.y = temp * pasin + wallEndScreen.y * pacos;
+        
+        // Clip
+        if(wallStartScreen.y < 0 && wallEndScreen.y < 0) {
+            // Both vertices behind player, definitely clip!
+            // This seems like a pretty cheap check to do right off the bat
+            continue;
+        }
+        
+        float angleStart = toDegrees(atan2(wallStartScreen.y, wallStartScreen.x));
+        if(angleStart < 0) {
+            angleStart = 360 + angleStart;
+        }
+
+        float angleEnd = toDegrees(atan2(wallEndScreen.y, wallEndScreen.x));
+        if(angleEnd < 0) {
+            angleEnd = 360 + angleEnd;
+        }
+
+        int draw = 0;
+
+        if(angleStart - angleEnd < 180 && angleStart - angleEnd > 0 && angleEnd < 135 && angleStart > 45) {
+            draw = 1;
+        }
+
+        if(angleStart - angleEnd < -180 &&  angleStart > 45 && angleStart < 180 ) {
+            draw = 1;
+        }
+
+        if(!draw) {
+            // Cull backfaces
+            if(wall->sideCount < 2) {
                 continue;
             }
-            
-            float angleStart = toDegrees(atan2(wallStartScreen.y, wallStartScreen.x));
+
+            vec2_t tempStart = wallStartScreen;
+            wallStartScreen = wallEndScreen;
+            wallEndScreen = tempStart;
+
+            angleStart = toDegrees(atan2(wallStartScreen.y, wallStartScreen.x));
             if(angleStart < 0) {
                 angleStart = 360 + angleStart;
             }
 
-            float angleEnd = toDegrees(atan2(wallEndScreen.y, wallEndScreen.x));
+            angleEnd = toDegrees(atan2(wallEndScreen.y, wallEndScreen.x));
             if(angleEnd < 0) {
                 angleEnd = 360 + angleEnd;
             }
 
-            int draw = 0;
+            draw = 0;
 
             if(angleStart - angleEnd < 180 && angleStart - angleEnd > 0 && angleEnd < 135 && angleStart > 45) {
                 draw = 1;
@@ -180,89 +253,58 @@ void renderMapDynamic() {
             if(angleStart - angleEnd < -180 &&  angleStart > 45 && angleStart < 180 ) {
                 draw = 1;
             }
-
+            
             if(!draw) {
-                // Cull backfaces
-                if(wall->sideCount < 2) {
-                    continue;
-                }
-
-                vec2_t tempStart = wallStartScreen;
-                wallStartScreen = wallEndScreen;
-                wallEndScreen = tempStart;
-
-                angleStart = toDegrees(atan2(wallStartScreen.y, wallStartScreen.x));
-                if(angleStart < 0) {
-                    angleStart = 360 + angleStart;
-                }
-
-                angleEnd = toDegrees(atan2(wallEndScreen.y, wallEndScreen.x));
-                if(angleEnd < 0) {
-                    angleEnd = 360 + angleEnd;
-                }
-
-                draw = 0;
-
-                if(angleStart - angleEnd < 180 && angleStart - angleEnd > 0 && angleEnd < 135 && angleStart > 45) {
-                    draw = 1;
-                }
-
-                if(angleStart - angleEnd < -180 &&  angleStart > 45 && angleStart < 180 ) {
-                    draw = 1;
-                }
-                
-                if(!draw) {
-                    continue;
-                }
-            }
-
-            if(g_keys['I']) {
-                printf("%X, %f, %f\n", g_colors[g_sides[wall->sides[0]]->color], angleStart, angleEnd);
-            }
-
-            vec2_t intersectLeft = rayIntersect(wallStartScreen, wallEndScreen, playerScreen, -g_fovH / 2);
-
-            // Wall is clipped at left side of screen
-            if(intersectLeft.x > 0 && intersectLeft.y > 0 && intersectLeft.y < 1) {
-                wallStartScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectLeft.y;
-                wallStartScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectLeft.y;
-            }
-            
-            vec2_t intersectRight = rayIntersect(wallStartScreen, wallEndScreen, playerScreen, g_fovH / 2);
-
-            // Wall is clipped at right side of screen
-            if(intersectRight.x > 0 && intersectRight.y > 0 && intersectRight.y < 1) {
-                wallEndScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectRight.y;
-                wallEndScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectRight.y;
-            }
-            
-            vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
-            vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
-
-            // Flip y axis
-            wSScreen.y *= -1;
-            wEScreen.y *= -1;
-            
-            // Scale to screen coordinates
-            wSScreen.x = wSScreen.x / g_worldWidth * renderWindowSize;
-            wSScreen.y = wSScreen.y / g_worldHeight * renderWindowSize ;
-            wEScreen.x = wEScreen.x / g_worldWidth * renderWindowSize;
-            wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSize;
-            
-            // Move origin to center of screen
-            wSScreen.x += renderWindowWidth / 2;
-            wSScreen.y += renderWindowHeight / 4 * 3;
-            wEScreen.x += renderWindowWidth / 2;
-            wEScreen.y += renderWindowHeight / 4 * 3;
-
-
-            if(g_sides[wall->sides[0]]->type == SIDE_SOLID) {
-                drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, g_colors[g_sides[wall->sides[0]]->color]);
-            } else {
-                drawLine(wSScreen.x, wSScreen.y,  wEScreen.x, wEScreen.y, 0x606060);
+                continue;
             }
         }
-    //}
+
+        if(g_keys['I']) {
+            printf("%X, %f, %f\n", g_colors[g_sides[wall->sides[0]]->color], angleStart, angleEnd);
+        }
+
+        vec2_t intersectLeft = rayIntersect(wallStartScreen, wallEndScreen, playerScreen, -g_fovH / 2);
+
+        // Wall is clipped at left side of screen
+        if(intersectLeft.x > 0 && intersectLeft.y > 0 && intersectLeft.y < 1) {
+            wallStartScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectLeft.y;
+            wallStartScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectLeft.y;
+        }
+        
+        vec2_t intersectRight = rayIntersect(wallStartScreen, wallEndScreen, playerScreen, g_fovH / 2);
+
+        // Wall is clipped at right side of screen
+        if(intersectRight.x > 0 && intersectRight.y > 0 && intersectRight.y < 1) {
+            wallEndScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectRight.y;
+            wallEndScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectRight.y;
+        }
+        
+        vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
+        vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
+
+        // Flip y axis
+        wSScreen.y *= -1;
+        wEScreen.y *= -1;
+        
+        // Scale to screen coordinates
+        wSScreen.x = wSScreen.x / g_worldWidth * renderWindowSize;
+        wSScreen.y = wSScreen.y / g_worldHeight * renderWindowSize ;
+        wEScreen.x = wEScreen.x / g_worldWidth * renderWindowSize;
+        wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSize;
+        
+        // Move origin to center of screen
+        wSScreen.x += renderWindowWidth / 2;
+        wSScreen.y += renderWindowHeight / 4 * 3;
+        wEScreen.x += renderWindowWidth / 2;
+        wEScreen.y += renderWindowHeight / 4 * 3;
+
+
+        if(g_sides[wall->sides[0]]->type == SIDE_SOLID) {
+            drawLine(wSScreen.x, wSScreen.y, wEScreen.x, wEScreen.y, g_colors[g_sides[wall->sides[0]]->color]);
+        } else {
+            drawLine(wSScreen.x, wSScreen.y, wEScreen.x, wEScreen.y, 0x606060);
+        }
+    }
     g_keys['I'] = 0;
     g_keys['J'] = 0;
 }

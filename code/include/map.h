@@ -10,6 +10,7 @@ typedef struct {
     int end;
     void* nodeLeft;
     void* nodeRight;
+    void* nodeParent;
     int sectorLeft;
     int sectorRight;
 } node_t;

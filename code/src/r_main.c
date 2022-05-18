@@ -26,6 +26,8 @@ void R_Initialize(HWND targetHandle) {
 
     int bufferSize = g_clientWidth * g_clientHeight * sizeof(uint32_t);
     buffer = malloc(bufferSize);
+    // Clear entire screen to black
+    R_SetDrawClip((rect_t) {0, 0, g_clientWidth, g_clientHeight});
     clearBuffer(0x000000);
 
     hdc = GetDC(hwnd);
@@ -87,6 +89,7 @@ void setPixel(int x, int y, uint32_t color) {
     y += drawClipTL.y;
     
     if(x < drawClipTL.x || x >= drawClipBR.x || y < drawClipTL.y || y >= drawClipBR.y) {
+        MessageBoxA(0, "Trying to draw outside window bounds!", "Rejected pixel", 0);
         return;
     }
 
