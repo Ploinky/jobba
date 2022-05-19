@@ -89,7 +89,7 @@ void setPixel(int x, int y, uint32_t color) {
     y += drawClipTL.y;
     
     if(x < drawClipTL.x || x >= drawClipBR.x || y < drawClipTL.y || y >= drawClipBR.y) {
-        MessageBoxA(0, "Trying to draw outside window bounds!", "Rejected pixel", 0);
+        //MessageBoxA(0, "Trying to draw outside window bounds!", "Rejected pixel", 0);
         return;
     }
 
