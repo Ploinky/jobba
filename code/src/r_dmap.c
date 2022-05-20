@@ -2,14 +2,13 @@
 #include "r_dmap.h"
 
 typedef struct {
-    int filled;
     float startX;
-    float startY;
+    float endX;
     void* last;
     void* next;
 } slice_t;
 
-slice_t first;
+slice_t* first;
 
 float* remaining;
 
@@ -141,10 +140,19 @@ void renderMapDynamic() {
 
     node_t* currentNode = findSector(g_rootNode);
 
-    int c = 0;
+    first = malloc(sizeof(slice_t));
+    first->startX = -45;
+    first->endX = -45;
+    first->last = 0;
 
-    while(c == 0 && (!first.filled || first.startX != 0 || first.startY != g_clientWidth)) {
-        c++;
+    slice_t* last = malloc(sizeof(slice_t));
+    last->startX = 45;
+    last->endX = 45;
+    last->last = &first;
+    last->next = 0;
+    first->next = last;
+
+    //while(first.startX != 0 || first.endX != g_fovH) {
         vec2_t* v1 = g_corners[currentNode->start];
         vec2_t* v2 = g_corners[currentNode->end];
 
@@ -154,23 +162,60 @@ void renderMapDynamic() {
         if(angle2 < angle1) {
             // right side
             if(currentNode->sectorRight != -1) {
-                return renderSector(g_sectors[currentNode->sectorRight], playerScreen);
+                renderSector(g_sectors[currentNode->sectorRight], playerScreen);
             }
-        } else {
-            // left side
-            if(currentNode->sectorLeft != -1) {
-                return renderSector(g_sectors[currentNode->sectorLeft], playerScreen);
+            
+            printf("(%f, %f), (%f, %f)\n", first->startX, first->endX, last->startX, last->endX);
+        
+            if(first->endX != g_fovH) {
+                // left side
+                if(currentNode->sectorLeft != -1) {
+                    renderSector(g_sectors[currentNode->sectorLeft], playerScreen);
+                }
             }
         }
-
-    }
+    //}
 }
 
-void renderSector(sector_t* sector, vec2_t playerScreen) {
+void renderWallSegment(vec2_t wallStartScreen, vec2_t wallEndScreen, vec2_t playerScreen, float angleStart, float angleEnd, uint32_t color) {
     float renderWindowWidth = drawClipBR.x - drawClipTL.x;
     float renderWindowHeight = drawClipBR.y - drawClipTL.y;
     
     float renderWindowSize = min(renderWindowWidth, renderWindowHeight);
+
+    vec2_t intersectLeft = rayIntersect(wallStartScreen, wallEndScreen, playerScreen, angleStart);
+
+    wallStartScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectLeft.y;
+    wallStartScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectLeft.y;
+
+    vec2_t intersectRight = rayIntersect(wallStartScreen, wallEndScreen, playerScreen, angleEnd);
+
+    wallEndScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectRight.y;
+    wallEndScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectRight.y;
+
+    vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
+    vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
+
+    // Flip y axis
+    wSScreen.y *= -1;
+    wEScreen.y *= -1;
+    
+    // Scale to screen coordinates
+    wSScreen.x = wSScreen.x / g_worldWidth * renderWindowSize;
+    wSScreen.y = wSScreen.y / g_worldHeight * renderWindowSize ;
+    wEScreen.x = wEScreen.x / g_worldWidth * renderWindowSize;
+    wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSize;
+    
+    // Move origin to center of screen
+    wSScreen.x += renderWindowWidth / 2;
+    wSScreen.y += renderWindowHeight / 4 * 3;
+    wEScreen.x += renderWindowWidth / 2;
+    wEScreen.y += renderWindowHeight / 4 * 3;
+    // Completely draw wall
+    drawLine(wSScreen.x, wSScreen.y, wEScreen.x, wEScreen.y, color);
+}
+
+void renderSector(sector_t* sector, vec2_t playerScreen) {
 
     // Rotate everything else around the player (opposite of player rotation)
     float pasin = sin(toRadians(g_playerA));
@@ -259,50 +304,82 @@ void renderSector(sector_t* sector, vec2_t playerScreen) {
             }
         }
 
+        angleStart = min(angleStart, 135);
+        angleEnd = max(angleEnd, 45);
+
+        angleStart *= -1;
+        angleEnd *= -1;
+
+        angleStart += 90;
+        angleEnd += 90;
+
         if(g_keys['I']) {
             printf("%X, %f, %f\n", g_colors[g_sides[wall->sides[0]]->color], angleStart, angleEnd);
         }
 
-        vec2_t intersectLeft = rayIntersect(wallStartScreen, wallEndScreen, playerScreen, -g_fovH / 2);
-
-        // Wall is clipped at left side of screen
-        if(intersectLeft.x > 0 && intersectLeft.y > 0 && intersectLeft.y < 1) {
-            wallStartScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectLeft.y;
-            wallStartScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectLeft.y;
-        }
-        
-        vec2_t intersectRight = rayIntersect(wallStartScreen, wallEndScreen, playerScreen, g_fovH / 2);
-
-        // Wall is clipped at right side of screen
-        if(intersectRight.x > 0 && intersectRight.y > 0 && intersectRight.y < 1) {
-            wallEndScreen.x = wallStartScreen.x + (wallEndScreen.x - wallStartScreen.x) * intersectRight.y;
-            wallEndScreen.y = wallStartScreen.y + (wallEndScreen.y - wallStartScreen.y) * intersectRight.y;
-        }
-        
-        vec2_t wSScreen = { wallStartScreen.x, wallStartScreen.y };
-        vec2_t wEScreen = { wallEndScreen.x, wallEndScreen.y };
-
-        // Flip y axis
-        wSScreen.y *= -1;
-        wEScreen.y *= -1;
-        
-        // Scale to screen coordinates
-        wSScreen.x = wSScreen.x / g_worldWidth * renderWindowSize;
-        wSScreen.y = wSScreen.y / g_worldHeight * renderWindowSize ;
-        wEScreen.x = wEScreen.x / g_worldWidth * renderWindowSize;
-        wEScreen.y = wEScreen.y / g_worldHeight * renderWindowSize;
-        
-        // Move origin to center of screen
-        wSScreen.x += renderWindowWidth / 2;
-        wSScreen.y += renderWindowHeight / 4 * 3;
-        wEScreen.x += renderWindowWidth / 2;
-        wEScreen.y += renderWindowHeight / 4 * 3;
-
-
         if(g_sides[wall->sides[0]]->type == SIDE_SOLID) {
-            drawLine(wSScreen.x, wSScreen.y, wEScreen.x, wEScreen.y, g_colors[g_sides[wall->sides[0]]->color]);
-        } else {
-            drawLine(wSScreen.x, wSScreen.y, wEScreen.x, wEScreen.y, 0x606060);
+            // Keep slicing until entire wall is rendered
+            for(slice_t* currentSlice = first; currentSlice != 0 && angleStart < angleEnd; currentSlice = currentSlice->next) {
+                if(angleStart > currentSlice->endX) {
+                    // Wall starts in a later slice
+                    continue;
+                }
+
+                // Wall starts before this slice
+                if(angleStart < currentSlice->startX) {
+                    // Wall also ends before this slice, so insert new slice
+                    if(angleEnd < currentSlice->endX) {
+                        // Draw entirety of wall...
+                        renderWallSegment(wallStartScreen, wallEndScreen, playerScreen, angleStart, angleEnd, g_colors[g_sides[wall->sides[0]]->color]);
+
+
+                        slice_t* newSlice = malloc(sizeof(slice_t));
+                        newSlice->startX = angleStart;
+                        newSlice->endX = angleEnd;
+                        ((slice_t*) currentSlice->last)->next = newSlice;
+                        newSlice->last = currentSlice->last;
+                        currentSlice->last = newSlice;
+                        newSlice->next = currentSlice;
+
+                        // Completely rendered so break out
+                        break;
+                    } else {
+                        // Draw new wall up to existing slice
+                        renderWallSegment(wallStartScreen, wallEndScreen, playerScreen, angleStart, currentSlice->startX, g_colors[g_sides[wall->sides[0]]->color]);
+                        currentSlice->startX = angleStart;
+
+                        // Prepare angle for next slice calculations
+                        angleStart = currentSlice->endX;
+                    }
+                }
+                
+                if(angleStart >= currentSlice->startX) {
+                    // Wall starts in slice
+                    if(angleEnd <= currentSlice->endX) {
+                        // Wall is completely occluded, break out
+                        break;
+                    } else if(angleEnd >= ((slice_t*) currentSlice->next)->startX) {
+                        // Wall covers complete gap between two slices, render into this gap
+                        renderWallSegment(wallStartScreen, wallEndScreen, playerScreen, currentSlice->endX, ((slice_t*) currentSlice->next)->startX, g_colors[g_sides[wall->sides[0]]->color]);
+                        
+                        printf("Wall will be rendererd\n");
+                        // Combine the 2 slices and the gap...
+                        slice_t* oldNext = currentSlice->next;
+                        currentSlice->next = ((slice_t*) currentSlice->next)->next;
+                        currentSlice->endX = oldNext->endX;
+                        continue;
+                    } else {
+                        // Render rest of wall after this slice
+                        renderWallSegment(wallStartScreen, wallEndScreen, playerScreen, currentSlice->endX, angleEnd, g_colors[g_sides[wall->sides[0]]->color]);
+                        
+                        // Extend this slice
+                        currentSlice->endX = angleEnd;
+
+                        // Completely rendered, break out
+                        break;
+                    }
+                }
+            }
         }
     }
     g_keys['I'] = 0;
