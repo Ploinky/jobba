@@ -275,7 +275,11 @@ void renderSector(sector_t* sector, vec2_t playerScreen) {
 
         // Cull backface
         if(angleStart >= angleEnd) {
-            if(angleStart + (-1 * angleEnd) < 180 || angleStart + (-1 * angleEnd) > 270 ) {
+            if(angleStart > 0 && angleEnd < 0) {
+                if(angleStart + (-1 * angleEnd) <= 180 || (angleStart > 45 && angleEnd < -45)) {
+                    continue;
+                } 
+            } else {
                 continue;
             }
         }
