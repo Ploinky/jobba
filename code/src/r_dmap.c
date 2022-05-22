@@ -164,8 +164,6 @@ void renderMapDynamic() {
             if(currentNode->sectorRight != -1) {
                 renderSector(g_sectors[currentNode->sectorRight], playerScreen);
             }
-            
-            printf("(%f, %f), (%f, %f)\n", first->startX, first->endX, last->startX, last->endX);
         
             if(first->endX != g_fovH) {
                 // left side
@@ -175,6 +173,9 @@ void renderMapDynamic() {
             }
         }
     //}
+    
+    g_keys['I'] = 0;
+    g_keys['J'] = 0;
 }
 
 void renderWallSegment(vec2_t wallStartScreen, vec2_t wallEndScreen, vec2_t playerScreen, float angleStart, float angleEnd, uint32_t color) {
@@ -249,86 +250,58 @@ void renderSector(sector_t* sector, vec2_t playerScreen) {
             continue;
         }
         
-        float angleStart = toDegrees(atan2(wallStartScreen.y, wallStartScreen.x));
-        if(angleStart < 0) {
-            angleStart = 360 + angleStart;
+        float angleStart = toDegrees(atan2(wallStartScreen.y, wallStartScreen.x)) - 90;
+
+        float angleEnd = toDegrees(atan2(wallEndScreen.y, wallEndScreen.x)) - 90;
+        
+        if(angleStart < -180) {
+            angleStart = 180 + (angleStart + 180);
         }
 
-        float angleEnd = toDegrees(atan2(wallEndScreen.y, wallEndScreen.x));
-        if(angleEnd < 0) {
-            angleEnd = 360 + angleEnd;
+        if(angleEnd < -180) {
+            angleEnd = 180 + (angleEnd + 180);
         }
-
-        int draw = 0;
-
-        if(angleStart - angleEnd < 180 && angleStart - angleEnd > 0 && angleEnd < 135 && angleStart > 45) {
-            draw = 1;
-        }
-
-        if(angleStart - angleEnd < -180 &&  angleStart > 45 && angleStart < 180 ) {
-            draw = 1;
-        }
-
-        if(!draw) {
-            // Cull backfaces
-            if(wall->sideCount < 2) {
-                continue;
-            }
-
-            vec2_t tempStart = wallStartScreen;
-            wallStartScreen = wallEndScreen;
-            wallEndScreen = tempStart;
-
-            angleStart = toDegrees(atan2(wallStartScreen.y, wallStartScreen.x));
-            if(angleStart < 0) {
-                angleStart = 360 + angleStart;
-            }
-
-            angleEnd = toDegrees(atan2(wallEndScreen.y, wallEndScreen.x));
-            if(angleEnd < 0) {
-                angleEnd = 360 + angleEnd;
-            }
-
-            draw = 0;
-
-            if(angleStart - angleEnd < 180 && angleStart - angleEnd > 0 && angleEnd < 135 && angleStart > 45) {
-                draw = 1;
-            }
-
-            if(angleStart - angleEnd < -180 &&  angleStart > 45 && angleStart < 180 ) {
-                draw = 1;
-            }
-            
-            if(!draw) {
-                continue;
-            }
-        }
-
-        angleStart = min(angleStart, 135);
-        angleEnd = max(angleEnd, 45);
-
-        angleStart *= -1;
-        angleEnd *= -1;
-
-        angleStart += 90;
-        angleEnd += 90;
 
         if(g_keys['I']) {
             printf("%X, %f, %f\n", g_colors[g_sides[wall->sides[0]]->color], angleStart, angleEnd);
         }
 
+        angleStart *= -1;
+        angleEnd *= -1;
+
+        if(wall->sideCount > 1) {
+            continue;
+        }
+
+        // Cull backface
+        if(angleStart >= angleEnd) {
+            if(angleStart + (-1 * angleEnd) < 180 || angleStart + (-1 * angleEnd) > 270 ) {
+                continue;
+            }
+        }
+
+        if(angleStart < -45 && angleEnd < -45) {
+            continue;
+        }
+
+        if(angleStart > 45 && angleEnd > 45) {
+            continue;
+        }
+
+        renderWallSegment(wallStartScreen, wallEndScreen, playerScreen, angleStart, angleEnd, g_colors[g_sides[wall->sides[0]]->color]);
+
+        /*
         if(g_sides[wall->sides[0]]->type == SIDE_SOLID) {
             // Keep slicing until entire wall is rendered
             for(slice_t* currentSlice = first; currentSlice != 0 && angleStart < angleEnd; currentSlice = currentSlice->next) {
-                if(angleStart > currentSlice->endX) {
-                    // Wall starts in a later slice
-                    continue;
+                if(angleStart > currentSlice->endX && angleStart >= ((slice_t*)currentSlice->next)->startX) {
+                    //continue;
                 }
 
                 // Wall starts before this slice
                 if(angleStart < currentSlice->startX) {
                     // Wall also ends before this slice, so insert new slice
-                    if(angleEnd < currentSlice->endX) {
+                    if(angleEnd < currentSlice->startX) {
                         // Draw entirety of wall...
                         renderWallSegment(wallStartScreen, wallEndScreen, playerScreen, angleStart, angleEnd, g_colors[g_sides[wall->sides[0]]->color]);
 
@@ -362,12 +335,28 @@ void renderSector(sector_t* sector, vec2_t playerScreen) {
                         // Wall covers complete gap between two slices, render into this gap
                         renderWallSegment(wallStartScreen, wallEndScreen, playerScreen, currentSlice->endX, ((slice_t*) currentSlice->next)->startX, g_colors[g_sides[wall->sides[0]]->color]);
                         
-                        printf("Wall will be rendererd\n");
                         // Combine the 2 slices and the gap...
                         slice_t* oldNext = currentSlice->next;
                         currentSlice->next = ((slice_t*) currentSlice->next)->next;
                         currentSlice->endX = oldNext->endX;
+
+                        angleStart = oldNext->endX;
+                        free(oldNext);
                         continue;
+                    } else if(angleStart >= currentSlice->endX) {
+                        // Draw entirety of wall...
+                        renderWallSegment(wallStartScreen, wallEndScreen, playerScreen, angleStart, angleEnd, g_colors[g_sides[wall->sides[0]]->color]);
+
+
+                        slice_t* newSlice = malloc(sizeof(slice_t));
+                        newSlice->startX = angleStart;
+                        newSlice->endX = angleEnd;
+                        newSlice->last = currentSlice;
+                        newSlice->next = currentSlice->next;
+                        ((slice_t*) currentSlice->next)->last = newSlice;
+                        currentSlice->next = newSlice;
+
+                        // Completely rendered so break out
                     } else {
                         // Render rest of wall after this slice
                         renderWallSegment(wallStartScreen, wallEndScreen, playerScreen, currentSlice->endX, angleEnd, g_colors[g_sides[wall->sides[0]]->color]);
@@ -381,7 +370,6 @@ void renderSector(sector_t* sector, vec2_t playerScreen) {
                 }
             }
         }
+        */
     }
-    g_keys['I'] = 0;
-    g_keys['J'] = 0;
 }
