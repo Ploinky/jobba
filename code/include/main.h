@@ -4,7 +4,10 @@
 #define UNICODE
 #define _USE_MATH_DEFINES // for C
 
-#include <Windows.h>
+#pragma comment(lib,"user32.lib")
+#pragma comment(lib,"gdi32.lib")
+
+#include <windows.h>
 #include <time.h>
 #include <stdint.h>
 #include <time.h>
@@ -12,9 +15,6 @@
 #include <sys/timeb.h>
 #include <math.h>
 #include <stdlib.h>
-
-#pragma comment(lib,"user32.lib")
-#pragma comment(lib,"gdi32.lib")
 
 typedef struct {
     float x;

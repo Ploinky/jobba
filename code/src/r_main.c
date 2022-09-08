@@ -202,5 +202,5 @@ void drawLine(int x1, int y1, int x2, int y2, uint32_t color) {
 }
 
 void R_SwapBuffer() {
-    StretchDIBits(hdc, 0, 0, g_clientWidth, g_clientHeight, 0, 0, g_clientWidth, g_clientHeight, buffer, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+    StretchDIBits(hdc, 0, 0, 1024, 768, 0, 0, g_clientWidth, g_clientHeight, buffer, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 }

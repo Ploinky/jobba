@@ -81,8 +81,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                                  WS_OVERLAPPEDWINDOW|WS_VISIBLE,
                                  CW_USEDEFAULT,
                                  CW_USEDEFAULT,
-                                 640,
-                                 480,
+                                 1024,
+                                 768,
                                  0,
                                  0,
                                  instance,
@@ -93,10 +93,11 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         return GetLastError();
     }
     
+    g_clientWidth = 320;
+    g_clientHeight = 240;
+    
     RECT rect;
     GetClientRect(hwnd, &rect);
-    g_clientWidth = rect.right - rect.left;
-    g_clientHeight = rect.bottom - rect.top;
 
     int xPos = (GetSystemMetrics(SM_CXSCREEN) - rect.right)/2;
     int yPos = (GetSystemMetrics(SM_CYSCREEN) - rect.bottom)/2;
@@ -122,7 +123,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         ftime(&tmb);
         uint64_t now = tmb.time * 1000.0 + tmb.millitm;
 
-        double dt = (now - tickCount) / 1000.0;
+        double dt = (now 
+        - tickCount) / 1000.0;
 
         tickCount = now;
         
