@@ -1,14 +1,25 @@
 #pragma once
 
 #include <vector>
+#include <list>
+#include <string>
 
 // Main game application
 namespace P3D {
+    typedef struct {
+        unsigned long index;
+        long long received;
+        float x;
+        float y;
+    } game_tick_t;
+
     class Mesh;
     class Direct3D;
     class Renderer;
     class Window;
     class KeyboardInput;
+    class MouseInput;
+    class NetworkConnection;
     
     class Client {
         public:
@@ -24,10 +35,13 @@ namespace P3D {
             Window* window;
             // Access to DirectX 11 rendering pipeline
             Renderer* renderer;
+            
+            NetworkConnection* network;
 
             long long lastFrame;
 
             KeyboardInput* keyboardInput;
+            MouseInput* m_mouseInput;
 
             std::vector<Mesh*> models;
 
@@ -39,7 +53,10 @@ namespace P3D {
             void FinishRender();
 
             void HandlePlayerInput(Mesh* model, float dt);
-
+            void HandleNetworkMessage(std::string msg);
+            void HandleTicks();
             long long GetSystemTime();
+
+            std::list<game_tick_t> ticks;
     };
 }

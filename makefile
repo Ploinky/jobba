@@ -9,7 +9,7 @@ PS_IN := $(wildcard $(PS_SRC)/*.hlsl)
 PS_OUT := $(patsubst $(PS_SRC)/%.hlsl,$(PS_VS_DEST)/%.cso,$(PS_IN))
 VS_IN := $(wildcard $(VS_SRC)/*.hlsl)
 VS_OUT := $(patsubst $(VS_SRC)/%.hlsl,$(PS_VS_DEST)/%.cso,$(VS_IN))
-EXE_FILE := build/jobba.exe
+EXE_FILE := build/PloinkysMOBAGame.exe
 FOLDERS = build build/data build/shaders build/obj
 all: $(FOLDERS) $(PS_OUT) $(VS_OUT) $(EXE_FILE)
 
@@ -20,10 +20,10 @@ $(FOLDERS):
 	if not exist .build\data xcopy data .\build\data /I /S /Y
 
 $(EXE_FILE): $(OBJ_FILES)
-	clang++ -Wall -std=c++17 $^ -I code/include -o $@ -l d3d11
+	g++ -Wall -std=c++17 $^ -I code/include -o $@ -ld3d11 -lws2_32 -municode
 
 obj/%.o: code/src/%.cpp code/include/%.hpp
-	clang++ -Wall -std=c++17 $< -c -I code/include -o $@
+	g++ -Wall -std=c++17 $< -c -I code/include -o $@
 
 $(PS_OUT): $(PS_IN)
 	fxc -T ps_5_0 /Fo $@ $<
@@ -32,7 +32,7 @@ $(VS_OUT): $(VS_IN)
 	fxc -T vs_5_0 /Fo $@ $<
 
 run:
-	.\build\jobba.exe
+	.\build\PloinkysMOBAGame.exe
 
 clean:
 	if exist .\build rmdir /S /Q build
