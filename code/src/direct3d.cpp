@@ -8,26 +8,19 @@
 #include <type_traits>
 #include "util.hpp"
 
-// #define DEBUG
-
 namespace P3D {
     Direct3D::~Direct3D() {
-#ifdef DEBUG
+        
         ID3D11Debug* debug = 0;
         device->QueryInterface(__uuidof(ID3D11Debug), (VOID**)(&debug));
-#endif
 
         renderTargetView->Release();
         depthView->Release();
         swapChain->Release();
         context->Release();
-
-#ifdef DEBUG
         // Uncomment for debug information!!!
         // debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
         debug->Release();
-#endif
-
         device->Release();
     }
 
@@ -72,11 +65,7 @@ namespace P3D {
 
     bool Direct3D::CreateDevice() {
         // Setup for device creation
-        int createDeviceFlags =
-#ifdef DEBUG
-            D3D11_CREATE_DEVICE_DEBUG |
-#endif
-        D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+        int createDeviceFlags = D3D11_CREATE_DEVICE_DEBUG | D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
         // Create device with feature level 11.0
         const D3D_FEATURE_LEVEL requestedLevel[]{ D3D_FEATURE_LEVEL_11_0 };

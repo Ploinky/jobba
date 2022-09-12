@@ -14,29 +14,19 @@ std::string GetDir() {
 	return std::string(buffer).substr(0, pos);
 }
 
-int CALLBACK wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ PWSTR pCmdLine, _In_ int nCmdShow) {
-    // Attempt to read command line arguments
-    int argc;
-    wchar_t** argv = CommandLineToArgvW(pCmdLine, &argc);
-
-    printf("ARGS:\r\n");
-    for(int i = 0; i < argc; i++) {
-        printf("\t%d: %ls\r\n", i, argv[i]);
-    }
-
+int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ PSTR pCmdLine, _In_ int nCmdShow) {
     SetCurrentDirectoryA(GetDir().c_str());
-    
-    // AllocConsole();
+    AllocConsole();
 
-    // freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
-    // freopen_s((FILE**)stderr, "CONOUT$", "w", stderr);
+    freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
+    freopen_s((FILE**)stderr, "CONOUT$", "w", stderr);
     
-    P3D::Logger::Msg("Starting Ploinky's MOBA Game...");
+    P3D::Logger::Msg("Starting P3D Engine!");
 
     P3D::Client* client = new P3D::Client();
     client->Run();
 
-    P3D::Logger::Msg("Stopping Ploinky's MOBA Game.");
+    P3D::Logger::Msg("Stopping P3D Engine!\n");
 
     delete client;
     client = 0;

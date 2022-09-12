@@ -9,13 +9,15 @@
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         case WM_QUIT:
-        case WM_DESTROY: {
+        case WM_DESTROY:
+        {
             P3D::Logger::Msg("Windows window has been destroyed.");
             P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             window->SetShouldClose();
             break;
         }
-        case WM_SIZE: {
+        case WM_SIZE:
+        {
             P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
 
             if(window == nullptr) {
@@ -23,23 +25,48 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
             
             window->Resized(LOWORD(lParam), HIWORD(lParam));
+
+            RECT rect;
+            GetClientRect(hwnd, &rect);
+
+            POINT ul;
+            ul.x = rect.left;
+            ul.y = rect.top;
+
+            POINT lr;
+            lr.x = rect.right;
+            lr.y = rect.bottom;
+
+            MapWindowPoints(hwnd, nullptr, &ul, 1);
+            MapWindowPoints(hwnd, nullptr, &lr, 1);
+
+            rect.left = ul.x;
+            rect.top = ul.y;
+
+            rect.right = lr.x;
+            rect.bottom = lr.y;
+
+            ClipCursor(&rect);
             break;
         }
-        case WM_KEYDOWN: {
+        case WM_KEYDOWN:
+        {
             P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if(window != nullptr) {
                 window->KeyPressed(wParam);
             }
             break;
         }
-        case WM_KEYUP: {
+        case WM_KEYUP:
+        {
             P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if(window != nullptr) {
                 window->KeyReleased(wParam);
             }
             break;
         }
-        case WM_MOUSEMOVE: {
+        case WM_MOUSEMOVE:
+        {
             P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if(window != nullptr) {
                 window->MouseMoved(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -47,7 +74,47 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             break;
         }
-        case WM_ACTIVATE: {
+        case WM_INPUT:
+        {
+            P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window == nullptr) {
+                break;
+            }
+
+            RAWINPUT* rawBuffer;
+            UINT cbSize;
+
+            GetRawInputData((HRAWINPUT)lParam, 
+                            RID_INPUT, 
+                            NULL, 
+                            &cbSize,
+                            sizeof(RAWINPUTHEADER)
+                            );
+            
+	        rawBuffer = (PRAWINPUT)malloc(cbSize);
+
+            if(!rawBuffer) {
+                return FALSE;
+            }
+           
+            if(GetRawInputData((HRAWINPUT) lParam, RID_INPUT, rawBuffer, &cbSize, sizeof(RAWINPUTHEADER))) {
+                if(rawBuffer->header.dwType == RIM_TYPEMOUSE) {
+                    window->MouseMoved(rawBuffer->data.mouse.lLastX, rawBuffer->data.mouse.lLastY);
+                } else if(rawBuffer->header.dwType == RIM_TYPEKEYBOARD) {
+                    if(rawBuffer->data.keyboard.Flags == RI_KEY_MAKE) {
+                        window->KeyPressed(rawBuffer->data.keyboard.VKey);
+                    } else if(rawBuffer->data.keyboard.Flags == RI_KEY_BREAK) {
+                        window->KeyReleased(rawBuffer->data.keyboard.VKey);
+                    }
+                }
+            }
+            
+            free(rawBuffer);
+
+            return TRUE;
+        }
+        case WM_ACTIVATE:
+        {
             /*
             P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if(window == nullptr) {
@@ -62,7 +129,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             break;
             */
         }
-        case WM_SETFOCUS: {
+        case WM_SETFOCUS:
+        {
             P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if(window == nullptr) {
                 break;
@@ -71,7 +139,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             window->FocusGained();
             break;
         }
-        case WM_KILLFOCUS: {
+        case WM_KILLFOCUS:
+        {
             P3D::Window *window = (P3D::Window *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if(window == nullptr) {
                 break;
@@ -87,9 +156,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 namespace P3D {
     Window::Window() {
-        Logger::Msg("Creating window...");
+        Logger::Msg("Creating Windows window!");
 
-        LPCWSTR className = L"PloinkysMOBAGameWindow";
+        LPCWSTR className = L"Ploinky's 3D Engine";
 
         shouldClose = false;
 
@@ -102,7 +171,7 @@ namespace P3D {
         wc.cbWndExtra = 0;
         wc.hInstance = GetModuleHandle(NULL);
         wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wc.hCursor = LoadCursor(NULL, IDC_HAND);
         wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
         wc.lpszMenuName = NULL;
         wc.lpszClassName = className;
@@ -124,12 +193,10 @@ namespace P3D {
 
         RECT wr = {0, 0, width, height};       // set the size, but not the position
         AdjustWindowRect(&wr, dwStyle, FALSE); // adjust the window's size
-        width = wr.right - wr.left;
-        height = wr.bottom - wr.top;
 
         windowHandle = CreateWindowExW(WS_EX_APPWINDOW,
                                        wc.lpszClassName,
-                                       L"Ploinky's MOBA Game",
+                                       wc.lpszClassName,
                                        dwStyle,
                                        posX,
                                        posY,
@@ -154,7 +221,7 @@ namespace P3D {
     }
 
     void Window::Show() {
-        Logger::Msg("Showing window....");
+        Logger::Msg("Windows window showing!");
         ShowWindow(windowHandle, SW_SHOW);
     }
 
@@ -163,7 +230,8 @@ namespace P3D {
     // Handle win32 window events
     void Window::HandleEvents() {
         // Use PeekMessage, GetMessage blocks!
-        while (PeekMessage(&msg, windowHandle, 0, 0, PM_REMOVE) > 0) {
+        while (PeekMessage(&msg, windowHandle, 0, 0, PM_REMOVE) > 0)
+        {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
@@ -209,35 +277,46 @@ namespace P3D {
     }
 
     void Window::FocusGained() {
-        ClipCursorToWindow();
+        Logger::Msg("Window gained focus");
+
+        ShowCursor(false);
+
+        RAWINPUTDEVICE Rid[2];
+                
+        Rid[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
+        Rid[0].dwFlags = RIDEV_NOLEGACY;    // adds mouse and also ignores legacy mouse messages
+        Rid[0].hwndTarget = windowHandle;
+
+        Rid[1].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[1].usUsage = 0x06;              // HID_USAGE_GENERIC_KEYBOARD
+        Rid[1].dwFlags = RIDEV_NOLEGACY;    // adds keyboard and also ignores legacy keyboard messages
+        Rid[1].hwndTarget = windowHandle;
+
+        if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE) {
+            Logger::Err("Failed to register raw input devices");
+        }
     }
 
     void Window::FocusLost() {
-        // Do not forget to unclip cursor!
-        ClipCursor(NULL);
-    }
-
-    void Window::ClipCursorToWindow() {
-        RECT rect;
-        GetClientRect(windowHandle, &rect);
+        Logger::Msg("Window lost focus");
         
-        POINT ul;
-        ul.x = rect.left;
-        ul.y = rect.top;
+        ShowCursor(true);
 
-        POINT lr;
-        lr.x = rect.right;
-        lr.y = rect.bottom;
+        RAWINPUTDEVICE Rid[2];
+                
+        Rid[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
+        Rid[0].dwFlags = RIDEV_REMOVE;    // adds mouse and also ignores legacy mouse messages
+        Rid[0].hwndTarget = 0;
 
-        MapWindowPoints(windowHandle, nullptr, &ul, 1);
-        MapWindowPoints(windowHandle, nullptr, &lr, 1);
+        Rid[1].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        Rid[1].usUsage = 0x06;              // HID_USAGE_GENERIC_KEYBOARD
+        Rid[1].dwFlags = RIDEV_REMOVE;    // adds keyboard and also ignores legacy keyboard messages
+        Rid[1].hwndTarget = 0;
 
-        rect.left = ul.x;
-        rect.top = ul.y;
-
-        rect.right = lr.x;
-        rect.bottom = lr.y;
-
-        ClipCursor(&rect);
+        if (RegisterRawInputDevices(Rid, 2, sizeof(Rid[0])) == FALSE) {
+            Logger::Err("Failed to unregister raw input devices");
+        }
     }
 }

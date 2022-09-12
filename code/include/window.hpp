@@ -35,8 +35,6 @@ namespace P3D {
             void FocusGained();
             void FocusLost();
 
-            void ClipCursorToWindow();
-
             void Resized(int width, int height);
 
             void KeyPressed(long key);
