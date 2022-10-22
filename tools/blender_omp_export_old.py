@@ -7,31 +7,34 @@ def export_omp(context, filepath):
     verts = []
     indices = []
     
-    with open(filepath, 'w') as f:
-        # magic and version information
-        f.write("omp 1\n")
+    objects = bpy.context.scene.objects
+    for obj in objects:
+        mesh = obj.data
+        
+        for face in mesh.polygons:
+            indices.append(face.vertices[0])
+            indices.append(face.vertices[2])
+            indices.append(face.vertices[1])
             
-
-        objects = bpy.context.scene.objects
-        for obj in objects:
-            # start of object
-            mesh = obj.data
-            f.write("obj " + str(len(mesh.polygons)) + " " + str(len(mesh.vertices)) + "\n")
-            f.write("t " + str(obj.active_material_index) + "\n")
+        for vertex in mesh.vertices:
+            pos = [vertex.co[0], vertex.co[2], vertex.co[1]]
+            verts.append(pos)
                 
-            #vertices
-            for face in mesh.polygons:
-                f.write("f ")
-                f.write(str(face.vertices[0]) + " ")
-                f.write(str(face.vertices[1]) + " ")
-                f.write(str(face.vertices[2]) + "\n")
-            
-            # vertex pos
-            for vertex in mesh.vertices:
-                f.write("v ")
-                f.write(str(vertex.co[0]) + " ")
-                f.write(str(vertex.co[2]) + " ")
-                f.write(str(vertex.co[1]) + "\n")
+    with open(filepath, 'wb') as f:
+        f.write("omp".encode())
+        f.write(struct.pack('i', 1))
+        
+        f.write(struct.pack('i', len(verts)))
+        
+        for v in verts:
+            f.write(struct.pack('f', v[0]))
+            f.write(struct.pack('f', v[1]))
+            f.write(struct.pack('f', v[2]))
+        
+        f.write(struct.pack('i', len(indices)))
+        
+        for i in indices:
+            f.write(struct.pack('i', i))
                 
     print("Done!")
 
