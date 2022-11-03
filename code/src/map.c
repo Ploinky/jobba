@@ -20,7 +20,8 @@ node_t* g_rootNode;
 int* g_colors;
 
 void LoadMap() {
-    g_colors = malloc(sizeof(int) * 6);
+    printf("Loading map...\r\n");
+    g_colors = malloc(sizeof(uint32_t) * 6);
     g_colors[0] = 0xff0000;
     g_colors[1] = 0x00ff00;
     g_colors[2] = 0x0000ff;
@@ -29,7 +30,7 @@ void LoadMap() {
     g_colors[5] = 0xff00ff;
 
     g_cornerCount = 8;
-    g_corners = malloc(sizeof(void*) * g_cornerCount);
+    g_corners = malloc(sizeof(vec2_t*) * g_cornerCount);
     vec2_t* corner1 = malloc(sizeof(vec2_t));
     vec2_t* corner2 = malloc(sizeof(vec2_t));
     vec2_t* corner3 = malloc(sizeof(vec2_t));
@@ -64,7 +65,7 @@ void LoadMap() {
     g_corners[7] = corner8;
 
     g_sideCount = 8;
-    g_sides = malloc(sizeof(void*) * g_sideCount);
+    g_sides = malloc(sizeof(side_t*) * g_sideCount);
     side_t* side1 = malloc(sizeof(side_t));
     side_t* side2 = malloc(sizeof(side_t));
     side_t* side3 = malloc(sizeof(side_t));
@@ -99,7 +100,7 @@ void LoadMap() {
     g_sides[7] = side8;
 
 
-    g_wallCount = 10;
+    g_wallCount = 9;
     g_walls = malloc(sizeof(wall_t) * g_wallCount);
     wall_t* wall1 = malloc(sizeof(wall_t));
     wall_t* wall2 = malloc(sizeof(wall_t));
@@ -190,7 +191,7 @@ void LoadMap() {
     sector1->ceilHeight = 4;
 
     g_sectorCount = 2;
-    g_sectors = malloc(sizeof(sector_t) * g_sectorCount);
+    g_sectors = malloc(sizeof(sector_t*) * g_sectorCount);
 
     g_sectors[0] = sector;
     g_sectors[1] = sector1;
@@ -203,4 +204,6 @@ void LoadMap() {
     g_rootNode->sectorLeft = 1;
     g_rootNode->sectorRight = 0;
     g_rootNode->nodeParent = 0;
+
+    printf("Map loaded.\r\n");
 }

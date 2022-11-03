@@ -16,6 +16,9 @@ extern rect_t g_renderTarget;
 extern int g_clientWidth;
 extern int g_clientHeight;
 
+extern int g_windowWidth;
+extern int g_windowHeight;
+
 extern float g_fovH;
 
 void R_Initialize(HWND window);

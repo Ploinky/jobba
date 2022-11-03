@@ -6,6 +6,9 @@
 int g_mapRenderMode = RENDER_MAP_STATIC;
 rect_t g_renderTarget;
 
+int g_windowWidth;
+int g_windowHeight;
+
 int g_clientWidth;
 int g_clientHeight;
 
@@ -89,7 +92,7 @@ void setPixel(int x, int y, uint32_t color) {
     y += drawClipTL.y;
     
     if(x < drawClipTL.x || x >= drawClipBR.x || y < drawClipTL.y || y >= drawClipBR.y) {
-        //MessageBoxA(0, "Trying to draw outside window bounds!", "Rejected pixel", 0);
+        // MessageBoxA(0, "Trying to draw outside window bounds!", "Rejected pixel", 0);
         return;
     }
 
@@ -202,5 +205,5 @@ void drawLine(int x1, int y1, int x2, int y2, uint32_t color) {
 }
 
 void R_SwapBuffer() {
-    StretchDIBits(hdc, 0, 0, 1024, 768, 0, 0, g_clientWidth, g_clientHeight, buffer, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+    StretchDIBits(hdc, 0, 0, g_windowWidth, g_windowHeight, 0, 0, g_clientWidth, g_clientHeight, buffer, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 }

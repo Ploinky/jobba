@@ -7,17 +7,23 @@ float g_playerA;
 
 short g_keys[WM_KEYLAST];
 
-LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_param) {
+LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch(message)
     {
         case WM_KEYDOWN:
         {
-            g_keys[w_param] = 1;
+            g_keys[wParam] = 1;
             break;
         }
         case WM_KEYUP:
         {
-            g_keys[w_param] = 0;
+            g_keys[wParam] = 0;
+            break;
+        }
+        case WM_SIZE:
+        {
+            g_windowWidth = LOWORD(lParam);
+            g_windowHeight = HIWORD(lParam);
             break;
         }
         case WM_DESTROY:
@@ -27,7 +33,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM w_param, LPARAM l_p
         }
         default:
         {
-            return DefWindowProc(hwnd, message, w_param, l_param);
+            return DefWindowProc(hwnd, message, wParam, lParam);
         }
     }
     
@@ -60,23 +66,23 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
     freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
     freopen_s((FILE**)stderr, "CONOUT$", "w", stderr);
 
-    WNDCLASS window_class = {0};
+    WNDCLASS windowClass = {0};
     
-    const wchar_t class_name[] = L"JobbaWindow";
+    const wchar_t windowClassName[] = L"JobbaWindow";
     
-    window_class.lpfnWndProc = window_proc;
-    window_class.hInstance = instance;
-    window_class.lpszClassName = class_name;
-    window_class.hCursor = LoadCursor(0, IDC_CROSS);
+    windowClass.lpfnWndProc = window_proc;
+    windowClass.hInstance = instance;
+    windowClass.lpszClassName = windowClassName;
+    windowClass.hCursor = LoadCursor(0, IDC_CROSS);
     
-    if(!RegisterClass(&window_class))
+    if(!RegisterClass(&windowClass))
     {
         MessageBox(0, L"RegisterClass failed", 0, 0);
         return GetLastError();
     }
     
     HWND hwnd = CreateWindowEx(0,
-                                 class_name,
+                                 windowClassName,
                                  L"Jobba development build - v0.0.1a",
                                  WS_OVERLAPPEDWINDOW|WS_VISIBLE,
                                  CW_USEDEFAULT,
@@ -95,6 +101,9 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
     
     g_clientWidth = 320;
     g_clientHeight = 240;
+    
+    g_windowWidth = 1024;
+    g_windowHeight = 768;
     
     RECT rect;
     GetClientRect(hwnd, &rect);
@@ -119,7 +128,6 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
 
     int running = 1;
     while(running) {
-        
         ftime(&tmb);
         uint64_t now = tmb.time * 1000.0 + tmb.millitm;
 
@@ -193,8 +201,6 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                 R_ClearScreen(0x000000);
         }
 
-        float renderWindowSize = g_clientWidth / 3;
-
         if(g_keys['V']) {
             switch(g_mapRenderMode) {
                 case RENDER_MAP_STATIC:
@@ -212,29 +218,9 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
 
         setDrawClip(0, 0, g_clientWidth, g_clientHeight);
         renderMap();
-        // ---- Top view static ----
-        if(0) {
-            {   
-                setDrawClip(0, 0, renderWindowSize, renderWindowSize);
-                g_mapRenderMode = RENDER_MAP_STATIC;
-                renderMap();
-            }
-
-            // ---- Top view dynamic ----
-            {
-                setDrawClip(renderWindowSize, 0, renderWindowSize * 2, renderWindowSize);
-                g_mapRenderMode = RENDER_MAP_DYNAMIC;
-                renderMap();
-            }
-
-            // ---- 3D view ----
-            {
-                setDrawClip(renderWindowSize * 2, 0, renderWindowSize * 3, renderWindowSize);
-                g_mapRenderMode = RENDER_MAP_PERSPECTIVE;
-                renderMap();
-            }
-        }
         
         R_SwapBuffer();
     }
+
+    return 0;
 }
