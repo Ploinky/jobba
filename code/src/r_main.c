@@ -17,7 +17,7 @@ vec2_t drawClipBR;
 
 uint32_t* buffer;
 
-float g_fovH = 90;
+float g_fovH = 70;
 
 HWND hwnd;
 HDC hdc;
@@ -72,8 +72,12 @@ void renderMap() {
         }
         case RENDER_MAP_PERSPECTIVE:
         {
-            
             renderMapPerspective();
+            break;
+        }
+        case RENDER_MAP_NEW:
+        {
+            renderMapNew();
             break;
         }
     }

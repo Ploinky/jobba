@@ -196,7 +196,7 @@ void LoadMap() {
     g_sectors[0] = sector;
     g_sectors[1] = sector1;
 
-    g_rootNode = malloc(sizeof(node_t*));
+    g_rootNode = malloc(sizeof(node_t));
     g_rootNode->start = 0;
     g_rootNode->end = 1;
     g_rootNode->nodeLeft = 0;

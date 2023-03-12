@@ -124,7 +124,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
     R_Initialize(hwnd);
     LoadMap();
 
-    g_mapRenderMode = RENDER_MAP_STATIC;
+    g_mapRenderMode = RENDER_MAP_NEW;
 
     int running = 1;
     while(running) {
@@ -171,23 +171,23 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         }
         
         if(g_keys['W']) {
-            g_playerPos.x += sin(toRadians(g_playerA)) * dt * 5;
-            g_playerPos.y += cos(toRadians(g_playerA)) * dt * 5;
+            g_playerPos.x += cosf(toRadians(g_playerA)) * dt * 5;
+            g_playerPos.y += sinf(toRadians(g_playerA)) * dt * 5;
         }
         
-        if(g_keys['A']) {
-            g_playerPos.x -= cos(toRadians(g_playerA)) * dt * 5;
-            g_playerPos.y += sin(toRadians(g_playerA)) * dt * 5;
+        if(g_keys['D']) {
+            g_playerPos.x -= sinf(toRadians(g_playerA)) * dt * 5;
+            g_playerPos.y += cosf(toRadians(g_playerA)) * dt * 5;
         }
         
         if(g_keys['S']) {
-            g_playerPos.x -= sin(toRadians(g_playerA)) * dt * 5;
-            g_playerPos.y -= cos(toRadians(g_playerA)) * dt * 5;
+            g_playerPos.x -= cosf(toRadians(g_playerA)) * dt * 5;
+            g_playerPos.y -= sinf(toRadians(g_playerA)) * dt * 5;
         }
 
-        if(g_keys['D']) {
-            g_playerPos.x += cos(toRadians(g_playerA)) * dt * 5;
-            g_playerPos.y -= sin(toRadians(g_playerA)) * dt * 5;
+        if(g_keys['A']) {
+            g_playerPos.x += sinf(toRadians(g_playerA)) * dt * 5;
+            g_playerPos.y -= cosf(toRadians(g_playerA)) * dt * 5;
         }    
 
         switch(g_mapRenderMode) {
@@ -210,6 +210,9 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
                     g_mapRenderMode = RENDER_MAP_PERSPECTIVE;
                     break;
                 case RENDER_MAP_PERSPECTIVE:
+                    g_mapRenderMode = RENDER_MAP_NEW;
+                    break;
+                case RENDER_MAP_NEW:
                     g_mapRenderMode = RENDER_MAP_STATIC;
                     break;
             }
