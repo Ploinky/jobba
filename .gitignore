@@ -4,3 +4,5 @@ obj/
 
 # Visual Studio
 .vscode
+.vs
+x64
