@@ -6,7 +6,6 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-      - name: Build app for release
-        run: msbuild jobba.vcxproj -t:rebuild -verbosity:diag -property:Configuration=Release
+      - uses: actions/checkout@latest
+      - uses: microsoft/setup-msbuild@latest
+      - run: msbuild jobba.vcxproj -t:rebuild -verbosity:diag -property:Configuration=Release
