@@ -113,21 +113,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="code\src\main.c" />
-    <ClCompile Include="code\src\map.c" />
-    <ClCompile Include="code\src\r_dmap.c" />
     <ClCompile Include="code\src\r_main.c" />
     <ClCompile Include="code\src\r_nmap.c" />
-    <ClCompile Include="code\src\r_pmap.c" />
-    <ClCompile Include="code\src\r_smap.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\include\main.h" />
-    <ClInclude Include="code\include\map.h" />
-    <ClInclude Include="code\include\r_dmap.h" />
     <ClInclude Include="code\include\r_main.h" />
     <ClInclude Include="code\include\r_nmap.h" />
-    <ClInclude Include="code\include\r_pmap.h" />
-    <ClInclude Include="code\include\r_smap.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1,9 +1,5 @@
 #include "r_main.h"
-#include "r_smap.h"
-#include "r_dmap.h"
-#include "r_pmap.h"
 
-int g_mapRenderMode = RENDER_MAP_STATIC;
 rect_t g_renderTarget;
 
 int g_windowWidth;
@@ -58,28 +54,7 @@ void R_SetDrawClip(rect_t clip) {
 }
 
 void renderMap() {
-    switch(g_mapRenderMode) {
-        case RENDER_MAP_STATIC:
-        {
-            renderMapStatic();
-            break;
-        }
-        case RENDER_MAP_DYNAMIC:
-        {
-            renderMapDynamic();
-            break;
-        }
-        case RENDER_MAP_PERSPECTIVE:
-        {
-            renderMapPerspective();
-            break;
-        }
-        case RENDER_MAP_NEW:
-        {
-            renderMapNew();
-            break;
-        }
-    }
+    renderMapNew();
 }
 
 void setDrawClip(int x1, int y1, int x2, int y2) {

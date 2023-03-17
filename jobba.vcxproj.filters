@@ -18,19 +18,7 @@
     <ClCompile Include="code\src\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\src\map.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="code\src\r_dmap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="code\src\r_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="code\src\r_pmap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="code\src\r_smap.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\src\r_nmap.c">
@@ -41,19 +29,7 @@
     <ClInclude Include="code\include\main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\include\map.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\r_dmap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="code\include\r_main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\r_pmap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\r_smap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\include\r_nmap.h">
