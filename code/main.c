@@ -57,8 +57,7 @@ float cross(vec2_t a, vec2_t b) {
 }
 
 
-int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line, int cmd_show) {
-
+int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance, _In_ PWSTR cmd_line, _In_ int cmd_show) {
 #ifdef _DEBUG
     // Allocate a console for debugging
     AllocConsole();
@@ -83,9 +82,15 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         return GetLastError();
     }
     
+#ifdef _DEBUG
+    const wchar_t* windowTitle = L"Jobba development build - v0.0.1a";
+#else
+    const wchar_t* windowTitle = L"Jobba";
+#endif
+
     HWND hwnd = CreateWindowEx(0,
                                  windowClassName,
-                                 L"Jobba development build - v0.0.1a",
+                                 windowTitle,
                                  WS_OVERLAPPEDWINDOW|WS_VISIBLE,
                                  CW_USEDEFAULT,
                                  CW_USEDEFAULT,
@@ -131,7 +136,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         uint64_t now = tmb.time * 1000.0 + tmb.millitm;
 
         double dt = (now 
-        - tickCount) / 1000.0;
+        - tickCount) / 1000.0f;
 
         tickCount = now;
         
@@ -197,6 +202,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         renderMap();
         
         R_SwapBuffer();
+
+        printf("dt: %f, %d fps\n", dt, (int) (1/dt));
     }
 
     return 0;

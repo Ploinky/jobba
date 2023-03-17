@@ -142,6 +142,9 @@ void renderMapNew() {
 				float floor = g_clientHeight - ceiling;
 
 
+				ceiling = max(0, ceiling);
+				floor = min(g_clientHeight, floor);
+
 				drawLine(x, 0, x, ceiling, 0xafafaf);
 				drawLine(x, ceiling, x, floor, 0xffffff);
 				drawLine(x, floor, x, g_clientHeight, 0x0f0f0f);
