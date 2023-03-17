@@ -3,10 +3,12 @@ name: Build Release
 on:
   push:
     branches:
-      - main
+      - "*"
 
 jobs:
   build:
+    name: Create new build
+    if: ${{ github.ref }} == 'main' || ${{ github.ref }} == 'develop'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -17,3 +19,17 @@ jobs:
           name: jobba
           path: ./**/jobba.exe
           retention-days: 1
+
+  release:
+    name: Release new version
+    if: ${{ github.ref }} == 'main' || ${{ github.ref }} == 'develop'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - name: Install release-it
+        run: |
+          npm install -g release-it
+          npm install -g @release-it/bumper
+      - name: Release new version
+        run: release-it --preRelease --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt
