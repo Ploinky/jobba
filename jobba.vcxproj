@@ -128,6 +128,10 @@
     <ClInclude Include="code\include\r_nmap.h" />
     <ClInclude Include="code\include\r_pmap.h" />
     <ClInclude Include="code\include\r_smap.h" />
+    <ClInclude Include="resource.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="jobba.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

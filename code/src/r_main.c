@@ -31,7 +31,6 @@ void R_Initialize(HWND targetHandle) {
     buffer = malloc(bufferSize);
     // Clear entire screen to black
     R_SetDrawClip((rect_t) {0, 0, g_clientWidth, g_clientHeight});
-    clearBuffer(0x000000);
 
     hdc = GetDC(hwnd);
 

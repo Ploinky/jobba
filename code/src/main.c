@@ -99,8 +99,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         return GetLastError();
     }
     
-    g_clientWidth = 320;
-    g_clientHeight = 240;
+    g_clientWidth = 1024;
+    g_clientHeight = 768;
     
     g_windowWidth = 1024;
     g_windowHeight = 768;
