@@ -3,7 +3,10 @@ name: Build Release
 on:
   push:
     branches:
-      - "*"
+      - "main"
+      - "develop"
+      - "release"
+      
 
 jobs:
   build:
@@ -35,14 +38,11 @@ jobs:
           git config --global user.email "mail@johannes-litger.de"
           git config --global user.name "Ploinky"
       - name: Release new alpha version
-        if: "github.ref_name != 'main' && github.ref_name != 'develop' && github.ref_name != 'release'"
-        run: release-it --preRelease='alpha' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt
-      - name: Release new beta version
         if: "github.ref_name == 'develop'"
-        run: release-it --preRelease='beta' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt
+        run: release-it --preRelease='alpha' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt --ci
       - name: Release new release candidate
         if: "github.ref_name == 'release'"
-        run: release-it --preRelease='rc' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt
+        run: release-it --preRelease='beta' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt --ci
       - name: Release new version
         if: "github.ref_name == 'main'"
-        run: release-it patch --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt
+        run: release-it patch --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt --ci
