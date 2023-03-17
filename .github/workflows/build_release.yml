@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     name: Create new build
-    if: ${{ github.ref }} == 'main' || ${{ github.ref }} == 'develop'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -22,8 +21,8 @@ jobs:
 
   release:
     name: Release new version
-    if: ${{ github.ref }} == 'main' || ${{ github.ref }} == 'develop'
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -31,5 +30,15 @@ jobs:
         run: |
           npm install -g release-it
           npm install -g @release-it/bumper
+      - name: Release new alpha version
+        if: "github.ref_name != 'main' && github.ref_name != 'develop' && github.ref_name != 'release'"
+        run: release-it --preRelease='alpha' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt
+      - name: Release new beta version
+        if: "github.ref_name == 'develop'"
+        run: release-it --preRelease='beta' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt
+      - name: Release new release candidate
+        if: "github.ref_name == 'release'"
+        run: release-it --preRelease='rc' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt
       - name: Release new version
-        run: release-it --preRelease --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt
+        if: "github.ref_name == 'main'"
+        run: release-it patch --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt
