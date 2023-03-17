@@ -1,5 +1,5 @@
 #include "r_main.h"
-
+#include "r_nmap.h"
 rect_t g_renderTarget;
 
 int g_windowWidth;
@@ -24,9 +24,9 @@ void R_Initialize(HWND targetHandle) {
     hwnd = targetHandle;
 
     int bufferSize = g_clientWidth * g_clientHeight * sizeof(uint32_t);
-    buffer = malloc(bufferSize);
+    buffer = (uint32_t*) malloc(bufferSize);
     // Clear entire screen to black
-    R_SetDrawClip((rect_t) {0, 0, g_clientWidth, g_clientHeight});
+    R_SetDrawClip(rect_t{ 0, 0, (float) g_clientWidth, (float) g_clientHeight });
 
     hdc = GetDC(hwnd);
 

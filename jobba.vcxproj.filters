@@ -34,13 +34,13 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\main.c">
+    <ClCompile Include="code\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\r_main.c">
+    <ClCompile Include="code\r_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\r_nmap.c">
+    <ClCompile Include="code\r_nmap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

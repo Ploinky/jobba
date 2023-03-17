@@ -121,9 +121,9 @@
     <ResourceCompile Include="jobba.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\main.c" />
-    <ClCompile Include="code\r_main.c" />
-    <ClCompile Include="code\r_nmap.c" />
+    <ClCompile Include="code\main.cpp" />
+    <ClCompile Include="code\r_main.cpp" />
+    <ClCompile Include="code\r_nmap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
