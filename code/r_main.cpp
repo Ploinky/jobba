@@ -23,10 +23,10 @@ BITMAPINFO bitmapInfo;
 void R_Initialize(HWND targetHandle) {
     hwnd = targetHandle;
 
-    int bufferSize = g_clientWidth * g_clientHeight * sizeof(uint32_t);
-    buffer = (uint32_t*) malloc(bufferSize);
+    int bufferSize = g_clientWidth * g_clientHeight * static_cast<int>(sizeof(uint32_t));
+    buffer = (uint32_t*) malloc(static_cast<size_t>(bufferSize));
     // Clear entire screen to black
-    R_SetDrawClip(rect_t{ 0, 0, (float) g_clientWidth, (float) g_clientHeight });
+    R_SetDrawClip(rect_t{ { 0, 0 }, { static_cast<double>(g_clientWidth), static_cast<double>(g_clientHeight) } });
 
     hdc = GetDC(hwnd);
 
@@ -46,11 +46,11 @@ void R_Initialize(HWND targetHandle) {
 }
 
 void R_ClearScreen(uint32_t color) {
-        clearBuffer(0x000000);
+        clearBuffer(color);
 }
 
 void R_SetDrawClip(rect_t clip) {
-    setDrawClip(clip.tl.x, clip.tl.y, clip.br.x, clip.br.y);
+    setDrawClip(static_cast<int>(clip.tl.x), static_cast<int>(clip.tl.y), static_cast<int>(clip.br.x), static_cast<int>(clip.br.y));
 }
 
 void renderMap() {
@@ -66,8 +66,8 @@ void setDrawClip(int x1, int y1, int x2, int y2) {
 }
 
 void setPixel(int x, int y, uint32_t color) {
-    x += drawClipTL.x;
-    y += drawClipTL.y;
+    x += static_cast<int>(drawClipTL.x);
+    y += static_cast<int>(drawClipTL.y);
     
     if(x < drawClipTL.x || x >= drawClipBR.x || y < drawClipTL.y || y >= drawClipBR.y) {
         // MessageBoxA(0, "Trying to draw outside window bounds!", "Rejected pixel", 0);
@@ -114,8 +114,8 @@ void drawLine(int x1, int y1, int x2, int y2, uint32_t color) {
     int yinc1 = 0;
     int yinc2 = 0;
 
-    float deltax = abs(x2 - x1); // The difference between the x's
-    float deltay = abs(y2 - y1); // The difference between the y's
+    double deltax = abs(x2 - x1); // The difference between the x's
+    double deltay = abs(y2 - y1); // The difference between the y's
     x = x1; // Start x off at the first pixel
     y = y1; // Start y off at the first pixel
 
@@ -142,10 +142,10 @@ void drawLine(int x1, int y1, int x2, int y2, uint32_t color) {
     }
 
     
-    float den = deltax;
-    float num = deltax / 2;
-    float numadd = deltay;
-    float numpixels = deltax; // There are more x-values than y-values
+    double den = deltax;
+    double num = deltax / 2;
+    double numadd = deltay;
+    double numpixels = deltax; // There are more x-values than y-values
 
     if (deltax >= deltay) // There is at least one x-value for every y-value
     {

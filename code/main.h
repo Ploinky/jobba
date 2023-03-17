@@ -17,13 +17,13 @@
 #include <stdlib.h>
 
 typedef struct {
-    float x;
-    float y;
+    double x;
+    double y;
 } vec2_t;
 
 vec2_t subtract(vec2_t a, vec2_t b);
 
-float cross(vec2_t a, vec2_t b);
+double cross(vec2_t a, vec2_t b);
 
 typedef struct {
     vec2_t tl;
@@ -31,12 +31,12 @@ typedef struct {
 } rect_t;
 
 extern vec2_t g_playerPos;
-extern float g_playerA;
+extern double g_playerA;
 extern short g_keys[];
 
 
-float toDegrees(float radians);
-float toRadians(float degrees);
+double toDegrees(double radians);
+double toRadians(double degrees);
 
 int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance, _In_ PWSTR cmd_line, _In_ int cmd_show);
 
