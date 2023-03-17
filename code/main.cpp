@@ -1,5 +1,4 @@
 #include "main.h"
-#include "map.h"
 #include "r_main.h"
 
 vec2_t g_playerPos;
@@ -58,13 +57,15 @@ float cross(vec2_t a, vec2_t b) {
 }
 
 
-int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line, int cmd_show) {
+int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance, _In_ PWSTR cmd_line, _In_ int cmd_show) {
+#ifdef _DEBUG
     // Allocate a console for debugging
     AllocConsole();
 
     // Reroute standard input and output to console
     freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
     freopen_s((FILE**)stderr, "CONOUT$", "w", stderr);
+#endif
 
     WNDCLASS windowClass = {0};
     
@@ -81,9 +82,15 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         return GetLastError();
     }
     
+#ifdef _DEBUG
+    const wchar_t* windowTitle = L"Jobba development build - v0.0.1a";
+#else
+    const wchar_t* windowTitle = L"Jobba";
+#endif
+
     HWND hwnd = CreateWindowEx(0,
                                  windowClassName,
-                                 L"Jobba development build - v0.0.1a",
+                                 windowTitle,
                                  WS_OVERLAPPEDWINDOW|WS_VISIBLE,
                                  CW_USEDEFAULT,
                                  CW_USEDEFAULT,
@@ -99,8 +106,8 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         return GetLastError();
     }
     
-    g_clientWidth = 320;
-    g_clientHeight = 240;
+    g_clientWidth = 1024;
+    g_clientHeight = 768;
     
     g_windowWidth = 1024;
     g_windowHeight = 768;
@@ -122,9 +129,6 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
     uint64_t tickCount = tmb.time * 1000 + tmb.millitm;
 
     R_Initialize(hwnd);
-    LoadMap();
-
-    g_mapRenderMode = RENDER_MAP_NEW;
 
     int running = 1;
     while(running) {
@@ -132,7 +136,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
         uint64_t now = tmb.time * 1000.0 + tmb.millitm;
 
         double dt = (now 
-        - tickCount) / 1000.0;
+        - tickCount) / 1000.0f;
 
         tickCount = now;
         
@@ -189,40 +193,17 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance, PWSTR cmd_line,
             g_playerPos.x += sinf(toRadians(g_playerA)) * dt * 5;
             g_playerPos.y -= cosf(toRadians(g_playerA)) * dt * 5;
         }    
-
-        switch(g_mapRenderMode) {
-            case RENDER_MAP_STATIC:
-            case RENDER_MAP_DYNAMIC:
-                R_ClearScreen(0x000000);
-                break;
-        }
         
         if(!g_keys['P']) {
                 R_ClearScreen(0x000000);
-        }
-
-        if(g_keys['V']) {
-            switch(g_mapRenderMode) {
-                case RENDER_MAP_STATIC:
-                    g_mapRenderMode = RENDER_MAP_DYNAMIC;
-                    break;
-                case RENDER_MAP_DYNAMIC:
-                    g_mapRenderMode = RENDER_MAP_PERSPECTIVE;
-                    break;
-                case RENDER_MAP_PERSPECTIVE:
-                    g_mapRenderMode = RENDER_MAP_NEW;
-                    break;
-                case RENDER_MAP_NEW:
-                    g_mapRenderMode = RENDER_MAP_STATIC;
-                    break;
-            }
-            g_keys['V'] = 0;
         }
 
         setDrawClip(0, 0, g_clientWidth, g_clientHeight);
         renderMap();
         
         R_SwapBuffer();
+
+        printf("dt: %f, %d fps\n", dt, (int) (1/dt));
     }
 
     return 0;

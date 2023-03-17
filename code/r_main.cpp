@@ -1,9 +1,5 @@
 #include "r_main.h"
-#include "r_smap.h"
-#include "r_dmap.h"
-#include "r_pmap.h"
-
-int g_mapRenderMode = RENDER_MAP_STATIC;
+#include "r_nmap.h"
 rect_t g_renderTarget;
 
 int g_windowWidth;
@@ -28,10 +24,9 @@ void R_Initialize(HWND targetHandle) {
     hwnd = targetHandle;
 
     int bufferSize = g_clientWidth * g_clientHeight * sizeof(uint32_t);
-    buffer = malloc(bufferSize);
+    buffer = (uint32_t*) malloc(bufferSize);
     // Clear entire screen to black
-    R_SetDrawClip((rect_t) {0, 0, g_clientWidth, g_clientHeight});
-    clearBuffer(0x000000);
+    R_SetDrawClip(rect_t{ 0, 0, (float) g_clientWidth, (float) g_clientHeight });
 
     hdc = GetDC(hwnd);
 
@@ -59,28 +54,7 @@ void R_SetDrawClip(rect_t clip) {
 }
 
 void renderMap() {
-    switch(g_mapRenderMode) {
-        case RENDER_MAP_STATIC:
-        {
-            renderMapStatic();
-            break;
-        }
-        case RENDER_MAP_DYNAMIC:
-        {
-            renderMapDynamic();
-            break;
-        }
-        case RENDER_MAP_PERSPECTIVE:
-        {
-            renderMapPerspective();
-            break;
-        }
-        case RENDER_MAP_NEW:
-        {
-            renderMapNew();
-            break;
-        }
-    }
+    renderMapNew();
 }
 
 void setDrawClip(int x1, int y1, int x2, int y2) {

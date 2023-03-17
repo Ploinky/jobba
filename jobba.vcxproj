@@ -101,8 +101,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)\code\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <WarningLevel>Level1</WarningLevel>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -112,22 +112,24 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="code\src\main.c" />
-    <ClCompile Include="code\src\map.c" />
-    <ClCompile Include="code\src\r_dmap.c" />
-    <ClCompile Include="code\src\r_main.c" />
-    <ClCompile Include="code\src\r_nmap.c" />
-    <ClCompile Include="code\src\r_pmap.c" />
-    <ClCompile Include="code\src\r_smap.c" />
+    <ClInclude Include="code\main.h" />
+    <ClInclude Include="code\r_main.h" />
+    <ClInclude Include="code\r_nmap.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\include\main.h" />
-    <ClInclude Include="code\include\map.h" />
-    <ClInclude Include="code\include\r_dmap.h" />
-    <ClInclude Include="code\include\r_main.h" />
-    <ClInclude Include="code\include\r_nmap.h" />
-    <ClInclude Include="code\include\r_pmap.h" />
-    <ClInclude Include="code\include\r_smap.h" />
+    <ResourceCompile Include="jobba.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="code\main.cpp" />
+    <ClCompile Include="code\r_main.cpp" />
+    <ClCompile Include="code\r_nmap.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".gitignore" />
+    <None Include="jobba.aps" />
+    <None Include="LICENSE" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

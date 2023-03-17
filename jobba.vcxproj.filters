@@ -15,43 +15,39 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\src\main.c">
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\r_main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\r_nmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="jobba.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="code\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\src\map.c">
+    <ClCompile Include="code\r_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\src\r_dmap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="code\src\r_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="code\src\r_pmap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="code\src\r_smap.c">
+    <ClCompile Include="code\r_nmap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\include\main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\map.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\r_dmap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\r_main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\r_pmap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\r_smap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <None Include="README.md" />
+    <None Include="LICENSE" />
+    <None Include=".gitignore" />
+    <None Include="jobba.aps" />
   </ItemGroup>
 </Project>

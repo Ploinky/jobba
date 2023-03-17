@@ -6,12 +6,6 @@
 // Main renderer
 //
 
-#define RENDER_MAP_STATIC 0
-#define RENDER_MAP_DYNAMIC 1
-#define RENDER_MAP_PERSPECTIVE 2
-#define RENDER_MAP_NEW 3
-
-extern int g_mapRenderMode;
 extern rect_t g_renderTarget;
 
 extern int g_clientWidth;
