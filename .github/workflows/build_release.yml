@@ -30,6 +30,10 @@ jobs:
         run: |
           npm install -g release-it
           npm install -g @release-it/bumper
+      - name: Set github profile
+        run: |
+          git config --global user.email "mail@johannes-litger.de"
+          git config --global user.name "Ploinky"
       - name: Release new alpha version
         if: "github.ref_name != 'main' && github.ref_name != 'develop' && github.ref_name != 'release'"
         run: release-it --preRelease='alpha' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt
