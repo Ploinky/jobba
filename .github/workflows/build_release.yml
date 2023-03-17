@@ -39,10 +39,10 @@ jobs:
           git config --global user.name "Ploinky"
       - name: Release new alpha version
         if: "github.ref_name == 'develop'"
-        run: release-it --preRelease='alpha' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt --ci
+        run: release-it --preRelease='alpha' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt --ci --github.release
       - name: Release new release candidate
         if: "github.ref_name == 'release'"
-        run: release-it --preRelease='beta' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt --ci
+        run: release-it --preRelease='beta' --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt --ci --github.release
       - name: Release new version
         if: "github.ref_name == 'main'"
-        run: release-it patch --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt --ci
+        run: release-it patch --plugins.@release-it/bumper.in=version.txt --plugins.@release-it/bumper.out=version.txt --ci --github.release
