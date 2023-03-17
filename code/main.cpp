@@ -1,8 +1,10 @@
 #include "main.h"
 #include "r_main.h"
+#include <cstdlib>
 
 vec2_t g_playerPos;
-float g_playerA;
+
+double g_playerA;
 
 short g_keys[WM_KEYLAST];
 
@@ -39,11 +41,11 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
     return 0;
 }
 
-float toDegrees(float radians) {
+double toDegrees(double radians) {
     return radians * (180.0 / M_PI);
 }
 
-float toRadians(float degrees) {
+double toRadians(double degrees) {
     return degrees * (M_PI / 180.0); 
 }
 
@@ -52,12 +54,12 @@ vec2_t subtract(vec2_t a, vec2_t b) {
     return ret;
 }
 
-float cross(vec2_t a, vec2_t b) {
+double cross(vec2_t a, vec2_t b) {
     return a.x * b.y - a.y * b.x;
 }
 
 
-int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance, _In_ PWSTR cmd_line, _In_ int cmd_show) {
+int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int cmd_show) {
 #ifdef _DEBUG
     // Allocate a console for debugging
     AllocConsole();
@@ -79,7 +81,7 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance, _
     if(!RegisterClass(&windowClass))
     {
         MessageBox(0, L"RegisterClass failed", 0, 0);
-        return GetLastError();
+        return static_cast<int>(GetLastError());
     }
     
 #ifdef _DEBUG
@@ -91,7 +93,7 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance, _
     HWND hwnd = CreateWindowEx(0,
                                  windowClassName,
                                  windowTitle,
-                                 WS_OVERLAPPEDWINDOW|WS_VISIBLE,
+                                 WS_OVERLAPPEDWINDOW,
                                  CW_USEDEFAULT,
                                  CW_USEDEFAULT,
                                  1024,
@@ -103,7 +105,12 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance, _
     
     if(!hwnd) {
         MessageBox(0, L"CreateWindowEx failed", 0, 0);
-        return GetLastError();
+        return static_cast<int>(GetLastError());
+    }
+
+    if (ShowWindow(hwnd, cmd_show)) {
+        MessageBox(0, L"ShowWindow failed", 0, 0);
+        return static_cast<int>(GetLastError());
     }
     
     g_clientWidth = 1024;
@@ -126,25 +133,18 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance, _
 
     struct timeb tmb;
     ftime(&tmb);
-    uint64_t tickCount = tmb.time * 1000 + tmb.millitm;
+    uint32_t tickCount = static_cast<uint32_t>(tmb.time) * 1000 + static_cast<uint32_t>(tmb.millitm);
 
     R_Initialize(hwnd);
 
     int running = 1;
     while(running) {
         ftime(&tmb);
-        uint64_t now = tmb.time * 1000.0 + tmb.millitm;
+        uint32_t now = static_cast<uint32_t>(tmb.time) * 1000 + static_cast<uint32_t>(tmb.millitm);
 
-        double dt = (now 
-        - tickCount) / 1000.0f;
+        double dt = (now - tickCount) / 1000.0;
 
         tickCount = now;
-        
-        RECT rect;
-        rect.left = 10;
-        rect.top = 10;
-        rect.right = 110;
-        rect.bottom = 110;
 
         MSG msg;
         while(PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
@@ -159,7 +159,7 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance, _
         }
 
         if(g_keys['Q']) {
-            g_playerA -= 90 * dt;
+            g_playerA -= 90.0 * dt;
         }
 
         if(g_keys['E']) {
@@ -175,23 +175,23 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance, _
         }
         
         if(g_keys['W']) {
-            g_playerPos.x += cosf(toRadians(g_playerA)) * dt * 5;
-            g_playerPos.y += sinf(toRadians(g_playerA)) * dt * 5;
+            g_playerPos.x += cos(toRadians(g_playerA)) * dt * 5.0;
+            g_playerPos.y += sin(toRadians(g_playerA)) * dt * 5.0;
         }
         
         if(g_keys['D']) {
-            g_playerPos.x -= sinf(toRadians(g_playerA)) * dt * 5;
-            g_playerPos.y += cosf(toRadians(g_playerA)) * dt * 5;
+            g_playerPos.x -= sin(toRadians(g_playerA)) * dt * 5.0;
+            g_playerPos.y += cos(toRadians(g_playerA)) * dt * 5.0;
         }
         
         if(g_keys['S']) {
-            g_playerPos.x -= cosf(toRadians(g_playerA)) * dt * 5;
-            g_playerPos.y -= sinf(toRadians(g_playerA)) * dt * 5;
+            g_playerPos.x -= cos(toRadians(g_playerA)) * dt * 5.0;
+            g_playerPos.y -= sin(toRadians(g_playerA)) * dt * 5.0;
         }
 
         if(g_keys['A']) {
-            g_playerPos.x += sinf(toRadians(g_playerA)) * dt * 5;
-            g_playerPos.y -= cosf(toRadians(g_playerA)) * dt * 5;
+            g_playerPos.x += sin(toRadians(g_playerA)) * dt * 5.0;
+            g_playerPos.y -= cos(toRadians(g_playerA)) * dt * 5.0;
         }    
         
         if(!g_keys['P']) {
