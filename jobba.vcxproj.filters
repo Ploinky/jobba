@@ -15,27 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\src\main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="code\src\r_main.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="code\src\r_nmap.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="code\include\main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\r_main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\r_nmap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\r_main.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\r_nmap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -43,5 +32,16 @@
     <ResourceCompile Include="jobba.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="code\main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\r_main.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\r_nmap.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

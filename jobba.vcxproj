@@ -101,7 +101,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)\code\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningLevel>Level1</WarningLevel>
     </ClCompile>
   </ItemDefinitionGroup>
@@ -112,18 +112,18 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="code\src\main.c" />
-    <ClCompile Include="code\src\r_main.c" />
-    <ClCompile Include="code\src\r_nmap.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="code\include\main.h" />
-    <ClInclude Include="code\include\r_main.h" />
-    <ClInclude Include="code\include\r_nmap.h" />
+    <ClInclude Include="code\main.h" />
+    <ClInclude Include="code\r_main.h" />
+    <ClInclude Include="code\r_nmap.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="jobba.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="code\main.c" />
+    <ClCompile Include="code\r_main.c" />
+    <ClCompile Include="code\r_nmap.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
