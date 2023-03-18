@@ -193,10 +193,6 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
             g_playerPos.x += sin(toRadians(g_playerA)) * dt * 5.0;
             g_playerPos.y -= cos(toRadians(g_playerA)) * dt * 5.0;
         }    
-        
-        if(!g_keys['P']) {
-                R_ClearScreen(0x000000);
-        }
 
         setDrawClip(0, 0, g_clientWidth, g_clientHeight);
         renderMap();
