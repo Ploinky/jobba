@@ -1,6 +1,6 @@
 #include "main.h"
 #include "r_main.h"
-#include <cstdlib>
+#include <chrono>
 
 vec2_t g_playerPos;
 
@@ -113,8 +113,8 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
         return static_cast<int>(GetLastError());
     }
     
-    g_clientWidth = 1024;
-    g_clientHeight = 768;
+    g_clientWidth = 320;
+    g_clientHeight = 200;
     
     g_windowWidth = 1024;
     g_windowHeight = 768;
@@ -131,20 +131,19 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
     g_playerPos.y = 0;
     g_playerA = 0;
 
-    struct timeb tmb;
-    ftime(&tmb);
-    uint32_t tickCount = static_cast<uint32_t>(tmb.time) * 1000 + static_cast<uint32_t>(tmb.millitm);
+    auto begin = std::chrono::high_resolution_clock::now();
 
     R_Initialize(hwnd);
 
     int running = 1;
     while(running) {
-        ftime(&tmb);
-        uint32_t now = static_cast<uint32_t>(tmb.time) * 1000 + static_cast<uint32_t>(tmb.millitm);
+        auto now = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::nano> duration = now - begin;
+        const auto nanos = duration.count();
+        begin = now;
 
-        double dt = (now - tickCount) / 1000.0;
 
-        tickCount = now;
+        double dt = (nanos / 1000000.0) / 1000.0;
 
         MSG msg;
         while(PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
