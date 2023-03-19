@@ -18,16 +18,10 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\r_main.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\r_nmap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="code\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\renderer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -37,13 +31,10 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\main.cpp">
+    <ClCompile Include="code\renderer.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\r_main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="code\r_nmap.cpp">
+    <ClCompile Include="code\main.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

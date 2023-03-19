@@ -182,6 +182,18 @@ void drawLine(int x1, int y1, int x2, int y2, uint32_t color) {
     } 
 }
 
+void R_DrawFps() {
+    RECT rect;
+    rect.left = 10;
+    rect.right = 100;
+    rect.top = 10;
+    rect.bottom = 30;
+    SetTextColor(hdc, 0x00FFFFFF);
+    SetBkMode(hdc, TRANSPARENT);
+    DrawText(hdc, L"fps: 144", -1, &rect, DT_NOCLIP);
+}
+
 void R_SwapBuffer() {
     StretchDIBits(hdc, 0, 0, g_windowWidth, g_windowHeight, 0, 0, g_clientWidth, g_clientHeight, buffer, &bitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+    R_DrawFps();
 }

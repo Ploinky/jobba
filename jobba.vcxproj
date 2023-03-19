@@ -119,9 +119,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="code\main.h" />
-    <ClInclude Include="code\r_main.h" />
-    <ClInclude Include="code\r_nmap.h" />
+    <ClInclude Include="code\renderer.hpp" />
     <ClInclude Include="code\version.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
@@ -129,9 +127,8 @@
     <ResourceCompile Include="jobba.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\main.cpp" />
-    <ClCompile Include="code\r_main.cpp" />
-    <ClCompile Include="code\r_nmap.cpp" />
+    <ClCompile Include="code\main.cc" />
+    <ClCompile Include="code\renderer.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
