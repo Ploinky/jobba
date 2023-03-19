@@ -2,77 +2,71 @@
 #define UNICODE
 #include <Windows.h>
 
-#include "renderer.hpp"
+#include "renderer.h"
 #include <string>
 #include "version.h"
 
 static Renderer renderer{};
+
 LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message)
     {
-    case WM_KEYDOWN:
-    {
-        //g_keys[wParam] = 1;
-        break;
-    }
-    case WM_KEYUP:
-    {
-        //g_keys[wParam] = 0;
-        break;
-    }
-    case WM_SIZE:
-    {
-        renderer.Resize(LOWORD(lParam), HIWORD(lParam));
-        break;
-    }
-    case WM_DESTROY:
-    {
-        PostQuitMessage(0);
-        break;
-    }
-    case WM_ERASEBKGND:
-    {
-        return 1;
-    }
-    case WM_CREATE:
-    {
-        renderer.Initialize(hwnd, 320, 200);
-        break;
-    }
-    default:
-    {
-        return DefWindowProc(hwnd, message, wParam, lParam);
-    }
+        case WM_KEYDOWN: {
+            if (wParam == VK_SPACE) {
+                SetWindowPos(hwnd, HWND_TOP, 0, 0, 1800, 200, SWP_NOMOVE);
+            }
+            break;
+        }
+        case WM_KEYUP: {
+            //g_keys[wParam] = 0;
+            break;
+        }
+        case WM_SIZE: {
+            renderer.Resize(LOWORD(lParam), HIWORD(lParam));
+            break;
+        }
+        case WM_DESTROY: {
+            PostQuitMessage(0);
+            break;
+        }
+        case WM_ERASEBKGND: {
+            return 1;
+        }
+        case WM_CREATE: {
+            renderer.Initialize(hwnd, 320, 180);
+            break;
+        }
+        default: {
+            return DefWindowProc(hwnd, message, wParam, lParam);
+        }
     }
 
     return 0;
 }
 
 int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int cmd_show) {
-    WNDCLASS windowClass = { 0 };
+    const wchar_t* window_class_name = L"JobbaWindow";
 
-    const wchar_t windowClassName[] = L"JobbaWindow";
+    WNDCLASS window_class = { 0 };
+    window_class.lpfnWndProc = window_proc;
+    window_class.hInstance = instance;
+    window_class.lpszClassName = window_class_name;
+    window_class.hCursor = LoadCursor(0, IDC_CROSS);
 
-    windowClass.lpfnWndProc = window_proc;
-    windowClass.hInstance = instance;
-    windowClass.lpszClassName = windowClassName;
-    windowClass.hCursor = LoadCursor(0, IDC_CROSS);
-
-    if (!RegisterClass(&windowClass))
-    {
+    if (!RegisterClass(&window_class)) {
         MessageBox(0, L"RegisterClass failed", 0, 0);
         return static_cast<int>(GetLastError());
     }
 
 #ifdef _DEBUG
-    std::wstring windowTitle = std::wstring(L"Jobba development build - v").append(std::wstring(JOBBA_VERSION));
+    std::wstring window_title = std::wstring(L"Jobba development build - v").append(std::wstring(JOBBA_VERSION));
 #else
-    const wchar_t* windowTitle = L"Jobba";
+    std::wstring window_title = L"Jobba";
 #endif
 
-    HWND hwnd = CreateWindowEx(0,
-        windowClassName,
-        windowTitle.c_str(),
+    HWND window_handle = CreateWindowEx(0,
+        window_class_name,
+        window_title.c_str(),
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
@@ -83,12 +77,12 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
         instance,
         0);
 
-    if (!hwnd) {
+    if (!window_handle) {
         MessageBox(0, L"CreateWindowEx failed", 0, 0);
         return static_cast<int>(GetLastError());
     }
 
-    if (ShowWindow(hwnd, cmd_show)) {
+    if (ShowWindow(window_handle, cmd_show)) {
         MessageBox(0, L"ShowWindow failed", 0, 0);
         return static_cast<int>(GetLastError());
     }
@@ -97,8 +91,7 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
 
     while (is_running) {
         MSG msg;
-        while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-        {
+        while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) {
                 is_running = false;
             }
@@ -109,6 +102,9 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
         renderer.RenderMap();
         renderer.RenderMainMenu();
 
+#ifdef _DEBUG
+        renderer.RenderDebugInfo();
+#endif
         renderer.FlipBackBuffer();
     }
 

@@ -117,9 +117,12 @@
       <AdditionalIncludeDirectories>$(SolutionDir)\code\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)code</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="code\renderer.hpp" />
+    <ClInclude Include="code\renderer.h" />
     <ClInclude Include="code\version.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>

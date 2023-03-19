@@ -13,6 +13,7 @@ public:
 	void Initialize(HWND hwnd, unsigned int width, unsigned int height);
 
 	void RenderMainMenu();
+	void RenderDebugInfo();
 	void RenderMap();
 	void SetPixel(unsigned int x, unsigned int y, UINT32 color);
 

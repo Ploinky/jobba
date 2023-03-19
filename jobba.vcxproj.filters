@@ -21,7 +21,7 @@
     <ClInclude Include="code\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\renderer.hpp">
+    <ClInclude Include="code\renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
