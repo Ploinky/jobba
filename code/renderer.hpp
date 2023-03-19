@@ -17,6 +17,8 @@ public:
 	void SetPixel(unsigned int x, unsigned int y, UINT32 color);
 
 	void Resize(unsigned int newWidth, unsigned int newHeight);
+	void SetVirtualResolution();
+	void SetVirtualResolution(unsigned int newWidth, unsigned int newHeight);
 
 	void FlipBackBuffer();
 

@@ -1,7 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define UNICODE
-
 #include <Windows.h>
+
 #include "renderer.hpp"
 #include <string>
 #include "version.h"
@@ -111,4 +111,6 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
 
         renderer.FlipBackBuffer();
     }
+
+    return EXIT_SUCCESS;
 }

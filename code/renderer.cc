@@ -1,5 +1,6 @@
 #include "renderer.hpp"
 #include <exception>
+#include <string>
 
 Renderer::~Renderer() {
 }
@@ -8,7 +9,7 @@ void Renderer::Initialize(HWND hwnd, unsigned int width, unsigned int height) {
     window_height_ = height;
 
     render_width_ = 320;
-    render_height_ = 320;
+    render_height_ = 200;
 
     window_handle_ = hwnd;
     hdc_ = GetDC(window_handle_);
@@ -41,11 +42,13 @@ void Renderer::RenderMap() {
     StretchDIBits(hdc_backbuffer_, 0, 0, window_width_, window_height_, 0, 0, render_width_, render_height_, pixel_data_, &bitmapinfo_, DIB_RGB_COLORS, SRCCOPY);
 }
 
+unsigned int f = 0;
+
 void Renderer::RenderMainMenu() {
     RECT rect{ 0, 0, 100, 100 };
     FillRect(hdc_backbuffer_, &rect, solid_brush_);
     SetBkMode(hdc_backbuffer_, TRANSPARENT);
-    DrawText(hdc_backbuffer_, L"test123", -1, &rect, NULL);
+    DrawText(hdc_backbuffer_, std::to_wstring(f++).c_str(), -1, &rect, NULL);
 }
 
 void Renderer::FlipBackBuffer() {
