@@ -27,6 +27,9 @@
     <ClInclude Include="code\r_nmap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="code\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="jobba.rc">

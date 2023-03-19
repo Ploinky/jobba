@@ -1,6 +1,7 @@
 #include "main.h"
 #include "r_main.h"
 #include <chrono>
+#include "version.h"
 
 vec2_t g_playerPos;
 
@@ -85,14 +86,14 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
     }
     
 #ifdef _DEBUG
-    const wchar_t* windowTitle = L"Jobba development build - v0.0.1a";
+    std::wstring windowTitle = std::wstring(L"Jobba development build - v").append(std::wstring(JOBBA_VERSION));
 #else
     const wchar_t* windowTitle = L"Jobba";
 #endif
 
     HWND hwnd = CreateWindowEx(0,
                                  windowClassName,
-                                 windowTitle,
+                                 windowTitle.c_str(),
                                  WS_OVERLAPPEDWINDOW,
                                  CW_USEDEFAULT,
                                  CW_USEDEFAULT,
@@ -131,9 +132,9 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
     g_playerPos.y = 0;
     g_playerA = 0;
 
-    auto begin = std::chrono::high_resolution_clock::now();
-
     R_Initialize(hwnd);
+
+    auto begin = std::chrono::high_resolution_clock::now();
 
     int running = 1;
     while(running) {
