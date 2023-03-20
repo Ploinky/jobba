@@ -124,7 +124,9 @@
   <ItemGroup>
     <ClInclude Include="code\renderer.h" />
     <ClInclude Include="code\version.h" />
+    <ClInclude Include="code\jobba_window.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="code\settings.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="jobba.rc" />
@@ -132,6 +134,8 @@
   <ItemGroup>
     <ClCompile Include="code\main.cc" />
     <ClCompile Include="code\renderer.cc" />
+    <ClCompile Include="code\jobba_window.cc" />
+    <ClCompile Include="code\settings.cc" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

@@ -4,6 +4,7 @@
 #define UNICODE
 #include <Windows.h>
 
+#include "settings.h"
 #include <cstdlib>
 
 class Renderer {
@@ -19,9 +20,14 @@ public:
 
 	void Resize(unsigned int newWidth, unsigned int newHeight);
 	void SetVirtualResolution();
-	void SetVirtualResolution(unsigned int newWidth, unsigned int newHeight);
+	void SetVirtualResolution(JobbaResolution new_resolution);
+	
+	void SetWindowResolution(JobbaResolution new_resolution);
 
 	void FlipBackBuffer();
+
+	JobbaResolution get_virtual_resolution();
+	JobbaResolution get_window_resolution();
 
 private:
 	HWND window_handle_;
@@ -31,6 +37,8 @@ private:
 	unsigned int window_height_;
 	unsigned int render_width_;
 	unsigned int render_height_;
+	JobbaResolution virtual_resolution_;
+	JobbaResolution window_resolution_;
 	UINT32* pixel_data_;
 	BITMAPINFOHEADER bitmapinfoheader_;
 	BITMAPINFO bitmapinfo_;

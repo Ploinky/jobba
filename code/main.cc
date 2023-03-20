@@ -5,87 +5,22 @@
 #include "renderer.h"
 #include <string>
 #include "version.h"
+#include "jobba_window.h"
 
 static Renderer renderer{};
 
-LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    switch (message)
-    {
-        case WM_KEYDOWN: {
-            if (wParam == VK_SPACE) {
-                SetWindowPos(hwnd, HWND_TOP, 0, 0, 1800, 200, SWP_NOMOVE);
-            }
-            break;
-        }
-        case WM_KEYUP: {
-            //g_keys[wParam] = 0;
-            break;
-        }
-        case WM_SIZE: {
-            renderer.Resize(LOWORD(lParam), HIWORD(lParam));
-            break;
-        }
-        case WM_DESTROY: {
-            PostQuitMessage(0);
-            break;
-        }
-        case WM_ERASEBKGND: {
-            return 1;
-        }
-        case WM_CREATE: {
-            renderer.Initialize(hwnd, 320, 180);
-            break;
-        }
-        default: {
-            return DefWindowProc(hwnd, message, wParam, lParam);
-        }
-    }
+int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int cmd_show) {
+    // TODO: Load settings
+    Settings::current_resolution = kQnhd;
+    Settings::current_virtual_resolution = kQnhd;
 
-    return 0;
-}
+    JobbaWindow window(Settings::current_resolution);
+    window.Show(cmd_show);
 
-int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int cmd_show) {
-    const wchar_t* window_class_name = L"JobbaWindow";
-
-    WNDCLASS window_class = { 0 };
-    window_class.lpfnWndProc = window_proc;
-    window_class.hInstance = instance;
-    window_class.lpszClassName = window_class_name;
-    window_class.hCursor = LoadCursor(0, IDC_CROSS);
-
-    if (!RegisterClass(&window_class)) {
-        MessageBox(0, L"RegisterClass failed", 0, 0);
-        return static_cast<int>(GetLastError());
-    }
-
-#ifdef _DEBUG
-    std::wstring window_title = std::wstring(L"Jobba development build - v").append(std::wstring(JOBBA_VERSION));
-#else
-    std::wstring window_title = L"Jobba";
-#endif
-
-    HWND window_handle = CreateWindowEx(0,
-        window_class_name,
-        window_title.c_str(),
-        WS_OVERLAPPEDWINDOW,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        1024,
-        768,
-        0,
-        0,
-        instance,
-        0);
-
-    if (!window_handle) {
-        MessageBox(0, L"CreateWindowEx failed", 0, 0);
-        return static_cast<int>(GetLastError());
-    }
-
-    if (ShowWindow(window_handle, cmd_show)) {
-        MessageBox(0, L"ShowWindow failed", 0, 0);
-        return static_cast<int>(GetLastError());
-    }
+    unsigned int width;
+    unsigned int height;
+    GetJobbaResolutionValue(Settings::current_virtual_resolution, &width, &height);
+    renderer.Initialize(window.get_window_handle(), width, height);
 
     bool is_running = true;
 
@@ -99,12 +34,27 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
             DispatchMessage(&msg);
         }
 
+        // ------------ Window system ------------ //
+        if (window.get_current_resolution() != Settings::current_resolution) {
+            window.SetResolution(Settings::current_resolution);
+        }
+
+        // ------------ Rendering system ------------ //
+        if (renderer.get_virtual_resolution() != Settings::current_virtual_resolution) {
+            renderer.SetVirtualResolution(Settings::current_virtual_resolution);
+        }
+
+        if (renderer.get_window_resolution() != Settings::current_resolution) {
+            renderer.SetWindowResolution(Settings::current_resolution);
+        }
+
         renderer.RenderMap();
         renderer.RenderMainMenu();
 
 #ifdef _DEBUG
         renderer.RenderDebugInfo();
 #endif
+
         renderer.FlipBackBuffer();
     }
 

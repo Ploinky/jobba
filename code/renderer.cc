@@ -27,11 +27,11 @@ void Renderer::RenderMap() {
     for (unsigned int x = 0; x < render_width_; x++) {
         for (unsigned int y = 0; y < render_height_; y++) {
             UINT32 color = 0x00FF00;
-            if (x > 300 || y > 180) {
+            if (x > 300 || y > 160) {
                 color = 0x0000FF;
             }
 
-            if (x == 319 || y == 199) {
+            if (x == 319 || y == 179) {
                 color = 0xFF00FF;
             }
 
@@ -122,20 +122,30 @@ void Renderer::InitializeBackbuffer() {
     SelectObject(hdc_backbuffer_, solid_brush_);
 }
 
-void Renderer::Resize(unsigned int newWidth, unsigned int newHeight) {
-    window_width_ = newWidth;
-    window_height_ = newHeight;
+void Renderer::SetWindowResolution(JobbaResolution new_resolution) {
+    window_resolution_ = new_resolution;
+    GetJobbaResolutionValue(window_resolution_, &window_width_, &window_height_);
 
-    InitializeBitmapinfo();
     InitializeBackbuffer();
 }
+
 void Renderer::SetVirtualResolution() {
-    SetVirtualResolution(window_width_, window_height_);
+    SetVirtualResolution(Settings::current_resolution);
 }
 
-void Renderer::SetVirtualResolution(unsigned int newWidth, unsigned int newHeight) {
-    render_width_ = newWidth;
-    render_height_ = newHeight;
+void Renderer::SetVirtualResolution(JobbaResolution new_resolution) {
+    virtual_resolution_ = new_resolution;
+    GetJobbaResolutionValue(virtual_resolution_, &render_width_, &render_height_);
 
+
+    InitializeBitmapinfo();
     InitializeDataBuffer();
+}
+
+JobbaResolution Renderer::get_virtual_resolution() {
+    return virtual_resolution_;
+}
+
+JobbaResolution Renderer::get_window_resolution() {
+    return window_resolution_;
 }

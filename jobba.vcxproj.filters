@@ -24,6 +24,12 @@
     <ClInclude Include="code\renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="code\jobba_window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\settings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="jobba.rc">
@@ -35,6 +41,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\main.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\jobba_window.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\settings.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
