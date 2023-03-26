@@ -152,7 +152,7 @@ void Renderer::SetVideoMode(JobbaVideoMode new_video_mode) {
 
         InitializeBackbuffer();
     }
-    else if (video_mode_ == JobbaVideoMode::kWindowedFullscreen) {
+    else if (video_mode_ == JobbaVideoMode::kWindowed) {
         SetWindowResolution(Settings::current_resolution);
     }
 }
