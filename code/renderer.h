@@ -23,10 +23,13 @@ public:
 	
 	void SetWindowResolution(JobbaResolution new_resolution);
 
+	void SetVideoMode(JobbaVideoMode new_video_mode);
+
 	void FlipBackBuffer();
 
 	JobbaResolution get_virtual_resolution();
 	JobbaResolution get_window_resolution();
+	JobbaVideoMode get_video_mode();
 
 private:
 	HWND window_handle_;
@@ -38,6 +41,7 @@ private:
 	unsigned int render_height_;
 	JobbaResolution virtual_resolution_;
 	JobbaResolution window_resolution_;
+	JobbaVideoMode video_mode_;
 	UINT32* pixel_data_;
 	BITMAPINFOHEADER bitmapinfoheader_;
 	BITMAPINFO bitmapinfo_;

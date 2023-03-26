@@ -142,10 +142,29 @@ void Renderer::SetVirtualResolution(JobbaResolution new_resolution) {
     InitializeDataBuffer();
 }
 
+void Renderer::SetVideoMode(JobbaVideoMode new_video_mode) {
+    video_mode_ = new_video_mode;
+
+    if (video_mode_ == JobbaVideoMode::kWindowedFullscreen) {
+        HDC hdc = GetWindowDC(NULL);
+        window_width_ = GetDeviceCaps(hdc, HORZRES);
+        window_height_ = GetDeviceCaps(hdc, VERTRES);
+
+        InitializeBackbuffer();
+    }
+    else if (video_mode_ == JobbaVideoMode::kWindowedFullscreen) {
+        SetWindowResolution(Settings::current_resolution);
+    }
+}
+
 JobbaResolution Renderer::get_virtual_resolution() {
     return virtual_resolution_;
 }
 
 JobbaResolution Renderer::get_window_resolution() {
     return window_resolution_;
+}
+
+JobbaVideoMode Renderer::get_video_mode() {
+    return video_mode_;
 }

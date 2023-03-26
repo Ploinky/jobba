@@ -12,10 +12,13 @@ public:
 
 	void Show(int cmd_show);
 	void SetResolution(JobbaResolution new_resolution);
+	void SetVideoMode(JobbaVideoMode new_video_mode);
 
-	HWND get_window_handle();
-	JobbaResolution get_current_resolution();
+	HWND get_window_handle() const;
+	JobbaResolution get_current_resolution() const;
+	JobbaVideoMode get_current_video_mode() const;
 private:
 	HWND window_handle_;
 	JobbaResolution window_resolution_;
+	JobbaVideoMode video_mode_;
 };

@@ -10,9 +10,19 @@
 static Renderer renderer{};
 
 int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int cmd_show) {
+#ifdef _DEBUG
+    // Allocate a console for debugging
+    AllocConsole();
+
+    // Reroute standard input and output to console
+    freopen_s((FILE**)stdout, "CONOUT$", "w", stdout);
+    freopen_s((FILE**)stderr, "CONOUT$", "w", stderr);
+#endif
+
     // TODO: Load settings
     Settings::current_resolution = kQnhd;
     Settings::current_virtual_resolution = kQnhd;
+    Settings::current_video_mode = kWindowed;
 
     JobbaWindow window(Settings::current_resolution);
     window.Show(cmd_show);
@@ -35,18 +45,29 @@ int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int cmd
         }
 
         // ------------ Window system ------------ //
-        if (window.get_current_resolution() != Settings::current_resolution) {
+        // First check if we have the correct video because...
+        if (window.get_current_video_mode() != Settings::current_video_mode) {
+            window.SetVideoMode(Settings::current_video_mode);
+        }
+
+        // We skip this if we're fullscreen windowed!
+        if (window.get_current_video_mode() == JobbaVideoMode::kWindowed && window.get_current_resolution() != Settings::current_resolution) {
             window.SetResolution(Settings::current_resolution);
         }
 
         // ------------ Rendering system ------------ //
+        if (renderer.get_video_mode() != Settings::current_video_mode) {
+            renderer.SetVideoMode(Settings::current_video_mode);
+        }
+        
         if (renderer.get_virtual_resolution() != Settings::current_virtual_resolution) {
             renderer.SetVirtualResolution(Settings::current_virtual_resolution);
         }
 
-        if (renderer.get_window_resolution() != Settings::current_resolution) {
+        if (window.get_current_video_mode() == JobbaVideoMode::kWindowed && renderer.get_window_resolution() != Settings::current_resolution) {
             renderer.SetWindowResolution(Settings::current_resolution);
         }
+
 
         renderer.RenderMap();
         renderer.RenderMainMenu();

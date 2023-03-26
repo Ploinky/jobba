@@ -27,13 +27,8 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
         }
 
         if (wParam == VK_RETURN) {
-            DWORD dwStyle = ::GetWindowLong(hwnd, GWL_STYLE);
-            DWORD dwRemove = WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
-            DWORD dwNewStyle = dwStyle & ~dwRemove;
-            ::SetWindowLong(hwnd, GWL_STYLE, dwNewStyle);
-            ::SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-            HDC hdc = ::GetWindowDC(NULL);
-            ::SetWindowPos(hwnd, NULL, 0, 0, ::GetDeviceCaps(hdc, HORZRES), ::GetDeviceCaps(hdc, VERTRES), SWP_FRAMECHANGED);
+            Settings::current_video_mode = Settings::current_video_mode == JobbaVideoMode::kWindowed
+                ? JobbaVideoMode::kWindowedFullscreen : JobbaVideoMode::kWindowed;
         }
         break;
     }
@@ -42,6 +37,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
         break;
     }
     case WM_SIZE: {
+        printf("new window size: <%d|%d>\n", LOWORD(lParam), HIWORD(lParam));
         // renderer.Resize(LOWORD(lParam), HIWORD(lParam));
         break;
     }
@@ -66,6 +62,7 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
 
 JobbaWindow::JobbaWindow(JobbaResolution initial_resolution) {
     window_resolution_ = initial_resolution;
+    video_mode_ = JobbaVideoMode::kWindowed;
 
     const wchar_t* window_class_name = L"JobbaWindow";
 
@@ -108,12 +105,16 @@ JobbaWindow::JobbaWindow(JobbaResolution initial_resolution) {
         0);
 }
 
-HWND JobbaWindow::get_window_handle() {
+HWND JobbaWindow::get_window_handle() const {
     return window_handle_;
 }
 
-JobbaResolution JobbaWindow::get_current_resolution() {
+JobbaResolution JobbaWindow::get_current_resolution() const {
     return window_resolution_;
+}
+
+JobbaVideoMode JobbaWindow::get_current_video_mode() const {
+    return video_mode_;
 }
 
 void JobbaWindow::Show(int cmd_show) {
@@ -131,4 +132,37 @@ void JobbaWindow::SetResolution(JobbaResolution new_resolution) {
     RECT rect{ 0, 0, width, height };
     AdjustWindowRectEx(&rect, window_style, false, window_style_ex);
     SetWindowPos(window_handle_, HWND_TOP, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
+}
+
+void JobbaWindow::SetVideoMode(JobbaVideoMode new_video_mode) {
+    video_mode_ = new_video_mode;
+
+    if (video_mode_ == JobbaVideoMode::kWindowedFullscreen) {
+        DWORD dwStyle = GetWindowLong(window_handle_, GWL_STYLE);
+        DWORD dwRemove = WS_CAPTION;
+        DWORD dwNewStyle = dwStyle & ~dwRemove;
+        SetWindowLong(window_handle_, GWL_STYLE, dwNewStyle);
+        SetWindowPos(window_handle_, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+        HDC hdc = GetWindowDC(NULL);
+        SetWindowPos(window_handle_, NULL, 0, 0, GetDeviceCaps(hdc, HORZRES), GetDeviceCaps(hdc, VERTRES), SWP_FRAMECHANGED);
+    }
+    else if (video_mode_ == JobbaVideoMode::kWindowed) {
+        SetResolution(Settings::current_resolution);
+
+        DWORD dwStyle = GetWindowLong(window_handle_, GWL_STYLE);
+        DWORD dwAdd = WS_CAPTION;
+        DWORD dwNewStyle = dwStyle | dwAdd;
+        SetWindowLong(window_handle_, GWL_STYLE, dwNewStyle);
+
+
+        RECT rct;
+        GetWindowRect(window_handle_, &rct);
+        int screen_cx = GetSystemMetrics(SM_CXSCREEN);
+        int screen_cy = GetSystemMetrics(SM_CYSCREEN);
+        POINT pt = { (screen_cx / 2) - (rct.right - rct.left) / 2, (screen_cy / 2) - (rct.bottom - rct.top) / 2 };
+        
+        SetWindowPos(window_handle_, NULL, pt.x, pt.y, -1, -1, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
+
+        HDC hdc = GetWindowDC(NULL);
+    }
 }
