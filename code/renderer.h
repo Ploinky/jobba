@@ -35,10 +35,10 @@ private:
 	HWND window_handle_;
 	HDC hdc_;
 	HDC hdc_backbuffer_;
-	unsigned int window_width_;
-	unsigned int window_height_;
-	unsigned int render_width_;
-	unsigned int render_height_;
+	int window_width_;
+	int window_height_;
+	int render_width_;
+	int render_height_;
 	JobbaResolution virtual_resolution_;
 	JobbaResolution window_resolution_;
 	JobbaVideoMode video_mode_;

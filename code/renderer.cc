@@ -24,8 +24,8 @@ void Renderer::SetPixel(unsigned int x, unsigned int y, UINT32 color) {
 }
 
 void Renderer::RenderMap() {
-    for (unsigned int x = 0; x < render_width_; x++) {
-        for (unsigned int y = 0; y < render_height_; y++) {
+    for (int x = 0; x < render_width_; x++) {
+        for (int y = 0; y < render_height_; y++) {
             UINT32 color = 0x00FF00;
             if (x > 300 || y > 160) {
                 color = 0x0000FF;
@@ -44,8 +44,8 @@ void Renderer::RenderMap() {
     double ratio_h = (double) window_height_ / (double) render_height_;
     double ratio = min(ratio_w, ratio_h);
 
-    end_x = render_width_ * ratio;
-    end_y = render_height_ * ratio;
+    end_x = static_cast<unsigned int>(render_width_ * ratio);
+    end_y = static_cast<unsigned int>(render_height_ * ratio);
 
     start_x = (window_width_ - end_x) / 2;
     start_y = (window_height_ - end_y) / 2;
@@ -87,7 +87,7 @@ void Renderer::InitializeDataBuffer() {
 void Renderer::InitializeBitmapinfo() {
     bitmapinfoheader_.biSize = sizeof(BITMAPINFOHEADER);
     bitmapinfoheader_.biWidth = render_width_;
-    bitmapinfoheader_.biHeight = -render_height_;
+    bitmapinfoheader_.biHeight = -1 * render_height_;
     bitmapinfoheader_.biPlanes = 1;
     bitmapinfoheader_.biBitCount = 32;
     bitmapinfoheader_.biCompression = BI_RGB;

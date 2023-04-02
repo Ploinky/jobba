@@ -6,7 +6,7 @@ JobbaResolution NextResolution(JobbaResolution res) {
     return static_cast<JobbaResolution>((res + 1) % (kFullhd + 1));
 }
 
-void GetJobbaResolutionValue(JobbaResolution res, unsigned int* width, unsigned int* height) {
+void GetJobbaResolutionValue(JobbaResolution res, int* width, int* height) {
     switch (res) {
     case kQnhd: {
         *width = 320;

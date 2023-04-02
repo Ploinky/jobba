@@ -27,8 +27,8 @@ int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int cmd
     JobbaWindow window(Settings::current_resolution);
     window.Show(cmd_show);
 
-    unsigned int width;
-    unsigned int height;
+    int width;
+    int height;
     GetJobbaResolutionValue(Settings::current_virtual_resolution, &width, &height);
     renderer.Initialize(window.get_window_handle(), width, height);
 

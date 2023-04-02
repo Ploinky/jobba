@@ -85,8 +85,8 @@ JobbaWindow::JobbaWindow(JobbaResolution initial_resolution) {
     DWORD window_style = WS_OVERLAPPEDWINDOW & ~WS_MINIMIZEBOX & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX;
     DWORD window_style_ex = 0;
 
-    unsigned int width;
-    unsigned int height;
+    int width;
+    int height;
     GetJobbaResolutionValue(window_resolution_, &width, &height);
     RECT rect{ 0, 0, width, height };
     AdjustWindowRectEx(&rect, window_style, false, window_style_ex);
@@ -124,8 +124,8 @@ void JobbaWindow::Show(int cmd_show) {
 void JobbaWindow::SetResolution(JobbaResolution new_resolution) {
     window_resolution_ = new_resolution;
 
-    unsigned int width;
-    unsigned int height;
+    int width;
+    int height;
     GetJobbaResolutionValue(window_resolution_, &width, &height);
     DWORD window_style = WS_OVERLAPPEDWINDOW;
     DWORD window_style_ex = 0;
@@ -162,7 +162,5 @@ void JobbaWindow::SetVideoMode(JobbaVideoMode new_video_mode) {
         POINT pt = { (screen_cx / 2) - (rct.right - rct.left) / 2, (screen_cy / 2) - (rct.bottom - rct.top) / 2 };
         
         SetWindowPos(window_handle_, NULL, pt.x, pt.y, -1, -1, SWP_NOZORDER | SWP_NOSIZE | SWP_SHOWWINDOW);
-
-        HDC hdc = GetWindowDC(NULL);
     }
 }

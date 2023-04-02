@@ -15,7 +15,7 @@ enum JobbaVideoMode {
 };
 
 JobbaResolution NextResolution(JobbaResolution res);
-void GetJobbaResolutionValue(JobbaResolution res, unsigned int* width, unsigned int* height);
+void GetJobbaResolutionValue(JobbaResolution res, int* width, int* height);
 
 class Settings{
 public:
