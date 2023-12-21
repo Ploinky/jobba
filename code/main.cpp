@@ -1,6 +1,7 @@
 #include "main.h"
 #include "r_main.h"
-#include <cstdlib>
+#include <chrono>
+#include "version.h"
 
 vec2_t g_playerPos;
 
@@ -85,14 +86,14 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
     }
     
 #ifdef _DEBUG
-    const wchar_t* windowTitle = L"Jobba development build - v0.0.1a";
+    std::wstring windowTitle = std::wstring(L"Jobba development build - v").append(std::wstring(JOBBA_VERSION));
 #else
     const wchar_t* windowTitle = L"Jobba";
 #endif
 
     HWND hwnd = CreateWindowEx(0,
                                  windowClassName,
-                                 windowTitle,
+                                 windowTitle.c_str(),
                                  WS_OVERLAPPEDWINDOW,
                                  CW_USEDEFAULT,
                                  CW_USEDEFAULT,
@@ -113,8 +114,8 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
         return static_cast<int>(GetLastError());
     }
     
-    g_clientWidth = 1024;
-    g_clientHeight = 768;
+    g_clientWidth = 320;
+    g_clientHeight = 200;
     
     g_windowWidth = 1024;
     g_windowHeight = 768;
@@ -131,20 +132,19 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
     g_playerPos.y = 0;
     g_playerA = 0;
 
-    struct timeb tmb;
-    ftime(&tmb);
-    uint32_t tickCount = static_cast<uint32_t>(tmb.time) * 1000 + static_cast<uint32_t>(tmb.millitm);
-
     R_Initialize(hwnd);
+
+    auto begin = std::chrono::high_resolution_clock::now();
 
     int running = 1;
     while(running) {
-        ftime(&tmb);
-        uint32_t now = static_cast<uint32_t>(tmb.time) * 1000 + static_cast<uint32_t>(tmb.millitm);
+        auto now = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::nano> duration = now - begin;
+        const auto nanos = duration.count();
+        begin = now;
 
-        double dt = (now - tickCount) / 1000.0;
 
-        tickCount = now;
+        double dt = (nanos / 1000000.0) / 1000.0;
 
         MSG msg;
         while(PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
@@ -193,10 +193,6 @@ int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ PWSTR, _In
             g_playerPos.x += sin(toRadians(g_playerA)) * dt * 5.0;
             g_playerPos.y -= cos(toRadians(g_playerA)) * dt * 5.0;
         }    
-        
-        if(!g_keys['P']) {
-                R_ClearScreen(0x000000);
-        }
 
         setDrawClip(0, 0, g_clientWidth, g_clientHeight);
         renderMap();
