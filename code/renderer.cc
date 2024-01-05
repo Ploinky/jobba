@@ -23,7 +23,115 @@ void Renderer::SetPixel(unsigned int x, unsigned int y, UINT32 color) {
     pixel_data_[x + y * render_width_] = color;
 }
 
-void Renderer::RenderMap() {
+const char map[10][10] = {
+    {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'},
+    {'x', '.', '.', '.', '.', '.', '.', '.', 'x'},
+    {'x', '.', '.', '.', '.', '.', '.', '.', 'x'},
+    {'x', '.', '.', '.', '.', '.', '.', '.', 'x'},
+    {'x', '.', '.', '.', '.', '.', '.', '.', 'x'},
+    {'x', '.', '.', '.', '.', '.', '.', '.', 'x'},
+    {'x', '.', '.', '.', '.', '.', '.', '.', 'x'},
+    {'x', '.', '.', '.', '.', '.', '.', '.', 'x'},
+    {'x', '.', '.', '.', '.', '.', '.', '.', 'x'},
+    {'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x'}
+};
+
+void Renderer::RenderMap(float dirX, float dirY) {
+    float posX = 5.5f;
+    float posY = 5.5f;
+        
+    float sideDistX;
+    float sideDistY;
+
+    for (int x = 0; x < render_width_; x++) {
+        int mapX = 5;
+        int mapY = 5;
+
+        double cameraX = 2 * x / double(render_width_) - 1;
+        float rayDirX = dirX + cameraX;
+        float rayDirY = dirY + cameraX * 0.66f;
+
+        float deltaDistX = (rayDirX == 0) ? 1e30 : std::abs(1 / rayDirX);
+        float deltaDistY = (rayDirY == 0) ? 1e30 : std::abs(1 / rayDirY);
+
+        double perpWallDist;
+
+        int stepX;
+        int stepY;
+
+        int hit = 0;
+        int side;
+
+        if (rayDirX < 0)
+        {
+            stepX = -1;
+            sideDistX = (posX - mapX) * deltaDistX;
+        }
+        else
+        {
+            stepX = 1;
+            sideDistX = (mapX + 1.0 - posX) * deltaDistX;
+        }
+        if (rayDirY < 0)
+        {
+            stepY = -1;
+            sideDistY = (posY - mapY) * deltaDistY;
+        }
+        else
+        {
+            stepY = 1;
+            sideDistY = (mapY + 1.0 - posY) * deltaDistY;
+        }
+
+        //perform DDA
+        while (hit == 0)
+        {
+            //jump to next map square, either in x-direction, or in y-direction
+            if (sideDistX < sideDistY)
+            {
+                sideDistX += deltaDistX;
+                mapX += stepX;
+                side = 0;
+            }
+            else
+            {
+                sideDistY += deltaDistY;
+                mapY += stepY;
+                side = 1;
+            }
+            //Check if ray has hit a wall
+            if (map[mapX][mapY] == 'x') hit = 1;
+        }
+
+        //Calculate distance projected on camera direction (Euclidean distance would give fisheye effect!)
+        if (side == 0) perpWallDist = (sideDistX - deltaDistX);
+        else          perpWallDist = (sideDistY - deltaDistY);
+
+        int h = render_width_ / 2;
+
+        //Calculate height of line to draw on screen
+        int lineHeight = (int)(h / perpWallDist);
+
+        //calculate lowest and highest pixel to fill in current stripe
+        int drawStart = -lineHeight / 2 + h / 2;
+        if (drawStart < 0)drawStart = 0;
+        int drawEnd = lineHeight / 2 + h / 2;
+        if (drawEnd >= h)drawEnd = h - 1;
+
+        for (int y = 0; y < drawStart; y++) {
+            SetPixel(x, y, 0xFF0000);
+        }
+        for (int y = drawStart; y < drawEnd; y++) {
+            SetPixel(x, y, 0x00FF00);
+        }
+        for (int y = drawEnd; y < render_height_; y++) {
+            SetPixel(x, y, 0x0000FF);
+        }
+    }
+    /*
+
+    return;
+
     for (int x = 0; x < render_width_; x++) {
         for (int y = 0; y < render_height_; y++) {
             UINT32 color = 0x00FF00;
@@ -38,6 +146,7 @@ void Renderer::RenderMap() {
             SetPixel(x, y, color);
         }
     }
+    */
 
     unsigned int start_x, end_x, start_y, end_y;
     double ratio_w = (double) window_width_ / (double) render_width_;

@@ -15,7 +15,7 @@ public:
 
 	void RenderMainMenu();
 	void RenderDebugInfo();
-	void RenderMap();
+	void RenderMap(float dirX, float dirY);
 	void SetPixel(unsigned int x, unsigned int y, UINT32 color);
 
 	void SetVirtualResolution();

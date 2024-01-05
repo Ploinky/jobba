@@ -126,6 +126,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="code\main.h" />
     <ClInclude Include="code\renderer.h" />
     <ClInclude Include="code\version.h" />
     <ClInclude Include="code\jobba_window.h" />

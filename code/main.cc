@@ -6,8 +6,10 @@
 #include <string>
 #include "version.h"
 #include "jobba_window.h"
+#include "main.h"
 
 static Renderer renderer{};
+bool* g_keys = new bool[256];
 
 int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int cmd_show) {
 #ifdef _DEBUG
@@ -33,6 +35,9 @@ int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int cmd
     renderer.Initialize(window.get_window_handle(), width, height);
 
     bool is_running = true;
+
+    float dirX = -1;
+    float dirY = 0;
 
     while (is_running) {
         MSG msg;
@@ -68,14 +73,18 @@ int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ PWSTR, _In_ int cmd
             renderer.SetWindowResolution(Settings::current_resolution);
         }
 
+        if (g_keys[0] == true) {
+            dirX -= 0.0001;
+            dirY += 0.0001;
+        }
 
-        renderer.RenderMap();
-        renderer.RenderMainMenu();
+        renderer.RenderMap(dirX, dirY);
+        // renderer.RenderMainMenu();
 
 #ifdef _DEBUG
-        renderer.RenderDebugInfo();
+        // renderer.RenderDebugInfo();
 #endif
-
+        
         renderer.FlipBackBuffer();
     }
 

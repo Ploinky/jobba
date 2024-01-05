@@ -3,6 +3,7 @@
 #include <string>
 #include "settings.h"
 #include "version.h"
+#include "main.h"
 
 LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message)
@@ -30,10 +31,12 @@ LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPar
             Settings::current_video_mode = Settings::current_video_mode == JobbaVideoMode::kWindowed
                 ? JobbaVideoMode::kWindowedFullscreen : JobbaVideoMode::kWindowed;
         }
+
+        g_keys[0] = true;
         break;
     }
     case WM_KEYUP: {
-        //g_keys[wParam] = 0;
+        g_keys[wParam] = true;
         break;
     }
     case WM_SIZE: {

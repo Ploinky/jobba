@@ -32,7 +32,6 @@ typedef struct {
 
 extern vec2_t g_playerPos;
 extern double g_playerA;
-extern short g_keys[];
 
 
 double toDegrees(double radians);
@@ -41,3 +40,6 @@ double toRadians(double degrees);
 int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev_instance, _In_ PWSTR cmd_line, _In_ int cmd_show);
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+
+extern bool* g_keys;
